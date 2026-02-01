@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 
 type Category = {
@@ -30,6 +30,10 @@ type Banner = {
     buttonStyle: 'primary' | 'white';
     image: string;
 };
+
+const carouselRef = ref<HTMLElement | null>(null);
+const activeBannerIndex = ref(0);
+let autoplayTimer: ReturnType<typeof setInterval> | null = null;
 
 const categories = ref<Category[]>([
     { id: 'electronics', name: 'Electronics', icon: 'devices' },
@@ -62,7 +66,60 @@ const banners = ref<Banner[]>([
         buttonStyle: 'white',
         image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0ehCNr5dtDmW8hw6lJ64ivQF4Fqj1OLOqRbR-9Ntpr_qt5EZJiT90LzOuUJ3xijZLq7ebsoMDwO7liSrSIHfiSpFyhTUKvUlIQ7OmwzlYIWcrftaQ1OVAieUV9skSrrPyTM7Qv3KfO6Ho9D-IR-S6gsvakW0bNwanIeOPITUmeQabf2Is7fXPYYirURuQh6I1ZDkN1uYhQ3VFNRv21hjlKvjMWJK4jWRpFAVyJsbqJ3z-KESc_XSKyrc0RYsWjR3C2vz9DOcKGvY',
     },
+    {
+        id: 3,
+        badge: 'Smart Home',
+        badgeStyle: 'primary',
+        title: 'Future of Living\nStarts Here',
+        subtitle: 'Upgrade your home with AI gadgets',
+        buttonText: 'Shop Tech',
+        buttonStyle: 'primary',
+        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDsLJNLbDaRdlWrk30bLVXGz2zMdwABe3pWlNpNb5MV0CKXj6qLqO4WCWYwBrNCJwAF2rAqY0s_4yJ6HZ8E9hJJQ0aYQm_Xq7eJpCwQY7JOmA',
+    },
+    {
+        id: 4,
+        badge: 'Flash Sale',
+        badgeStyle: 'white',
+        title: 'Weekend Groceries\n50% OFF',
+        subtitle: 'Fresh produce delivered to your door',
+        buttonText: 'Order Now',
+        buttonStyle: 'white',
+        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCx8jrIDsQet2gsCPjmllYeBU_c-nkpb_O0bu7E910IcOGwqTbGldHyC6AhFT2sHkACQ4x4cR2T9Mh1IInp8e5aBXI7jn6E0lyyHDGwVIHStqpDWJ9OOicbmpDhOEMZh_uxumz-MzCTqI2RFfHkOzH-UGFhnEpyKptYIrKFtQYFsTO5hFeXPhU3A3irp94FpYbrwyIpg7u9PKwp_yw7f-51g1cRVM88qLCJnpMb9-0zX67a9_dQKvGbsq9BEdT6CQ_OJ9QjGyd-3GQ',
+    },
 ]);
+
+const startAutoplay = () => {
+    stopAutoplay();
+    autoplayTimer = setInterval(() => {
+        if (!carouselRef.value) return;
+        
+        activeBannerIndex.value = (activeBannerIndex.value + 1) % banners.value.length;
+        const bannerElement = carouselRef.value.children[activeBannerIndex.value] as HTMLElement;
+        
+        if (bannerElement) {
+            bannerElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+        }
+    }, 4000);
+};
+
+const stopAutoplay = () => {
+    if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+    }
+};
+
+onMounted(() => {
+    startAutoplay();
+});
+
+onUnmounted(() => {
+    stopAutoplay();
+});
 
 const products = ref<Product[]>([
     {
@@ -129,7 +186,10 @@ function formatPrice(price: number): string {
         <main class="flex-1 pb-24">
             <!-- Banner Carousel -->
             <div
-                class="hide-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 py-4"
+                ref="carouselRef"
+                class="hide-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 py-4 scroll-smooth"
+                @touchstart="stopAutoplay"
+                @touchend="startAutoplay"
             >
                 <div
                     v-for="banner in banners"
