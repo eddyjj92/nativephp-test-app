@@ -63,7 +63,7 @@ onMounted(() => {
     <Head :title="user.name" />
 
     <!-- Disable default top bar to show custom chat header -->
-    <MobileLayout active-nav="home" :show-top-bar="false" :show-chat-button="false">
+    <MobileLayout active-nav="home" :show-top-bar="false" :show-chat-button="false" :show-bottom-bar="false">
         <div
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
