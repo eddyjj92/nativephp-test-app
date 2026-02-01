@@ -1,0 +1,68 @@
+# NativePHP Android Build Docker Compose
+# Usage: docker compose run --rm build
+
+services:
+  build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      # Mount the project (read-only for safety, except specific dirs)
+      - .:/app:ro
+      # Mount output directory (writable)
+      - ./build-output:/output
+      # Mount keystore if exists (optional)
+      - ./keystore:/keystore:ro
+      # Cache Composer dependencies between builds
+      - composer-cache:/home/builder/.composer/cache
+      # Cache npm dependencies between builds
+      - npm-cache:/home/builder/.npm
+      # Cache Gradle between builds
+      - gradle-cache:/home/builder/.gradle
+    environment:
+      # App configuration (override in .env or shell)
+      - NATIVEPHP_APP_ID=${NATIVEPHP_APP_ID:-com.example.app}
+      - NATIVEPHP_APP_VERSION=${NATIVEPHP_APP_VERSION:-DEBUG}
+      - NATIVEPHP_APP_VERSION_CODE=${NATIVEPHP_APP_VERSION_CODE:-1}
+      # Android signing (optional - for release builds)
+      - ANDROID_KEYSTORE_FILE=${ANDROID_KEYSTORE_FILE:-}
+      - ANDROID_KEYSTORE_PASSWORD=${ANDROID_KEYSTORE_PASSWORD:-}
+      - ANDROID_KEY_ALIAS=${ANDROID_KEY_ALIAS:-}
+      - ANDROID_KEY_PASSWORD=${ANDROID_KEY_PASSWORD:-}
+    working_dir: /app
+    # Default: run the build script
+    command: /bin/bash -c "/app/docker/build-android.sh"
+    # For debugging, uncomment to get a shell:
+    # command: /bin/bash
+    tty: true
+    stdin_open: true
+
+  # Interactive shell for debugging
+  shell:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ./build-output:/output
+      - ./keystore:/keystore:ro
+      - composer-cache:/home/builder/.composer/cache
+      - npm-cache:/home/builder/.npm
+      - gradle-cache:/home/builder/.gradle
+    environment:
+      - NATIVEPHP_APP_ID=${NATIVEPHP_APP_ID:-com.example.app}
+      - NATIVEPHP_APP_VERSION=${NATIVEPHP_APP_VERSION:-DEBUG}
+      - NATIVEPHP_APP_VERSION_CODE=${NATIVEPHP_APP_VERSION_CODE:-1}
+      - ANDROID_KEYSTORE_FILE=${ANDROID_KEYSTORE_FILE:-}
+      - ANDROID_KEYSTORE_PASSWORD=${ANDROID_KEYSTORE_PASSWORD:-}
+      - ANDROID_KEY_ALIAS=${ANDROID_KEY_ALIAS:-}
+      - ANDROID_KEY_PASSWORD=${ANDROID_KEY_PASSWORD:-}
+    working_dir: /app
+    command: /bin/bash
+    tty: true
+    stdin_open: true
+
+volumes:
+  composer-cache:
+  npm-cache:
+  gradle-cache:

@@ -26,3 +26,10 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# NativePHP build outputs
+/build-output/*
+!/build-output/.gitkeep
+/nativephp
+/keystore/*
+!/keystore/.gitkeep
