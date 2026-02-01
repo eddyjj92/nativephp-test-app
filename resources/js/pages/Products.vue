@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import MobileLayout from '@/layouts/MobileLayout.vue';
 
 type Product = {
     id: number;
@@ -112,9 +113,10 @@ function formatReviews(reviews: number): string {
 <template>
     <Head :title="categoryTitle" />
 
-    <div
-        class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
-    >
+    <MobileLayout active-nav="catalog" :cart-count="cartCount">
+        <div
+            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+        >
         <!-- Header -->
         <header class="sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900">
             <div class="mb-3 flex items-center justify-between px-4">
@@ -305,73 +307,8 @@ function formatReviews(reviews: number): string {
             </svg>
         </button>
 
-        <!-- Bottom Navigation -->
-        <nav
-            class="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around border-t border-gray-100 bg-white/90 px-4 pb-6 pt-2 backdrop-blur-md dark:border-white/5 dark:bg-slate-900/95"
-        >
-            <Link href="/" class="flex flex-col items-center gap-1 text-gray-400">
-                <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                    />
-                </svg>
-                <span class="text-[10px] font-bold">Home</span>
-            </Link>
-
-            <Link href="/products" class="flex flex-col items-center gap-1 text-blue-600">
-                <svg
-                    class="size-6"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                    />
-                </svg>
-                <span class="text-[10px] font-bold">Catalog</span>
-            </Link>
-
-            <Link
-                href="/cart"
-                class="relative flex flex-col items-center gap-1 text-gray-400"
-            >
-                <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                    />
-                </svg>
-                <span class="text-[10px] font-bold">Cart</span>
-                <div
-                    v-if="cartCount > 0"
-                    class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[8px] font-bold text-white dark:border-slate-900"
-                >
-                    {{ cartCount }}
-                </div>
-            </Link>
-
-            <button class="flex flex-col items-center gap-1 text-gray-400">
-                <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                </svg>
-                <span class="text-[10px] font-bold">Profile</span>
-            </button>
-        </nav>
-    </div>
+        </div>
+    </MobileLayout>
 </template>
 
 <style scoped>

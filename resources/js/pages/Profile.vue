@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import MobileLayout from '@/layouts/MobileLayout.vue';
 </script>
 
 <template>
@@ -16,14 +17,17 @@ import { Head } from '@inertiajs/vue3';
         />
     </Head>
 
-    <div
-        class="profile-screen bg-background-light text-[#111418] antialiased dark:bg-background-dark dark:text-white"
-    >
+    <MobileLayout active-nav="profile">
         <div
-            class="relative flex h-screen w-full flex-col overflow-hidden max-w-[480px] mx-auto bg-white dark:bg-background-dark shadow-2xl"
+            class="profile-screen bg-background-light text-[#111418] antialiased dark:bg-background-dark dark:text-white"
         >
-            <!-- TopAppBar -->
-            <div class="flex items-center bg-white dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
+            <div
+                class="relative flex h-screen w-full flex-col overflow-hidden max-w-[480px] mx-auto bg-white dark:bg-background-dark shadow-2xl"
+            >
+                <!-- TopAppBar -->
+                <div
+                    class="flex items-center bg-white dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10"
+                >
                 <div class="text-[#111418] dark:text-white flex size-12 shrink-0 items-center">
                     <span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
                 </div>
@@ -38,8 +42,8 @@ import { Head } from '@inertiajs/vue3';
                     </button>
                 </div>
             </div>
-            <!-- Content Area (Scrollable) -->
-            <div class="flex-1 overflow-y-auto pb-24">
+                <!-- Content Area (Scrollable) -->
+                <div class="flex-1 overflow-y-auto pb-24">
                 <!-- ProfileHeader -->
                 <div class="flex p-4 @container">
                     <div class="flex w-full flex-col gap-4 items-center">
@@ -187,28 +191,10 @@ import { Head } from '@inertiajs/vue3';
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Bottom Navigation Bar (iOS Style) -->
-            <div class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-white/80 dark:bg-background-dark/80 backdrop-blur-lg border-t border-[#dbe0e6] dark:border-gray-800 px-6 pt-2 pb-8 flex justify-between items-center z-20">
-                <div class="flex flex-col items-center gap-1 opacity-50 cursor-pointer">
-                    <span class="material-symbols-outlined">home</span>
-                    <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
-                </div>
-                <div class="flex flex-col items-center gap-1 opacity-50 cursor-pointer">
-                    <span class="material-symbols-outlined">search</span>
-                    <span class="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
-                </div>
-                <div class="flex flex-col items-center gap-1 opacity-50 cursor-pointer">
-                    <span class="material-symbols-outlined">shopping_cart</span>
-                    <span class="text-[10px] font-bold uppercase tracking-tighter">Cart</span>
-                </div>
-                <div class="flex flex-col items-center gap-1 text-primary cursor-pointer">
-                    <span class="material-symbols-outlined active-nav">person</span>
-                    <span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
                 </div>
             </div>
         </div>
-    </div>
+    </MobileLayout>
 </template>
 
 <style scoped>
