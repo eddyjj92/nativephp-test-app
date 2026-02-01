@@ -213,14 +213,16 @@ function formatReviews(reviews: number): string {
                     <div
                         class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-slate-700/50"
                     >
-                        <img
-                            :src="product.image"
-                            :alt="product.name"
-                            class="size-full object-cover"
-                        />
+                        <Link :href="`/product/${product.id}`" class="block size-full">
+                            <img
+                                :src="product.image"
+                                :alt="product.name"
+                                class="size-full object-cover"
+                            />
+                        </Link>
                         <button
                             class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/80 backdrop-blur dark:bg-slate-800/80"
-                            @click="toggleFavorite(product.id)"
+                            @click.stop="toggleFavorite(product.id)"
                         >
                             <svg
                                 :class="[
@@ -243,9 +245,11 @@ function formatReviews(reviews: number): string {
                         </button>
                     </div>
 
-                    <h4 class="mb-1 line-clamp-2 text-sm font-bold leading-snug">
-                        {{ product.name }}
-                    </h4>
+                    <Link :href="`/product/${product.id}`">
+                        <h4 class="mb-1 line-clamp-2 text-sm font-bold leading-snug">
+                            {{ product.name }}
+                        </h4>
+                    </Link>
 
                     <div class="mb-2 flex items-center gap-1">
                         <svg

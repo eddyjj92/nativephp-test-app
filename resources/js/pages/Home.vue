@@ -453,14 +453,16 @@ function formatPrice(price: number): string {
                     <div
                         class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50"
                     >
-                        <img
-                            :src="product.image"
-                            :alt="product.name"
-                            class="size-full object-cover"
-                        />
+                        <Link :href="`/product/${product.id}`" class="block size-full">
+                            <img
+                                :src="product.image"
+                                :alt="product.name"
+                                class="size-full object-cover"
+                            />
+                        </Link>
                         <button
                             class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/80 backdrop-blur"
-                            @click="toggleFavorite(product.id)"
+                            @click.stop="toggleFavorite(product.id)"
                         >
                             <svg
                                 :class="[
@@ -482,12 +484,14 @@ function formatPrice(price: number): string {
                             </svg>
                         </button>
                     </div>
-                    <p class="mb-1 text-xs font-medium text-gray-400">
-                        {{ product.brand }} &bull; {{ product.category }}
-                    </p>
-                    <h4 class="mb-2 line-clamp-2 text-sm font-bold leading-snug">
-                        {{ product.name }}
-                    </h4>
+                    <Link :href="`/product/${product.id}`">
+                        <p class="mb-1 text-xs font-medium text-gray-400">
+                            {{ product.brand }} &bull; {{ product.category }}
+                        </p>
+                        <h4 class="mb-2 line-clamp-2 text-sm font-bold leading-snug">
+                            {{ product.name }}
+                        </h4>
+                    </Link>
                     <div class="mt-auto flex items-center justify-between">
                         <div class="flex flex-col">
                             <span class="text-lg font-extrabold text-blue-600">
@@ -592,7 +596,7 @@ function formatPrice(price: number): string {
                 </div>
             </Link>
 
-            <button class="flex flex-col items-center gap-1 text-gray-400">
+            <Link href="/favorites" class="flex flex-col items-center gap-1 text-gray-400">
                 <svg
                     class="size-6"
                     fill="none"
@@ -607,7 +611,7 @@ function formatPrice(price: number): string {
                     />
                 </svg>
                 <span class="text-[10px] font-bold">Saved</span>
-            </button>
+            </Link>
 
             <button class="flex flex-col items-center gap-1 text-gray-400">
                 <svg

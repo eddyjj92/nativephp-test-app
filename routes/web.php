@@ -17,6 +17,16 @@ Route::get('/cart', function () {
     return Inertia::render('Cart');
 })->name('cart');
 
+Route::get('/product/{id}', function (int $id) {
+    return Inertia::render('ProductDetail', [
+        'productId' => $id,
+    ]);
+})->name('product.detail');
+
+Route::get('/favorites', function () {
+    return Inertia::render('Favorites');
+})->name('favorites');
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
