@@ -2,13 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
+    return Inertia::render('Home');
 })->name('home');
+
+Route::get('/products/{category?}', function (?string $category = null) {
+    return Inertia::render('Products', [
+        'category' => $category ? ucfirst($category) : 'Electronics',
+    ]);
+})->name('products');
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
