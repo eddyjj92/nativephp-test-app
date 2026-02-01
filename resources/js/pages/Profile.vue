@@ -22,7 +22,7 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
             class="profile-screen bg-background-light text-[#111418] antialiased dark:bg-background-dark dark:text-white"
         >
             <div
-                class="relative flex h-screen w-full flex-col overflow-hidden max-w-[480px] mx-auto bg-white dark:bg-background-dark shadow-2xl"
+                class="relative mx-auto flex w-full max-w-[480px] flex-col overflow-hidden bg-white shadow-2xl dark:bg-background-dark"
             >
                 <!-- TopAppBar -->
                 <div
@@ -42,8 +42,8 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
                     </button>
                 </div>
             </div>
-                <!-- Content Area (Scrollable) -->
-                <div class="flex-1 overflow-y-auto pb-24">
+                <!-- Content Area -->
+                <div class="pb-32">
                 <!-- ProfileHeader -->
                 <div class="flex p-4 @container">
                     <div class="flex w-full flex-col gap-4 items-center">
