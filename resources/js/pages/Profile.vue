@@ -19,33 +19,45 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
 
     <MobileLayout active-nav="profile">
         <div
-            class="profile-screen bg-background-light text-[#111418] antialiased dark:bg-background-dark dark:text-white"
+            class="profile-screen nativephp-safe-area flex min-h-screen flex-col bg-background-light text-[#111418] antialiased dark:bg-background-dark dark:text-white"
         >
-            <div
-                class="relative mx-auto mt-4 flex w-full max-w-[480px] flex-col overflow-hidden bg-white shadow-2xl dark:bg-background-dark"
+            <!-- TopAppBar -->
+            <header
+                class="sticky top-0 z-50 flex items-center justify-between bg-white px-4 py-3 dark:bg-background-dark border-b border-gray-100 dark:border-white/5"
             >
-                <!-- TopAppBar -->
-                <div
-                    class="flex items-center justify-between bg-white p-4 pb-2 dark:bg-background-dark"
-                >
-                <div class="text-[#111418] dark:text-white flex size-12 shrink-0 items-center">
-                    <span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
+                <div class="flex items-center gap-3">
+                    <div class="flex size-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer">
+                        <svg
+                            class="size-6 text-[#111418] dark:text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                    </div>
+                    <h1 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
+                        Profile
+                    </h1>
                 </div>
-                <h2 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
-                    Profile
-                </h2>
                 <div class="flex w-12 items-center justify-end">
                     <button
-                        class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 bg-transparent text-[#111418] dark:text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0"
+                        class="flex cursor-pointer items-center justify-center overflow-hidden rounded-xl size-10 bg-transparent text-[#111418] dark:text-white transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                     >
                         <span class="material-symbols-outlined">settings</span>
                     </button>
                 </div>
-            </div>
-                <!-- Content Area -->
-                <div class="pb-32 pt-4">
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 pb-32 pt-4">
                 <!-- ProfileHeader -->
-                <div class="flex p-4 @container">
+                <div class="flex px-4 pb-4 @container">
                     <div class="flex w-full flex-col gap-4 items-center">
                         <div class="flex gap-4 flex-col items-center">
                             <div class="relative">
@@ -59,9 +71,9 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
                                 </div>
                             </div>
                             <div class="flex flex-col items-center justify-center">
-                                <p class="text-[#111418] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">
+                                <h2 class="text-[#111418] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">
                                     Alex Thompson
-                                </p>
+                                </h2>
                                 <div class="mt-1 flex items-center gap-2">
                                     <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                         Gold Member
@@ -191,8 +203,7 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
                         </div>
                     </div>
                 </div>
-                </div>
-            </div>
+            </main>
         </div>
     </MobileLayout>
 </template>
