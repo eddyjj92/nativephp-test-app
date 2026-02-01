@@ -22,7 +22,7 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
                 <div class="mb-3 flex items-center justify-between px-4">
                     <div class="flex items-center gap-3">
                         <Link
-                            href="/dashboard"
+                            href="/"
                             class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                         >
                             <svg

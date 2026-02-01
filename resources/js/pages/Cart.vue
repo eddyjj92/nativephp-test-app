@@ -303,7 +303,8 @@ function applyPromoCode() {
                 </div>
             </div>
 
-            <button
+            <Link
+                href="/checkout"
                 class="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 font-bold text-white shadow-lg shadow-blue-600/30 transition-colors hover:bg-blue-700"
             >
                 Proceed to Checkout
@@ -320,7 +321,7 @@ function applyPromoCode() {
                         d="M14 5l7 7m0 0l-7 7m7-7H3"
                     />
                 </svg>
-            </button>
+            </Link>
         </div>
 
         </div>
