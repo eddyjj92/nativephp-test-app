@@ -22,11 +22,11 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
             class="profile-screen bg-background-light text-[#111418] antialiased dark:bg-background-dark dark:text-white"
         >
             <div
-                class="relative mx-auto flex w-full max-w-[480px] flex-col overflow-hidden bg-white shadow-2xl dark:bg-background-dark"
+                class="relative mx-auto mt-4 flex w-full max-w-[480px] flex-col overflow-hidden bg-white shadow-2xl dark:bg-background-dark"
             >
                 <!-- TopAppBar -->
                 <div
-                    class="flex items-center bg-white dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10"
+                    class="flex items-center justify-between bg-white p-4 pb-2 dark:bg-background-dark"
                 >
                 <div class="text-[#111418] dark:text-white flex size-12 shrink-0 items-center">
                     <span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
@@ -43,7 +43,7 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
                 </div>
             </div>
                 <!-- Content Area -->
-                <div class="pb-32">
+                <div class="pb-32 pt-4">
                 <!-- ProfileHeader -->
                 <div class="flex p-4 @container">
                     <div class="flex w-full flex-col gap-4 items-center">

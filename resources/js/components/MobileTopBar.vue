@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-    <header class="sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900">
+    <header class="mobile-top-bar sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900">
         <div class="mb-2 flex items-center justify-between px-4">
             <div class="flex items-center gap-2">
                 <div class="rounded-lg bg-blue-600 p-1">
