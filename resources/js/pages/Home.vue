@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
+import ProductSkeleton from '@/components/ProductSkeleton.vue';
 
 type Category = {
     id: string;
@@ -30,6 +31,9 @@ type Banner = {
     buttonStyle: 'primary' | 'white';
     image: string;
 };
+
+const page = usePage();
+const locationMissing = computed(() => !!page.props.showLocationModal);
 
 const carouselRef = ref<HTMLElement | null>(null);
 const activeBannerIndex = ref(0);
@@ -419,84 +423,89 @@ function formatPrice(price: number): string {
 
             <!-- Products Grid -->
             <div class="grid grid-cols-2 gap-4 px-4">
-                <div
-                    v-for="product in products"
-                    :key="product.id"
-                    class="flex flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
-                >
+                <template v-if="locationMissing">
+                    <ProductSkeleton v-for="n in 6" :key="n" />
+                </template>
+                <template v-else>
                     <div
-                        class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50"
+                        v-for="product in products"
+                        :key="product.id"
+                        class="flex flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
                     >
-                        <Link :href="`/product/${product.id}`" class="block size-full">
-                            <img
-                                :src="product.image"
-                                :alt="product.name"
-                                class="size-full object-cover"
-                            />
-                        </Link>
-                        <button
-                            class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/80 backdrop-blur"
-                            @click.stop="toggleFavorite(product.id)"
+                        <div
+                            class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50"
                         >
-                            <svg
-                                :class="[
-                                    'size-5',
-                                    product.isFavorite
-                                        ? 'fill-red-500 text-red-500'
-                                        : 'text-gray-600',
-                                ]"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                            <Link :href="`/product/${product.id}`" class="block size-full">
+                                <img
+                                    :src="product.image"
+                                    :alt="product.name"
+                                    class="size-full object-cover"
                                 />
-                            </svg>
-                        </button>
-                    </div>
-                    <Link :href="`/product/${product.id}`">
-                        <p class="mb-1 text-xs font-medium text-gray-400">
-                            {{ product.brand }} &bull; {{ product.category }}
-                        </p>
-                        <h4 class="mb-2 line-clamp-2 text-sm font-bold leading-snug">
-                            {{ product.name }}
-                        </h4>
-                    </Link>
-                    <div class="mt-auto flex items-center justify-between">
-                        <div class="flex flex-col">
-                            <span class="text-lg font-extrabold text-blue-600">
-                                {{ formatPrice(product.price) }}
-                            </span>
-                            <span
-                                v-if="product.originalPrice"
-                                class="text-[10px] text-gray-400 line-through"
+                            </Link>
+                            <button
+                                class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/80 backdrop-blur"
+                                @click.stop="toggleFavorite(product.id)"
                             >
-                                {{ formatPrice(product.originalPrice) }}
-                            </span>
+                                <svg
+                                    :class="[
+                                        'size-5',
+                                        product.isFavorite
+                                            ? 'fill-red-500 text-red-500'
+                                            : 'text-gray-600',
+                                    ]"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                    />
+                                </svg>
+                            </button>
                         </div>
-                        <button
-                            class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
-                        >
-                            <svg
-                                class="size-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                        <Link :href="`/product/${product.id}`">
+                            <p class="mb-1 text-xs font-medium text-gray-400">
+                                {{ product.brand }} &bull; {{ product.category }}
+                            </p>
+                            <h4 class="mb-2 line-clamp-2 text-sm font-bold leading-snug">
+                                {{ product.name }}
+                            </h4>
+                        </Link>
+                        <div class="mt-auto flex items-center justify-between">
+                            <div class="flex flex-col">
+                                <span class="text-lg font-extrabold text-blue-600">
+                                    {{ formatPrice(product.price) }}
+                                </span>
+                                <span
+                                    v-if="product.originalPrice"
+                                    class="text-[10px] text-gray-400 line-through"
+                                >
+                                    {{ formatPrice(product.originalPrice) }}
+                                </span>
+                            </div>
+                            <button
+                                class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
                             >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M12 4v16m8-8H4"
-                                />
-                            </svg>
-                        </button>
+                                <svg
+                                    class="size-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 4v16m8-8H4"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </template>
             </div>
         </main>
 
