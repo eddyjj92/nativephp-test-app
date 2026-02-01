@@ -2,7 +2,7 @@
 import MobileBottomNav from '@/components/MobileBottomNav.vue';
 import MobileTopBar from '@/components/MobileTopBar.vue';
 import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
@@ -16,7 +16,8 @@ type Props = {
 };
 
 const page = usePage();
-const showLocationModal = computed(() => page.props.showLocationModal as boolean);
+const manualLocationModal = ref(false);
+const showLocationModal = computed(() => (page.props.showLocationModal as boolean) || manualLocationModal.value);
 
 const props = withDefaults(defineProps<Props>(), {
     activeNav: 'home',
@@ -35,7 +36,7 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
         :class="props.showBottomBar ? 'pb-24' : 'pb-0'"
         :style="{ '--mobile-topbar-height': topBarHeight }"
     >
-        <MobileTopBar v-if="props.showTopBar" />
+        <MobileTopBar v-if="props.showTopBar" @open-location="manualLocationModal = true" />
         <div
             class="mobile-layout-content"
             :class="props.showTopBar ? 'pt-2' : 'pt-0'"
@@ -61,7 +62,7 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
 
         <MobileBottomNav v-if="props.showBottomBar" :active="props.activeNav" :cart-count="props.cartCount" />
 
-        <LocationSelectionModal v-if="showLocationModal" />
+        <LocationSelectionModal v-if="showLocationModal" @close="manualLocationModal = false" />
     </div>
 </template>
 

@@ -1,4 +1,19 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const page = usePage();
+const location = computed(() => page.props.location as { province: string; municipality: string } | null);
+
+const provinceName = computed(() => {
+    if (!location.value?.province) return 'Location';
+    // Simple capitalization for ID (e.g. 'havana' -> 'Havana')
+    // In a real app, map IDs to names or store names in session
+    return location.value.province.charAt(0).toUpperCase() + location.value.province.slice(1);
+});
+
+const emit = defineEmits(['open-location']);
+</script>
 
 <template>
     <header class="mobile-top-bar sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900">
@@ -21,12 +36,13 @@
                 </div>
                 <h1 class="text-xl font-extrabold tracking-tight">Compay Market</h1>
             </div>
+            
             <button
-                class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-                aria-label="Notifications"
+                class="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 shadow-sm transition-colors hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700"
+                @click="$emit('open-location')"
             >
                 <svg
-                    class="size-6"
+                    class="size-5 text-blue-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -35,9 +51,18 @@
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                 </svg>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 max-w-[80px] truncate">
+                    {{ provinceName }}
+                </span>
             </button>
         </div>
 

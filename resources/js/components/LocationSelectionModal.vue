@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 
 type Province = {
@@ -13,6 +13,11 @@ type Municipality = {
     name: string;
     provinceId: string;
 };
+
+const emit = defineEmits(['close']);
+const page = usePage();
+// If showLocationModal prop is true, it means it's forced by middleware -> not closable
+const isForced = computed(() => !!page.props.showLocationModal);
 
 const provinces = ref<Province[]>([]);
 const municipalities = ref<Municipality[]>([]);
@@ -29,6 +34,12 @@ onMounted(async () => {
         const response = await axios.get('/locations/data');
         provinces.value = response.data.provinces;
         municipalities.value = response.data.municipalities;
+        
+        // Pre-fill if exists in page props (for manual change)
+        const currentLoc = page.props.location as any;
+        if (currentLoc?.province) form.province = currentLoc.province;
+        if (currentLoc?.municipality) form.municipality = currentLoc.municipality;
+        
     } catch (error) {
         console.error('Failed to load location data', error);
     } finally {
@@ -49,14 +60,28 @@ const submit = () => {
         }
     });
 };
+
+const handleBackgroundClick = () => {
+    if (!isForced.value) {
+        emit('close');
+    }
+};
 </script>
 
 <template>
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+    <div 
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+        @click.self="handleBackgroundClick"
+    >
         <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
-            <div class="bg-blue-600 px-6 py-4">
-                <h2 class="text-lg font-bold text-white">Select Location</h2>
-                <p class="text-xs text-blue-100">To show you available products</p>
+            <div class="flex items-center justify-between bg-blue-600 px-6 py-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white">Select Location</h2>
+                    <p class="text-xs text-blue-100">To show you available products</p>
+                </div>
+                <button v-if="!isForced" @click="$emit('close')" class="rounded-full bg-blue-500 p-1 text-white hover:bg-blue-400">
+                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
             </div>
 
             <form @submit.prevent="submit" class="flex flex-col gap-4 p-6">
