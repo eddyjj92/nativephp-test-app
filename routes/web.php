@@ -21,6 +21,10 @@ Route::get('/checkout', function () {
     return Inertia::render('Checkout');
 })->name('checkout');
 
+Route::get('/conversations', function () {
+    return Inertia::render('Conversations');
+})->name('conversations');
+
 Route::get('/product/{id}', function (int $id) {
     return Inertia::render('ProductDetail', [
         'productId' => $id,
