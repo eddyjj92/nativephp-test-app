@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  @class(['dark' => ($appearance ?? 'system') == 'dark'])>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
@@ -42,7 +42,10 @@
         @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         @inertiaHead
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased nativephp-safe-area">
         @inertia
     </body>
+    <native:bottom-nav>
+        <native:bottom-nav-item id="home" icon="home" label="Home" url="/home" />
+    </native:bottom-nav>
 </html>
