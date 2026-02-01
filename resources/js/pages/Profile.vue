@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 </script>
 
@@ -13,38 +13,59 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
 
     <MobileLayout active-nav="profile">
         <div
-            class="profile-screen nativephp-safe-area flex min-h-screen flex-col bg-slate-50 text-slate-900 antialiased dark:bg-slate-900 dark:text-white"
+            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
             <!-- TopAppBar -->
             <header
-                class="sticky top-0 z-50 flex items-center justify-between bg-slate-50 px-4 py-3 dark:bg-slate-900 border-b border-gray-100 dark:border-white/5"
+                class="sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900"
             >
-                <div class="flex items-center gap-3">
-                    <div class="flex size-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer">
-                        <svg
-                            class="size-6 text-slate-900 dark:text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                <div class="mb-3 flex items-center justify-between px-4">
+                    <div class="flex items-center gap-3">
+                        <Link
+                            href="/dashboard"
+                            class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 19l-7-7 7-7"
-                            />
-                        </svg>
+                            <svg
+                                class="size-6 text-slate-900 dark:text-white"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 19l-7-7 7-7"
+                                />
+                            </svg>
+                        </Link>
+                        <h1 class="text-lg font-bold">Profile</h1>
                     </div>
-                    <h1 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                        Profile
-                    </h1>
-                </div>
-                <div class="flex w-12 items-center justify-end">
-                    <button
-                        class="flex cursor-pointer items-center justify-center overflow-hidden rounded-xl size-10 bg-transparent text-slate-900 dark:text-white transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-                    >
-                        <span class="material-symbols-outlined">settings</span>
-                    </button>
+                    <div class="flex items-center">
+                        <button
+                            class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
+                        >
+                            <svg
+                                class="size-6 text-slate-900 dark:text-white"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -203,31 +224,11 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
 </template>
 
 <style scoped>
-.profile-screen {
-    min-height: max(884px, 100dvh);
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
 }
-
-.material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-.material-symbols-outlined.active-nav {
-    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-:global(.text-primary) {
-    color: #137fec;
-}
-
-:global(.bg-primary) {
-    background-color: #137fec;
-}
-
-:global(.bg-primary\/10) {
-    background-color: rgba(19, 127, 236, 0.1);
-}
-
-:global(.border-primary\/10) {
-    border-color: rgba(19, 127, 236, 0.1);
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 </style>
