@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import MobileBottomNav from '@/components/MobileBottomNav.vue';
 import MobileTopBar from '@/components/MobileTopBar.vue';
+import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
 import { computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
 
@@ -13,6 +14,9 @@ type Props = {
     showChatButton?: boolean;
     showBottomBar?: boolean;
 };
+
+const page = usePage();
+const showLocationModal = computed(() => page.props.showLocationModal as boolean);
 
 const props = withDefaults(defineProps<Props>(), {
     activeNav: 'home',
@@ -56,6 +60,8 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
         </Link>
 
         <MobileBottomNav v-if="props.showBottomBar" :active="props.activeNav" :cart-count="props.cartCount" />
+
+        <LocationSelectionModal v-if="showLocationModal" />
     </div>
 </template>
 

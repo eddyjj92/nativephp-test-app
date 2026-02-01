@@ -47,4 +47,7 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/locations/data', [\App\Http\Controllers\LocationController::class, 'index'])->name('locations.data');
+Route::post('/locations/set', [\App\Http\Controllers\LocationController::class, 'store'])->name('locations.set');
+
 require __DIR__.'/settings.php';
