@@ -27,6 +27,10 @@ Route::get('/favorites', function () {
     return Inertia::render('Favorites');
 })->name('favorites');
 
+Route::get('/profile', function () {
+    return Inertia::render('Profile');
+})->name('profile');
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
