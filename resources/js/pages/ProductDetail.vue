@@ -103,25 +103,27 @@ function goToImage(index: number) {
             class="sticky top-0 z-50 bg-slate-50 py-4 dark:bg-slate-900"
         >
             <div class="flex items-center justify-between px-4">
-                <Link
-                    href="/products"
-                    class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-                >
-                    <svg
-                        class="size-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                <div class="flex items-center gap-3">
+                    <Link
+                        href="/products"
+                        class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 19l-7-7 7-7"
-                        />
-                    </svg>
-                </Link>
-                <h1 class="text-lg font-bold">Product Details</h1>
+                        <svg
+                            class="size-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                    </Link>
+                    <h1 class="text-lg font-bold">Product Details</h1>
+                </div>
                 <button
                     class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                 >

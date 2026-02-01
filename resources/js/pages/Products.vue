@@ -120,25 +120,27 @@ function formatReviews(reviews: number): string {
         <!-- Header -->
         <header class="sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900">
             <div class="mb-3 flex items-center justify-between px-4">
-                <Link
-                    href="/"
-                    class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-                >
-                    <svg
-                        class="size-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                <div class="flex items-center gap-3">
+                    <Link
+                        href="/"
+                        class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 19l-7-7 7-7"
-                        />
-                    </svg>
-                </Link>
-                <h1 class="text-lg font-bold">{{ categoryTitle }}</h1>
+                        <svg
+                            class="size-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                    </Link>
+                    <h1 class="text-lg font-bold">{{ categoryTitle }}</h1>
+                </div>
                 <button
                     class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                 >

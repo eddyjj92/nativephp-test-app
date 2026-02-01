@@ -5,12 +5,6 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
 
 <template>
     <Head title="User Profile - Compay Market">
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        />
         <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -211,16 +205,6 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
 <style scoped>
 .profile-screen {
     min-height: max(884px, 100dvh);
-    font-family:
-        'Manrope',
-        'Instrument Sans',
-        ui-sans-serif,
-        system-ui,
-        sans-serif,
-        'Apple Color Emoji',
-        'Segoe UI Emoji',
-        'Segoe UI Symbol',
-        'Noto Color Emoji';
 }
 
 .material-symbols-outlined {
