@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'compay_market' => [
+        'api_base_url' => env('COMPAY_MARKET_API_BASE_URL'),
+    ],
+
 ];
