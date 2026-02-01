@@ -89,7 +89,6 @@ const products = ref<Product[]>([
 ]);
 
 const cartCount = ref(3);
-const activeNav = ref('catalog');
 
 function toggleFavorite(productId: number) {
     const product = products.value.find((p) => p.id === productId);
@@ -306,13 +305,7 @@ function formatReviews(reviews: number): string {
         <nav
             class="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around border-t border-gray-100 bg-white/90 px-4 pb-6 pt-2 backdrop-blur-md dark:border-white/5 dark:bg-slate-900/95"
         >
-            <Link
-                href="/"
-                :class="[
-                    'flex flex-col items-center gap-1',
-                    activeNav === 'home' ? 'text-blue-600' : 'text-gray-400',
-                ]"
-            >
+            <Link href="/" class="flex flex-col items-center gap-1 text-gray-400">
                 <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
@@ -324,16 +317,10 @@ function formatReviews(reviews: number): string {
                 <span class="text-[10px] font-bold">Home</span>
             </Link>
 
-            <Link
-                href="/products"
-                :class="[
-                    'flex flex-col items-center gap-1',
-                    activeNav === 'catalog' ? 'text-blue-600' : 'text-gray-400',
-                ]"
-            >
+            <Link href="/products" class="flex flex-col items-center gap-1 text-blue-600">
                 <svg
                     class="size-6"
-                    :fill="activeNav === 'catalog' ? 'currentColor' : 'none'"
+                    fill="currentColor"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                 >
@@ -347,11 +334,9 @@ function formatReviews(reviews: number): string {
                 <span class="text-[10px] font-bold">Catalog</span>
             </Link>
 
-            <button
-                :class="[
-                    'relative flex flex-col items-center gap-1',
-                    activeNav === 'cart' ? 'text-blue-600' : 'text-gray-400',
-                ]"
+            <Link
+                href="/cart"
+                class="relative flex flex-col items-center gap-1 text-gray-400"
             >
                 <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -368,14 +353,9 @@ function formatReviews(reviews: number): string {
                 >
                     {{ cartCount }}
                 </div>
-            </button>
+            </Link>
 
-            <button
-                :class="[
-                    'flex flex-col items-center gap-1',
-                    activeNav === 'profile' ? 'text-blue-600' : 'text-gray-400',
-                ]"
-            >
+            <button class="flex flex-col items-center gap-1 text-gray-400">
                 <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"

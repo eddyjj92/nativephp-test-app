@@ -104,7 +104,6 @@ const products = ref<Product[]>([
 ]);
 
 const cartCount = ref(3);
-const activeNav = ref('home');
 
 function toggleFavorite(productId: number) {
     const product = products.value.find((p) => p.id === productId);
@@ -567,12 +566,9 @@ function formatPrice(price: number): string {
                 <span class="text-[10px] font-bold">Catalog</span>
             </Link>
 
-            <button
-                :class="[
-                    'relative flex flex-col items-center gap-1',
-                    activeNav === 'cart' ? 'text-blue-600' : 'text-gray-400',
-                ]"
-                @click="activeNav = 'cart'"
+            <Link
+                href="/cart"
+                class="relative flex flex-col items-center gap-1 text-gray-400"
             >
                 <svg
                     class="size-6"
@@ -590,19 +586,13 @@ function formatPrice(price: number): string {
                 <span class="text-[10px] font-bold">Cart</span>
                 <div
                     v-if="cartCount > 0"
-                    class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[8px] font-bold text-white"
+                    class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[8px] font-bold text-white dark:border-slate-900"
                 >
                     {{ cartCount }}
                 </div>
-            </button>
+            </Link>
 
-            <button
-                :class="[
-                    'flex flex-col items-center gap-1',
-                    activeNav === 'saved' ? 'text-blue-600' : 'text-gray-400',
-                ]"
-                @click="activeNav = 'saved'"
-            >
+            <button class="flex flex-col items-center gap-1 text-gray-400">
                 <svg
                     class="size-6"
                     fill="none"
@@ -619,13 +609,7 @@ function formatPrice(price: number): string {
                 <span class="text-[10px] font-bold">Saved</span>
             </button>
 
-            <button
-                :class="[
-                    'flex flex-col items-center gap-1',
-                    activeNav === 'profile' ? 'text-blue-600' : 'text-gray-400',
-                ]"
-                @click="activeNav = 'profile'"
-            >
+            <button class="flex flex-col items-center gap-1 text-gray-400">
                 <svg
                     class="size-6"
                     fill="none"
