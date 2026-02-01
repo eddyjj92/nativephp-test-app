@@ -114,7 +114,7 @@ const conversations = ref<Conversation[]>([
                     <Link
                         v-for="chat in conversations"
                         :key="chat.id"
-                        href="#"
+                        :href="`/conversations/${chat.id}`"
                         class="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm transition-colors active:scale-[0.99] dark:bg-slate-800/50"
                     >
                         <!-- Avatar -->

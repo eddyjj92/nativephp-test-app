@@ -25,6 +25,10 @@ Route::get('/conversations', function () {
     return Inertia::render('Conversations');
 })->name('conversations');
 
+Route::get('/conversations/{id}', function (string $id) {
+    return Inertia::render('Chat', ['id' => $id]);
+})->name('chat.show');
+
 Route::get('/product/{id}', function (int $id) {
     return Inertia::render('ProductDetail', [
         'productId' => $id,
