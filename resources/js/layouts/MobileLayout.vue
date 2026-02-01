@@ -10,12 +10,16 @@ type Props = {
     activeNav?: NavId;
     cartCount?: number;
     showTopBar?: boolean;
+    showChatButton?: boolean;
+    showBottomBar?: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
     activeNav: 'home',
     cartCount: 0,
     showTopBar: true,
+    showChatButton: true,
+    showBottomBar: true,
 });
 
 const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
@@ -23,7 +27,8 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
 
 <template>
     <div
-        class="mobile-layout relative min-h-screen bg-slate-50 pb-24 dark:bg-slate-900"
+        class="mobile-layout relative min-h-screen bg-slate-50 dark:bg-slate-900"
+        :class="props.showBottomBar ? 'pb-24' : 'pb-0'"
         :style="{ '--mobile-topbar-height': topBarHeight }"
     >
         <MobileTopBar v-if="props.showTopBar" />
@@ -36,6 +41,7 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
         
         <!-- Floating Chat Button -->
         <Link
+            v-if="props.showChatButton"
             href="/conversations"
             class="fixed bottom-24 right-4 z-50 flex size-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition-transform hover:scale-105"
         >
@@ -49,7 +55,7 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
             </svg>
         </Link>
 
-        <MobileBottomNav :active="props.activeNav" :cart-count="props.cartCount" />
+        <MobileBottomNav v-if="props.showBottomBar" :active="props.activeNav" :cart-count="props.cartCount" />
     </div>
 </template>
 

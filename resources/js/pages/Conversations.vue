@@ -56,7 +56,7 @@ const conversations = ref<Conversation[]>([
 <template>
     <Head title="Messages" />
 
-    <MobileLayout active-nav="home">
+    <MobileLayout active-nav="home" :show-chat-button="false">
         <div
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
