@@ -77,7 +77,7 @@ watch(
                     loadMore();
                 }
             },
-            { threshold: 0.1, rootMargin: '200px' }
+            { threshold: 0.1, rootMargin: '400px' }
         );
 
         observer.observe(el);
@@ -316,9 +316,9 @@ function hasDiscount(product: Product): boolean {
                 <div
                     v-if="productsNextPageUrl"
                     ref="triggerRef"
-                    class="flex items-center justify-center py-8"
+                    class="flex items-center justify-center py-4"
                 >
-                    <div class="flex items-center gap-1">
+                    <div v-if="isLoading" class="flex items-center gap-1">
                         <span class="size-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.3s]"></span>
                         <span class="size-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.15s]"></span>
                         <span class="size-2 animate-bounce rounded-full bg-blue-600"></span>
@@ -328,7 +328,7 @@ function hasDiscount(product: Product): boolean {
                 <!-- End of List -->
                 <div
                     v-else-if="products.length > 0"
-                    class="flex items-center justify-center py-8 text-sm text-gray-400"
+                    class="flex items-center justify-center py-4 text-sm text-gray-400"
                 >
                     Has llegado al final
                 </div>
