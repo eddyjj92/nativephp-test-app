@@ -40,6 +40,34 @@ export interface Category {
     department?: Department;
 }
 
+export interface Discount {
+    id: number;
+    name: string;
+    slug: string;
+    description: string;
+    type: 'percentage' | 'fixed';
+    value: number;
+    applicableTo: string;
+}
+
+export interface Product {
+    id: number;
+    name: string;
+    slug: string;
+    code: string;
+    description: string | null;
+    type: string | null;
+    salePrice: number;
+    weight: number;
+    freeShipping: boolean;
+    image: string;
+    status: 'ENABLED' | 'DISABLED';
+    recommended: boolean;
+    stock: number;
+    activeDiscounts: Discount[];
+    category: Category | null;
+}
+
 export interface PaginatedResponse<T> {
     current_page: number;
     data: T[];

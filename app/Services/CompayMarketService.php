@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\BannerDTO;
+use App\DTOs\ProductDTO;
 use App\DTOs\ProvinceDTO;
 use App\DTOs\SettingsDTO;
 use Closure;
@@ -105,7 +106,6 @@ class CompayMarketService
      *
      * @param  bool  $cache  Si se debe cachear la respuesta.
      * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
-     * @return SettingsDTO
      *
      * @throws ConnectionException
      */
@@ -154,11 +154,12 @@ class CompayMarketService
     }
 
     /**
-     * Obtiene la lista de productos.
+     * Obtiene la lista de productos paginados.
      *
-     * @param  array  $params  Parámetros de filtrado o paginación.
+     * @param  array  $params  Parámetros de filtrado o paginación (province_id es obligatorio).
      * @param  bool  $cache  Si se debe cachear la respuesta.
      * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
+     * @return array{data: ProductDTO[], current_page: int, last_page: int, per_page: int, total: int, next_page_url: string|null, prev_page_url: string|null}
      *
      * @throws ConnectionException
      */
@@ -166,12 +167,27 @@ class CompayMarketService
     {
         $cacheKey = $this->buildCacheKey('/products', $params);
 
-        return $this->cached(
+        $response = $this->cached(
             $cacheKey,
             fn () => $this->http()->get('/products', $params)->json(),
             $cache,
             $cacheTtl
         );
+
+        $products = $response['products'] ?? [];
+
+        return [
+            'data' => array_map(
+                fn ($product) => ProductDTO::fromArray($product),
+                $products['data'] ?? []
+            ),
+            'current_page' => $products['current_page'] ?? 1,
+            'last_page' => $products['last_page'] ?? 1,
+            'per_page' => $products['per_page'] ?? 15,
+            'total' => $products['total'] ?? 0,
+            'next_page_url' => $products['next_page_url'] ?? null,
+            'prev_page_url' => $products['prev_page_url'] ?? null,
+        ];
     }
 
     /**
@@ -183,16 +199,22 @@ class CompayMarketService
      *
      * @throws ConnectionException
      */
-    public function getProduct(string $id, bool $cache = false, ?int $cacheTtl = null): array
+    public function getProduct(string $id, bool $cache = false, ?int $cacheTtl = null): ?ProductDTO
     {
         $cacheKey = $this->buildCacheKey("/products/{$id}");
 
-        return $this->cached(
+        $response = $this->cached(
             $cacheKey,
             fn () => $this->http()->get("/products/{$id}")->json(),
             $cache,
             $cacheTtl
         );
+
+        if (empty($response['product'])) {
+            return null;
+        }
+
+        return ProductDTO::fromArray($response['product']);
     }
 
     /**

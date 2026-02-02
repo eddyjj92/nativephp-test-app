@@ -2,16 +2,14 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ProductsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', HomeController::class)->name('home');
 
-Route::get('/products/{category?}', function (?string $category = null) {
-    return Inertia::render('Products', [
-        'category' => $category ? ucfirst($category) : 'Electronics',
-    ]);
-})->name('products');
+Route::get('/products', [ProductsController::class, 'index'])->name('products.index');
+Route::get('/products/{categorySlug}', [ProductsController::class, 'index'])->name('products.category');
 
 Route::get('/cart', function () {
     return Inertia::render('Cart');
