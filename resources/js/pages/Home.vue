@@ -64,7 +64,9 @@ function getBannerDescription(banner: Banner): string {
 function getBannerBadge(banner: Banner): string {
     if (banner.type === 'discount' && banner.bannerable) {
         const discount = banner.bannerable as Discount;
-        return discount.type === 'percentage' ? `${discount.value}% OFF` : `$${discount.value} OFF`;
+        const currency = page.props.selectedCurrency as any;
+        const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
+        return discount.type === 'percentage' ? `${discount.value}% OFF` : `${symbol}${discount.value} OFF`;
     }
     return banner.type === 'informative' ? 'Nuevo' : '';
 }
@@ -132,7 +134,9 @@ function isFavorite(productId: number): boolean {
 }
 
 function formatPrice(price: number): string {
-    return `$${price.toFixed(2)}`;
+    const currency = page.props.selectedCurrency as any;
+    const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
+    return `${symbol}${price.toFixed(2)}`;
 }
 
 function getDiscountedPrice(product: Product): number | null {

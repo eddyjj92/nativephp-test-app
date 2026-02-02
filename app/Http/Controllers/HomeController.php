@@ -16,8 +16,22 @@ class HomeController extends Controller
     {
         $banners = $this->compayMarketService->getBanners('active', cache: true);
 
+        // Get marketplace home data with recommended products
+        $province = session('selected_province');
+        $currency = session('selected_currency');
+
         $page = request()->integer('page', 1);
-        $categoriesResponse = $this->compayMarketService->getCategories(['page' => $page], cache: true);
+        $categoryParams = ['page' => $page];
+
+        if ($province) {
+            $categoryParams['province_id'] = $province->id;
+        }
+
+        if ($currency) {
+            $categoryParams['currency'] = $currency->isoCode;
+        }
+
+        $categoriesResponse = $this->compayMarketService->getCategories($categoryParams, cache: true);
         $categories = $categoriesResponse['categories'] ?? [];
 
         // Build local next page URL instead of using the external API URL

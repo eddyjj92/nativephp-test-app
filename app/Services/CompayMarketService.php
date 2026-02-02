@@ -196,18 +196,24 @@ class CompayMarketService
      * Obtiene los detalles de un producto específico.
      *
      * @param  string  $id  Identificador del producto.
+     * @param  string|null  $currency  Código ISO de la moneda (ej: USD, EUR).
      * @param  bool  $cache  Si se debe cachear la respuesta.
      * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
      *
      * @throws ConnectionException
      */
-    public function getProduct(string $id, bool $cache = false, ?int $cacheTtl = null): ?ProductDTO
+    public function getProduct(string $id, ?string $currency = null, bool $cache = false, ?int $cacheTtl = null): ?ProductDTO
     {
-        $cacheKey = $this->buildCacheKey("/products/{$id}");
+        $params = [];
+        if ($currency) {
+            $params['currency'] = $currency;
+        }
+
+        $cacheKey = $this->buildCacheKey("/products/{$id}", $params);
 
         $response = $this->cached(
             $cacheKey,
-            fn () => $this->http()->get("/products/{$id}")->json(),
+            fn () => $this->http()->get("/products/{$id}", $params)->json(),
             $cache,
             $cacheTtl
         );

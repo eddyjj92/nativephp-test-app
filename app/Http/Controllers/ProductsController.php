@@ -14,7 +14,8 @@ class ProductsController extends Controller
 
     public function index(?string $categorySlug = null): Response
     {
-        $province = request()->session()->get('selected_province');
+        $province = session('selected_province');
+        $currency = session('selected_currency');
         $provinceId = $province?->id;
 
         $page = request()->integer('page', 1);
@@ -23,6 +24,10 @@ class ProductsController extends Controller
             'page' => $page,
             'province_id' => $provinceId,
         ];
+
+        if ($currency) {
+            $params['currency'] = $currency->isoCode;
+        }
 
         if ($categorySlug) {
             $params['category'] = $categorySlug;
@@ -52,7 +57,13 @@ class ProductsController extends Controller
 
     public function show(int $id): Response
     {
-        $product = $this->compayMarketService->getProduct((string) $id, cache: true);
+        $currency = session('selected_currency');
+
+        $product = $this->compayMarketService->getProduct(
+            id: (string) $id,
+            currency: $currency?->isoCode,
+            cache: true
+        );
 
         if (! $product) {
             abort(404, 'Producto no encontrado');

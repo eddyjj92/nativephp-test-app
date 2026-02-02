@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import type { Product } from '@/types';
@@ -38,7 +38,10 @@ const discountedPrice = computed(() => {
 const discountBadge = computed(() => {
     if (!hasDiscount.value) return null;
     const discount = props.product.activeDiscounts[0];
-    return discount.type === 'percentage' ? `-${discount.value}%` : `-$${discount.value}`;
+    const page = usePage();
+    const currency = page.props.selectedCurrency as any;
+    const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
+    return discount.type === 'percentage' ? `-${discount.value}%` : `-${symbol}${discount.value}`;
 });
 
 const isAvailable = computed(() => {
@@ -63,7 +66,10 @@ const stockStatus = computed(() => {
 });
 
 function formatPrice(price: number): string {
-    return `$${price.toFixed(2)}`;
+    const page = usePage();
+    const currency = page.props.selectedCurrency as any;
+    const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
+    return `${symbol}${price.toFixed(2)}`;
 }
 
 function incrementQuantity() {

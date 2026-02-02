@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, watch, onUnmounted, computed } from 'vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
@@ -100,7 +100,10 @@ onUnmounted(() => {
 });
 
 function formatPrice(price: number): string {
-    return `$${price.toFixed(2)}`;
+    const page = usePage();
+    const currency = page.props.selectedCurrency as any;
+    const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
+    return `${symbol}${price.toFixed(2)}`;
 }
 
 function getDiscountedPrice(product: Product): number {
@@ -243,7 +246,7 @@ function hasDiscount(product: Product): boolean {
                                 {{
                                     product.activeDiscounts[0].type === 'percentage'
                                         ? `-${product.activeDiscounts[0].value}%`
-                                        : `-$${product.activeDiscounts[0].value}`
+                                        : `-${(usePage().props.selectedCurrency as any)?.isoCode === 'EUR' ? '€' : '$'}${product.activeDiscounts[0].value}`
                                 }}
                             </div>
 

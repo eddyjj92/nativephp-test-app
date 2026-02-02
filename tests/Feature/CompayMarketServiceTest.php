@@ -128,4 +128,87 @@ class CompayMarketServiceTest extends TestCase
         $this->assertEmpty($result->recommendedProducts);
         $this->assertEmpty($result->newArrivals);
     }
+
+    public function test_get_product_passes_currency_parameter(): void
+    {
+        Http::fake([
+            '*/products/127?currency=EUR' => Http::response([
+                'product' => [
+                    'id' => 127,
+                    'name' => 'FILETE DE PESCADO DE MAR 1KG',
+                    'slug' => 'filete-de-pescado-de-mar-1kg',
+                    'code' => '00151',
+                    'description' => 'Un filete de pescado',
+                    'type' => null,
+                    'sale_price' => 8.50,
+                    'weight' => 1,
+                    'free_shipping' => false,
+                    'image' => 'https://example.com/image.png',
+                    'status' => 'ENABLED',
+                    'recommended' => true,
+                    'stock' => 49,
+                    'category' => null,
+                    'active_discounts' => [],
+                ],
+            ], 200),
+        ]);
+
+        $service = new CompayMarketService;
+        $product = $service->getProduct('127', 'EUR');
+
+        $this->assertInstanceOf(ProductDTO::class, $product);
+        $this->assertEquals(127, $product->id);
+        $this->assertEquals(8.50, $product->salePrice);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/products/127') &&
+                   $request->query()['currency'] === 'EUR';
+        });
+    }
+
+    public function test_get_products_passes_currency_parameter(): void
+    {
+        Http::fake([
+            '*/products?province_id=1&currency=USD' => Http::response([
+                'products' => [
+                    'data' => [
+                        [
+                            'id' => 127,
+                            'name' => 'FILETE DE PESCADO DE MAR 1KG',
+                            'slug' => 'filete-de-pescado-de-mar-1kg',
+                            'code' => '00151',
+                            'description' => 'Un filete de pescado',
+                            'type' => null,
+                            'sale_price' => 9.98,
+                            'weight' => 1,
+                            'free_shipping' => false,
+                            'image' => 'https://example.com/image.png',
+                            'status' => 'ENABLED',
+                            'recommended' => true,
+                            'stock' => 49,
+                            'category' => null,
+                            'active_discounts' => [],
+                        ],
+                    ],
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => 15,
+                    'total' => 1,
+                ],
+            ], 200),
+        ]);
+
+        $service = new CompayMarketService;
+        $result = $service->getProducts(['province_id' => 1, 'currency' => 'USD']);
+
+        $this->assertCount(1, $result['data']);
+        $this->assertInstanceOf(ProductDTO::class, $result['data'][0]);
+        $this->assertEquals(9.98, $result['data'][0]->salePrice);
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/products') &&
+                   $request->query()['currency'] === 'USD' &&
+                   $request->query()['province_id'] == '1';
+        });
+    }
 }

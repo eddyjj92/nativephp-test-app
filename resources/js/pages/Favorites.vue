@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 
@@ -52,7 +52,10 @@ const cartCount = ref(2);
 const itemCount = computed(() => favorites.value.length);
 
 function formatPrice(price: number): string {
-    return `$${price.toFixed(2)}`;
+    const page = usePage();
+    const currency = page.props.selectedCurrency as any;
+    const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
+    return `${symbol}${price.toFixed(2)}`;
 }
 
 function removeFromFavorites(itemId: number) {
