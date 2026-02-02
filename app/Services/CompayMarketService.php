@@ -228,6 +228,27 @@ class CompayMarketService
     }
 
     /**
+     * Obtiene la lista de categorías.
+     *
+     * @param  array  $params  Parámetros de filtrado o paginación.
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
+     *
+     * @throws ConnectionException
+     */
+    public function getCategories(array $params = [], bool $cache = false, ?int $cacheTtl = null): array
+    {
+        $cacheKey = $this->buildCacheKey('/categories', $params);
+
+        return $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get('/categories', $params)->json(),
+            $cache,
+            $cacheTtl
+        );
+    }
+
+    /**
      * Crea una nueva orden de compra (Endpoint Autenticado).
      * Requiere haber llamado a setToken() previamente.
      * Este método NO debe ser cacheado.

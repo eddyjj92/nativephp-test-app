@@ -3,12 +3,8 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
-
-type Category = {
-    id: string;
-    name: string;
-    icon: string;
-};
+import CategoriesCarousel from '@/components/CategoriesCarousel.vue';
+import type { Category } from '@/types';
 
 type Product = {
     id: number;
@@ -51,6 +47,8 @@ type Banner = {
 
 const props = defineProps<{
     banners: Banner[];
+    categories: Category[];
+    categoriesNextPageUrl?: string | null;
 }>();
 
 const page = usePage();
@@ -59,16 +57,6 @@ const locationMissing = computed(() => !!page.props.showLocationModal);
 const carouselRef = ref<HTMLElement | null>(null);
 const activeBannerIndex = ref(0);
 let autoplayTimer: ReturnType<typeof setInterval> | null = null;
-
-const categories = ref<Category[]>([
-    { id: 'electronics', name: 'Electronics', icon: 'devices' },
-    { id: 'fashion', name: 'Fashion', icon: 'apparel' },
-    { id: 'home', name: 'Home', icon: 'home' },
-    { id: 'groceries', name: 'Groceries', icon: 'restaurant' },
-    { id: 'sports', name: 'Sports', icon: 'fitness_center' },
-]);
-
-const selectedCategory = ref<string>('electronics');
 
 function getBannerImage(banner: Banner): string {
     return banner.mobileImage || banner.image;
@@ -244,145 +232,10 @@ function formatPrice(price: number): string {
             </div>
 
             <!-- Categories -->
-            <div class="mb-2 mt-2 flex items-center justify-between px-4">
-                <h3
-                    class="text-lg font-bold leading-tight tracking-[-0.015em]"
-                >
-                    Categories
-                </h3>
-                <Link
-                    href="/products"
-                    class="text-xs font-bold uppercase tracking-wider text-blue-600"
-                >
-                    See All
-                </Link>
-            </div>
-
-            <div
-                class="hide-scrollbar mb-4 flex gap-6 overflow-x-auto px-4 py-2"
-            >
-                <Link
-                    v-for="category in categories"
-                    :key="category.id"
-                    :href="`/products/${category.id}`"
-                    class="flex min-w-16 flex-col items-center gap-2"
-                >
-                    <div
-                        :class="[
-                            'flex size-14 items-center justify-center rounded-full bg-white shadow-sm dark:bg-slate-800/50',
-                            selectedCategory === category.id
-                                ? 'border-2 border-blue-600'
-                                : 'border border-transparent',
-                        ]"
-                    >
-                        <svg
-                            v-if="category.icon === 'devices'"
-                            :class="[
-                                'size-6',
-                                selectedCategory === category.id
-                                    ? 'text-blue-600'
-                                    : 'text-gray-400',
-                            ]"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                            />
-                        </svg>
-                        <svg
-                            v-else-if="category.icon === 'apparel'"
-                            :class="[
-                                'size-6',
-                                selectedCategory === category.id
-                                    ? 'text-blue-600'
-                                    : 'text-gray-400',
-                            ]"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"
-                            />
-                        </svg>
-                        <svg
-                            v-else-if="category.icon === 'home'"
-                            :class="[
-                                'size-6',
-                                selectedCategory === category.id
-                                    ? 'text-blue-600'
-                                    : 'text-gray-400',
-                            ]"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                            />
-                        </svg>
-                        <svg
-                            v-else-if="category.icon === 'restaurant'"
-                            :class="[
-                                'size-6',
-                                selectedCategory === category.id
-                                    ? 'text-blue-600'
-                                    : 'text-gray-400',
-                            ]"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                            />
-                        </svg>
-                        <svg
-                            v-else-if="category.icon === 'fitness_center'"
-                            :class="[
-                                'size-6',
-                                selectedCategory === category.id
-                                    ? 'text-blue-600'
-                                    : 'text-gray-400',
-                            ]"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z"
-                            />
-                        </svg>
-                    </div>
-                    <p
-                        :class="[
-                            'text-[11px] font-bold',
-                            selectedCategory === category.id
-                                ? 'text-blue-600'
-                                : 'text-gray-500',
-                        ]"
-                    >
-                        {{ category.name }}
-                    </p>
-                </Link>
-            </div>
+            <CategoriesCarousel
+                :categories="categories"
+                :next-page-url="categoriesNextPageUrl"
+            />
 
             <!-- Featured Products -->
             <div class="mb-3 mt-4 flex items-center justify-between px-4">
