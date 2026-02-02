@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import CategoriesCarousel from '@/components/CategoriesCarousel.vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
+import { add } from '@/routes/cart';
 import type { Category, Product } from '@/types';
 
 type Discount = {
@@ -156,6 +157,15 @@ function getDiscountedPrice(product: Product): number | null {
 function hasDiscount(product: Product): boolean {
     return product.activeDiscounts.length > 0;
 }
+
+function addToCart(product: Product) {
+    router.post(add().url, {
+        product_id: product.id,
+        quantity: 1,
+    }, {
+        preserveScroll: true,
+    });
+}
 </script>
 
 <template>
@@ -302,6 +312,7 @@ function hasDiscount(product: Product): boolean {
                                 </div>
                                 <button
                                     class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
+                                    @click="addToCart(product)"
                                 >
                                     <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -391,6 +402,7 @@ function hasDiscount(product: Product): boolean {
                                 </div>
                                 <button
                                     class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
+                                    @click="addToCart(product)"
                                 >
                                     <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -402,9 +414,8 @@ function hasDiscount(product: Product): boolean {
                 </div>
             </section>
         </main>
-
-        </div>
-    </MobileLayout>
+    </div>
+</MobileLayout>
 </template>
 
 <style scoped>

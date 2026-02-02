@@ -3,10 +3,6 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 
-const props = defineProps<{
-    id?: string;
-}>();
-
 type Message = {
     id: number;
     text: string;

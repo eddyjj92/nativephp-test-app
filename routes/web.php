@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
@@ -12,9 +13,15 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/products', [ProductsController::class, 'index'])->name('products.index');
 Route::get('/products/{categorySlug}', [ProductsController::class, 'index'])->name('products.category');
 
-Route::get('/cart', function () {
-    return Inertia::render('Cart');
-})->name('cart');
+Route::group(['prefix' => 'cart'], function () {
+    Route::get('/', function () {
+        return Inertia::render('Cart');
+    })->name('cart');
+    Route::post('/', [CartController::class, 'store'])->name('cart.add');
+    Route::put('/{productId}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/{productId}', [CartController::class, 'destroy'])->name('cart.remove');
+    Route::delete('/', [CartController::class, 'clear'])->name('cart.clear');
+});
 
 Route::get('/checkout', function () {
     return Inertia::render('Checkout');

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { home, cart, favorites, profile } from '@/routes';
+import { index as productsIndex } from '@/routes/products';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
 
@@ -25,7 +27,7 @@ function itemClasses(id: NavId): string[] {
     <nav
         class="fixed inset-x-0 bottom-0 z-50 flex items-center justify-between border-t border-gray-100 bg-white/90 px-6 pb-[calc(var(--inset-bottom,0px)+0.5rem)] pl-[calc(var(--inset-left,0px)+1.5rem)] pr-[calc(var(--inset-right,0px)+1.5rem)] pt-2 backdrop-blur-md dark:border-white/5 dark:bg-slate-900/95"
     >
-        <Link href="/" :class="itemClasses('home')">
+        <Link :href="home().url" :class="itemClasses('home')">
             <svg
                 class="size-6"
                 fill="currentColor"
@@ -42,7 +44,7 @@ function itemClasses(id: NavId): string[] {
             <span>Home</span>
         </Link>
 
-        <Link href="/products" :class="itemClasses('catalog')">
+        <Link :href="productsIndex().url" :class="itemClasses('catalog')">
             <svg
                 class="size-6"
                 fill="currentColor"
@@ -59,7 +61,7 @@ function itemClasses(id: NavId): string[] {
             <span>Catalog</span>
         </Link>
 
-        <Link href="/cart" :class="['relative', ...itemClasses('cart')]">
+        <Link :href="cart().url" :class="['relative', ...itemClasses('cart')]">
             <svg
                 class="size-6"
                 fill="none"
@@ -82,7 +84,7 @@ function itemClasses(id: NavId): string[] {
             </div>
         </Link>
 
-        <Link href="/favorites" :class="itemClasses('saved')">
+        <Link :href="favorites().url" :class="itemClasses('saved')">
             <svg
                 class="size-6"
                 fill="none"
@@ -99,7 +101,7 @@ function itemClasses(id: NavId): string[] {
             <span>Saved</span>
         </Link>
 
-        <Link href="/profile" :class="itemClasses('profile')">
+        <Link :href="profile().url" :class="itemClasses('profile')">
             <svg
                 class="size-6"
                 fill="none"

@@ -46,6 +46,28 @@ class HandleInertiaRequests extends Middleware
             $request->session()->put('selected_currency', $selectedCurrency);
         }
 
+        // Fetch cart items with full product details
+        $cartSession = $request->session()->get('cart', []);
+        $cartItems = [];
+        $province = $request->session()->get('selected_province');
+
+        foreach ($cartSession as $id => $item) {
+            $product = $this->compayMarketService->getProduct(
+                id: (string) $id,
+                currency: $selectedCurrency?->isoCode,
+                provinceSlug: $province?->slug,
+                cache: true
+            );
+
+            if ($product) {
+                $cartItems[] = [
+                    'product' => $product,
+                    'quantity' => $item['quantity'],
+                    'price' => $product->getDiscountedPrice(),
+                ];
+            }
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -59,6 +81,11 @@ class HandleInertiaRequests extends Middleware
             ],
             'currencies' => $currencies,
             'selectedCurrency' => $selectedCurrency,
+            'cart' => [
+                'items' => $cartItems,
+                'count' => collect($cartItems)->sum('quantity'),
+                'total' => collect($cartItems)->sum(fn ($item) => $item['price'] * $item['quantity']),
+            ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

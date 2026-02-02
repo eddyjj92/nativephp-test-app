@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
+import { add } from '@/routes/cart';
 import type { Product } from '@/types';
 
 const props = defineProps<{
@@ -50,8 +51,6 @@ const isAvailable = computed(() => {
     return props.product.status === 'ENABLED' && (props.product.stock === null || props.product.stock > 0);
 });
 
-const hasStockInfo = computed(() => props.product.stock !== null);
-
 const stockStatus = computed(() => {
     if (props.product.stock === null) {
         return { text: 'Disponible', class: 'text-green-600' };
@@ -90,8 +89,13 @@ function toggleFavorite() {
 
 function addToCart() {
     if (!isAvailable.value) return;
-    cartCount.value += quantity.value;
-    // TODO: Implement cart logic
+    
+    router.post(add().url, {
+        product_id: props.product.id,
+        quantity: quantity.value,
+    }, {
+        preserveScroll: true,
+    });
 }
 </script>
 

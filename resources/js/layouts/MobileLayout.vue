@@ -18,6 +18,7 @@ type Props = {
 const page = usePage();
 const manualLocationModal = ref(false);
 const showLocationModal = computed(() => (page.props.showLocationModal as boolean) || manualLocationModal.value);
+const computedCartCount = computed(() => (page.props.cart as any)?.count || 0);
 
 const props = withDefaults(defineProps<Props>(), {
     activeNav: 'home',
@@ -60,7 +61,7 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
             </svg>
         </Link>
 
-        <MobileBottomNav v-if="props.showBottomBar" :active="props.activeNav" :cart-count="props.cartCount" />
+        <MobileBottomNav v-if="props.showBottomBar" :active="props.activeNav" :cart-count="computedCartCount" />
 
         <LocationSelectionModal v-if="showLocationModal" @close="manualLocationModal = false" />
     </div>

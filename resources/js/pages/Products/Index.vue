@@ -3,6 +3,7 @@ import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, watch, onUnmounted, computed } from 'vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
+import { add } from '@/routes/cart';
 import type { Product } from '@/types';
 
 type FilterOption = {
@@ -126,6 +127,15 @@ function getDiscountedPrice(product: Product): number {
 
 function hasDiscount(product: Product): boolean {
     return product.activeDiscounts && product.activeDiscounts.length > 0;
+}
+
+function addToCart(product: Product) {
+    router.post(add().url, {
+        product_id: product.id,
+        quantity: 1,
+    }, {
+        preserveScroll: true,
+    });
 }
 </script>
 
@@ -293,6 +303,7 @@ function hasDiscount(product: Product): boolean {
                                         ? 'cursor-not-allowed bg-gray-300'
                                         : 'bg-blue-600 hover:bg-blue-700',
                                 ]"
+                                @click="addToCart(product)"
                             >
                                 <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path

@@ -1,86 +1,58 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
+import { update, remove, clear } from '@/routes/cart';
 
-type CartItem = {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    quantity: number;
-    image: string;
-};
-
-const cartItems = ref<CartItem[]>([
-    {
-        id: 1,
-        name: 'Organic Avocado',
-        description: 'Fresh from Mexico • 2 units',
-        price: 4.5,
-        quantity: 2,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDsLJNLbDaRdlWrk30bLVXGz2zMdwABe3pWlNpNb5MV0CKXj6qLqO4WCWYwBrNCJwAF2rAqY0s_4yJ6HZ8E9hJJQ0aYQm_Xq7eJpCwQY7JOmA',
-    },
-    {
-        id: 2,
-        name: 'Whole Wheat Bread',
-        description: 'Artisan sourdough • 800g',
-        price: 5.2,
-        quantity: 1,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBkdQgUIXRO2xmxQisdRa-xXNF5Xf60N8b147d5kkuAsHkR2B8sxIweopIOP4TQ-ZyafkU2CfP4ZqxpBxgSIVrL-hQXygWvNhurSpaxY1W29qELyh_NYKTClebstrSp-ZInNYMiAINV53-BKWqWJbK6YCaL1sphk566QGSEySsVrkdma9yrFh8Edcf_lzXyn431pIhFDUY8Wo7QHDbYZIIzeyKD0wibiAsBRfHXaOz5MwXWmY14QGmWO0YVxrtlKxPiUre2bKtYgks',
-    },
-    {
-        id: 3,
-        name: 'Almond Milk',
-        description: 'Unsweetened vanilla • 1L',
-        price: 3.99,
-        quantity: 3,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCx8jrIDsQet2gsCPjmllYeBU_c-nkpb_O0bu7E910IcOGwqTbGldHyC6AhFT2sHkACQ4x4cR2T9Mh1IInp8e5aBXI7jn6E0lyyHDGwVIHStqpDWJ9OOicbmpDhOEMZh_uxumz-MzCTqI2RFfHkOzH-UGFhnEpyKptYIrKFtQYFsTO5hFeXPhU3A3irp94FpYbrwyIpg7u9PKwp_yw7f-51g1cRVM88qLCJnpMb9-0zX67a9_dQKvGbsq9BEdT6CQ_OJ9QjGyd-3GQ',
-    },
-]);
+const page = usePage();
+const cart = computed(() => (page.props.cart as any) || { items: [], count: 0, total: 0 });
+const cartItems = computed(() => cart.value.items);
 
 const promoCode = ref('');
 const shippingFee = 2.5;
 
-const subtotal = computed(() => {
-    return cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
-});
+const subtotal = computed(() => cart.value.total);
 
 const total = computed(() => {
     return subtotal.value + shippingFee;
 });
 
-const cartCount = computed(() => {
-    return cartItems.value.reduce((sum, item) => sum + item.quantity, 0);
-});
+const cartCount = computed(() => cart.value.count);
 
 function formatPrice(price: number): string {
-    const page = usePage();
     const currency = page.props.selectedCurrency as any;
     const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
     return `${symbol}${price.toFixed(2)}`;
 }
 
 function incrementQuantity(itemId: number) {
-    const item = cartItems.value.find((i) => i.id === itemId);
+    const item = cartItems.value.find((i: any) => i.product.id === itemId);
     if (item) {
-        item.quantity++;
+        router.put(update(itemId).url, {
+            quantity: item.quantity + 1,
+        }, { preserveScroll: true });
     }
 }
 
 function decrementQuantity(itemId: number) {
-    const item = cartItems.value.find((i) => i.id === itemId);
+    const item = cartItems.value.find((i: any) => i.product.id === itemId);
     if (item && item.quantity > 1) {
-        item.quantity--;
+        router.put(update(itemId).url, {
+            quantity: item.quantity - 1,
+        }, { preserveScroll: true });
     }
 }
 
 function removeItem(itemId: number) {
-    cartItems.value = cartItems.value.filter((i) => i.id !== itemId);
+    router.delete(remove(itemId).url, {
+        preserveScroll: true
+    });
 }
 
 function clearCart() {
-    cartItems.value = [];
+    router.delete(clear().url, {
+        preserveScroll: true
+    });
 }
 
 function applyPromoCode() {
@@ -170,7 +142,7 @@ function applyPromoCode() {
             <div v-else class="divide-y divide-gray-100 dark:divide-white/5">
                 <div
                     v-for="item in cartItems"
-                    :key="item.id"
+                    :key="item.product.id"
                     class="flex gap-4 bg-white px-4 py-4 dark:bg-slate-800/30"
                 >
                     <!-- Product Image -->
@@ -178,8 +150,8 @@ function applyPromoCode() {
                         class="size-24 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-slate-700/50"
                     >
                         <img
-                            :src="item.image"
-                            :alt="item.name"
+                            :src="item.product.image"
+                            :alt="item.product.name"
                             class="size-full object-cover"
                         />
                     </div>
@@ -187,10 +159,10 @@ function applyPromoCode() {
                     <!-- Product Details -->
                     <div class="flex flex-1 flex-col">
                         <div class="mb-1 flex items-start justify-between">
-                            <h3 class="font-bold leading-tight">{{ item.name }}</h3>
+                            <h3 class="font-bold leading-tight">{{ item.product.name }}</h3>
                             <button
                                 class="p-1 text-gray-400 transition-colors hover:text-red-500"
-                                @click="removeItem(item.id)"
+                                @click="removeItem(item.product.id)"
                             >
                                 <svg
                                     class="size-5"
@@ -207,7 +179,7 @@ function applyPromoCode() {
                                 </svg>
                             </button>
                         </div>
-                        <p class="mb-2 text-xs text-gray-400">{{ item.description }}</p>
+                        <p class="mb-2 text-xs text-gray-400">{{ item.product.description }}</p>
 
                         <div class="mt-auto flex items-center justify-between">
                             <span class="text-lg font-extrabold">
@@ -218,7 +190,7 @@ function applyPromoCode() {
                             <div class="flex items-center gap-1">
                                 <button
                                     class="flex size-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50 dark:border-white/10 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
-                                    @click="decrementQuantity(item.id)"
+                                    @click="decrementQuantity(item.product.id)"
                                 >
                                     <svg
                                         class="size-4"
@@ -239,7 +211,7 @@ function applyPromoCode() {
                                 </span>
                                 <button
                                     class="flex size-8 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700"
-                                    @click="incrementQuantity(item.id)"
+                                    @click="incrementQuantity(item.product.id)"
                                 >
                                     <svg
                                         class="size-4"

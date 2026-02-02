@@ -2,8 +2,8 @@
 import { useForm, usePage, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
-import type { AppPageProps, Currency } from '@/types';
 import { store as setCurrency } from '@/actions/App/Http/Controllers/CurrencyController';
+import type { AppPageProps, Currency } from '@/types';
 
 type Province = {
     id: string;
