@@ -6,13 +6,12 @@ import type { AppPageProps } from '@/types';
 
 const page = usePage<AppPageProps>();
 const location = computed(() => page.props.location as { province: any; municipality: any } | null);
-const settings = computed(() => page.props.settings);
 
 const provinceName = computed(() => {
-    return location.value?.province?.name || 'Location';
+    return location.value?.province?.name || 'Ubicación';
 });
 
-const emit = defineEmits(['open-location']);
+defineEmits(['open-location']);
 </script>
 
 <template>
@@ -21,34 +20,36 @@ const emit = defineEmits(['open-location']);
             <div class="flex items-center">
                 <AppLogoIcon class="h-8 w-auto" />
             </div>
-            
-            <button
-                class="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 shadow-sm transition-colors hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700"
-                @click="$emit('open-location')"
-            >
-                <svg
-                    class="size-5 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+
+            <div class="flex items-center gap-2">
+                <button
+                    class="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 shadow-sm transition-colors hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    @click="$emit('open-location')"
                 >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                </svg>
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 max-w-[80px] truncate">
-                    {{ provinceName }}
-                </span>
-            </button>
+                    <svg
+                        class="size-5 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                    </svg>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200 max-w-[80px] truncate">
+                        {{ provinceName }}
+                    </span>
+                </button>
+            </div>
         </div>
 
         <div class="px-4 py-2">
@@ -67,7 +68,7 @@ const emit = defineEmits(['open-location']);
                 </div>
                 <input
                     type="text"
-                    placeholder="Search for products..."
+                    placeholder="Buscar productos..."
                     class="flex-1 border-none bg-transparent text-sm font-medium placeholder-gray-400 focus:ring-0"
                 />
                 <div class="pr-4 text-blue-600">

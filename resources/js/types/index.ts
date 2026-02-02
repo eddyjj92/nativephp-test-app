@@ -68,6 +68,14 @@ export interface Product {
     category: Category | null;
 }
 
+export interface Currency {
+    id: number;
+    name: string;
+    isoCode: string;
+    isDefault: boolean;
+    conversionValue: number;
+}
+
 export interface PaginatedResponse<T> {
     current_page: number;
     data: T[];
@@ -95,5 +103,7 @@ export type AppPageProps<
     auth: Auth;
     sidebarOpen: boolean;
     settings: Settings;
+    currencies: Currency[];
+    selectedCurrency: Currency | null;
     [key: string]: unknown;
 };

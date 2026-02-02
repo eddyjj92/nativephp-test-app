@@ -38,6 +38,14 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $currencies = $this->compayMarketService->getCurrencies(cache: true);
+        $selectedCurrency = $request->session()->get('selected_currency');
+
+        if (! $selectedCurrency && count($currencies) > 0) {
+            $selectedCurrency = collect($currencies)->first(fn ($c) => $c->isDefault) ?? $currencies[0];
+            $request->session()->put('selected_currency', $selectedCurrency);
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -49,6 +57,8 @@ class HandleInertiaRequests extends Middleware
                 'province' => $request->session()->get('selected_province'),
                 'municipality' => $request->session()->get('selected_municipality'),
             ],
+            'currencies' => $currencies,
+            'selectedCurrency' => $selectedCurrency,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

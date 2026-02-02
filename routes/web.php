@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ProductsController;
@@ -45,5 +46,7 @@ Route::group(['prefix' => 'locations'], function () {
     Route::get('/', [LocationController::class, 'index'])->name('locations.index');
     Route::post('/', [LocationController::class, 'store'])->name('locations.set');
 });
+
+Route::post('/currency', [CurrencyController::class, 'store'])->name('currency.set');
 
 require __DIR__.'/settings.php';
