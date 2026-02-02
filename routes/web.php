@@ -1,12 +1,11 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Home');
-})->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 Route::get('/products/{category?}', function (?string $category = null) {
     return Inertia::render('Products', [
@@ -52,7 +51,5 @@ Route::group(['prefix' => 'locations'], function () {
     Route::get('/', [LocationController::class, 'index'])->name('locations.index');
     Route::post('/', [LocationController::class, 'store'])->name('locations.set');
 });
-
-
 
 require __DIR__.'/settings.php';

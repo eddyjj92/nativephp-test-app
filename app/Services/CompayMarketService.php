@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\BannerDTO;
 use App\DTOs\ProvinceDTO;
 use Closure;
 use Illuminate\Http\Client\ConnectionException;
@@ -167,6 +168,38 @@ class CompayMarketService
             fn () => $this->http()->get("/products/{$id}")->json(),
             $cache,
             $cacheTtl
+        );
+    }
+
+    /**
+     * Obtiene la lista de banners activos.
+     *
+     * @param  string|null  $status  Estado del banner ('active', 'inactive' o null).
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
+     * @return BannerDTO[]
+     *
+     * @throws ConnectionException
+     */
+    public function getBanners(?string $status = null, bool $cache = false, ?int $cacheTtl = null): array
+    {
+        $params = [];
+        if ($status) {
+            $params['status'] = $status;
+        }
+
+        $cacheKey = $this->buildCacheKey('/banners', $params);
+
+        $response = $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get('/banners', $params)->json(),
+            $cache,
+            $cacheTtl
+        );
+
+        return array_map(
+            fn ($banner) => BannerDTO::fromArray($banner),
+            $response['banners'] ?? []
         );
     }
 

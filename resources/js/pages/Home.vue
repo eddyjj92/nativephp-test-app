@@ -21,16 +21,37 @@ type Product = {
     isFavorite: boolean;
 };
 
+type Discount = {
+    id: number;
+    name: string;
+    slug: string;
+    description: string;
+    type: string;
+    value: number;
+    applicableTo: string;
+};
+
+type InformativeBanner = {
+    id: number;
+    name: string;
+    slug: string;
+    description: string;
+};
+
 type Banner = {
     id: number;
-    badge: string;
-    badgeStyle: 'primary' | 'white';
-    title: string;
-    subtitle: string;
-    buttonText: string;
-    buttonStyle: 'primary' | 'white';
     image: string;
+    mobileImage: string;
+    status: string;
+    type: 'discount' | 'informative';
+    bannerableId: number;
+    bannerableType: string;
+    bannerable: Discount | InformativeBanner | null;
 };
+
+const props = defineProps<{
+    banners: Banner[];
+}>();
 
 const page = usePage();
 const locationMissing = computed(() => !!page.props.showLocationModal);
@@ -49,57 +70,43 @@ const categories = ref<Category[]>([
 
 const selectedCategory = ref<string>('electronics');
 
-const banners = ref<Banner[]>([
-    {
-        id: 1,
-        badge: 'Limited Time',
-        badgeStyle: 'primary',
-        title: 'Tech Upgrade\nSale - 40% OFF',
-        subtitle: 'Latest gadgets and accessories',
-        buttonText: 'Shop Now',
-        buttonStyle: 'primary',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBytzLFNJ1yvBG1fxEi5dIzbuOYzwyxiwGDjMtOwho5b2jndMNHJ5406TvFMQ4do_yHzimv_6oXV2LnakN2sB_SQrBwgD9OuKndorViorxx5a2zCHbPRpiV32VB1MNt6sQDBdnCrID04hu53fzp2zs30FrOduAsdBN9gCfQVScF3QOp6eQElc6JbwnBcjFwKCCCZA-IdE2G7ym_5nd7I_dmEPiqPQ2x2y_dVsbRiLPIQVXAl62IAFZRyb6AwUqUWaj-vPs190hiJrA',
-    },
-    {
-        id: 2,
-        badge: 'New Season',
-        badgeStyle: 'white',
-        title: 'Summer Collection\nArrived',
-        subtitle: 'Discover the latest fashion trends',
-        buttonText: 'Explore',
-        buttonStyle: 'white',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0ehCNr5dtDmW8hw6lJ64ivQF4Fqj1OLOqRbR-9Ntpr_qt5EZJiT90LzOuUJ3xijZLq7ebsoMDwO7liSrSIHfiSpFyhTUKvUlIQ7OmwzlYIWcrftaQ1OVAieUV9skSrrPyTM7Qv3KfO6Ho9D-IR-S6gsvakW0bNwanIeOPITUmeQabf2Is7fXPYYirURuQh6I1ZDkN1uYhQ3VFNRv21hjlKvjMWJK4jWRpFAVyJsbqJ3z-KESc_XSKyrc0RYsWjR3C2vz9DOcKGvY',
-    },
-    {
-        id: 3,
-        badge: 'Smart Home',
-        badgeStyle: 'primary',
-        title: 'Future of Living\nStarts Here',
-        subtitle: 'Upgrade your home with AI gadgets',
-        buttonText: 'Shop Tech',
-        buttonStyle: 'primary',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDsLJNLbDaRdlWrk30bLVXGz2zMdwABe3pWlNpNb5MV0CKXj6qLqO4WCWYwBrNCJwAF2rAqY0s_4yJ6HZ8E9hJJQ0aYQm_Xq7eJpCwQY7JOmA',
-    },
-    {
-        id: 4,
-        badge: 'Flash Sale',
-        badgeStyle: 'white',
-        title: 'Weekend Groceries\n50% OFF',
-        subtitle: 'Fresh produce delivered to your door',
-        buttonText: 'Order Now',
-        buttonStyle: 'white',
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCx8jrIDsQet2gsCPjmllYeBU_c-nkpb_O0bu7E910IcOGwqTbGldHyC6AhFT2sHkACQ4x4cR2T9Mh1IInp8e5aBXI7jn6E0lyyHDGwVIHStqpDWJ9OOicbmpDhOEMZh_uxumz-MzCTqI2RFfHkOzH-UGFhnEpyKptYIrKFtQYFsTO5hFeXPhU3A3irp94FpYbrwyIpg7u9PKwp_yw7f-51g1cRVM88qLCJnpMb9-0zX67a9_dQKvGbsq9BEdT6CQ_OJ9QjGyd-3GQ',
-    },
-]);
+function getBannerImage(banner: Banner): string {
+    return banner.mobileImage || banner.image;
+}
+
+function getBannerTitle(banner: Banner): string {
+    return banner.bannerable?.name ?? '';
+}
+
+function getBannerDescription(banner: Banner): string {
+    return banner.bannerable?.description ?? '';
+}
+
+function getBannerBadge(banner: Banner): string {
+    if (banner.type === 'discount' && banner.bannerable) {
+        const discount = banner.bannerable as Discount;
+        return discount.type === 'percentage' ? `${discount.value}% OFF` : `$${discount.value} OFF`;
+    }
+    return banner.type === 'informative' ? 'New' : '';
+}
+
+function getBannerLink(banner: Banner): string {
+    if (banner.type === 'discount') {
+        return `/promotions/${banner.bannerable?.slug ?? ''}`;
+    }
+    return `/info/${banner.bannerable?.slug ?? ''}`;
+}
 
 const startAutoplay = () => {
     stopAutoplay();
+    if (props.banners.length === 0) return;
+
     autoplayTimer = setInterval(() => {
         if (!carouselRef.value) return;
-        
-        activeBannerIndex.value = (activeBannerIndex.value + 1) % banners.value.length;
+
+        activeBannerIndex.value = (activeBannerIndex.value + 1) % props.banners.length;
         const bannerElement = carouselRef.value.children[activeBannerIndex.value] as HTMLElement;
-        
+
         if (bannerElement) {
             bannerElement.scrollIntoView({
                 behavior: 'smooth',
@@ -195,48 +202,45 @@ function formatPrice(price: number): string {
                 @touchstart="stopAutoplay"
                 @touchend="startAutoplay"
             >
-                <div
-                    v-for="banner in banners"
+                <Link
+                    v-for="banner in props.banners"
                     :key="banner.id"
-                    class="relative aspect-[16/9] min-w-[85%] snap-center overflow-hidden rounded-2xl bg-blue-600/10"
+                    :href="getBannerLink(banner)"
+                    class="relative aspect-[19/20] min-w-[85%] snap-center overflow-hidden rounded-2xl bg-blue-600/10"
                 >
                     <div
-                        class="absolute inset-0 z-10 flex flex-col justify-center bg-gradient-to-r from-black/60 to-transparent p-6"
+                        class="absolute inset-0 z-10 flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4"
                     >
                         <span
+                            v-if="getBannerBadge(banner)"
                             :class="[
                                 'mb-2 w-fit rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider',
-                                banner.badgeStyle === 'primary'
+                                banner.type === 'discount'
                                     ? 'bg-blue-600 text-white'
                                     : 'bg-white text-black',
                             ]"
                         >
-                            {{ banner.badge }}
+                            {{ getBannerBadge(banner) }}
                         </span>
                         <h2
-                            class="mb-1 whitespace-pre-line text-2xl font-bold leading-tight text-white"
+                            v-if="getBannerTitle(banner)"
+                            class="mb-1 line-clamp-2 text-lg font-bold leading-tight text-white"
                         >
-                            {{ banner.title }}
+                            {{ getBannerTitle(banner) }}
                         </h2>
-                        <p class="mb-4 text-xs text-white/80">
-                            {{ banner.subtitle }}
-                        </p>
-                        <button
-                            :class="[
-                                'w-fit rounded-lg px-4 py-2 text-sm font-bold shadow-lg',
-                                banner.buttonStyle === 'primary'
-                                    ? 'bg-blue-600 text-white shadow-blue-600/20'
-                                    : 'bg-white text-black',
-                            ]"
+                        <p
+                            v-if="getBannerDescription(banner)"
+                            class="line-clamp-2 text-xs text-white/80"
                         >
-                            {{ banner.buttonText }}
-                        </button>
+                            {{ getBannerDescription(banner) }}
+                        </p>
                     </div>
-                    <div
-                        class="size-full bg-cover bg-center bg-no-repeat"
-                        :style="{ backgroundImage: `url('${banner.image}')` }"
+                    <img
+                        :src="getBannerImage(banner)"
+                        :alt="getBannerTitle(banner)"
+                        class="size-full object-cover"
                     />
-                </div>
+                </Link>
             </div>
 
             <!-- Categories -->
