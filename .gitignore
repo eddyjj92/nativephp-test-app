@@ -34,3 +34,4 @@ yarn-error.log
 /keystore/*
 !/keystore/.gitkeep
 /public
+NUL
