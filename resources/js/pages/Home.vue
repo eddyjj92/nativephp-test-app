@@ -4,18 +4,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import CategoriesCarousel from '@/components/CategoriesCarousel.vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import type { Category } from '@/types';
-
-type Product = {
-    id: number;
-    name: string;
-    brand: string;
-    category: string;
-    price: number;
-    originalPrice?: number;
-    image: string;
-    isFavorite: boolean;
-};
+import type { Category, Product } from '@/types';
 
 type Discount = {
     id: number;
@@ -49,6 +38,8 @@ const props = defineProps<{
     banners: Banner[];
     categories: Category[];
     categoriesNextPageUrl?: string | null;
+    recommendedProducts: Product[];
+    newArrivals: Product[];
 }>();
 
 const page = usePage();
@@ -75,7 +66,7 @@ function getBannerBadge(banner: Banner): string {
         const discount = banner.bannerable as Discount;
         return discount.type === 'percentage' ? `${discount.value}% OFF` : `$${discount.value} OFF`;
     }
-    return banner.type === 'informative' ? 'New' : '';
+    return banner.type === 'informative' ? 'Nuevo' : '';
 }
 
 function getBannerLink(banner: Banner): string {
@@ -120,57 +111,41 @@ onUnmounted(() => {
     stopAutoplay();
 });
 
-const products = ref<Product[]>([
-    {
-        id: 1,
-        name: 'WH-1000XM4 Noise Canceling Wireless...',
-        brand: 'Brand',
-        category: 'Audio',
-        price: 249.0,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBkdQgUIXRO2xmxQisdRa-xXNF5Xf60N8b147d5kkuAsHkR2B8sxIweopIOP4TQ-ZyafkU2CfP4ZqxpBxgSIVrL-hQXygWvNhurSpaxY1W29qELyh_NYKTClebstrSp-ZInNYMiAINV53-BKWqWJbK6YCaL1sphk566QGSEySsVrkdma9yrFh8Edcf_lzXyn431pIhFDUY8Wo7QHDbYZIIzeyKD0wibiAsBRfHXaOz5MwXWmY14QGmWO0YVxrtlKxPiUre2bKtYgks',
-        isFavorite: false,
-    },
-    {
-        id: 2,
-        name: 'Series 7 GPS - 45mm Aluminum',
-        brand: 'Brand',
-        category: 'Wearables',
-        price: 399.0,
-        originalPrice: 429.0,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB8r0aiJ5ngCZEyqyTauHpLVAK6NNQC4pCB1S3mQJW5ceIfkdezlQeU5RZQf6CzLxQgtPxH89hDtVmPhTJxjw1CTwiThkijE1hOhLL2Uk8NWmaLTzrVNUtLdhqESUQFDYgbJKU_CLAXR_D1ml2RBVPiEmbDjDQ-J9Z6KNeBOAiG1XiEovRxgATGd5i5z2rJsbMcmkwTeBDfT4qyemWtjK46KtZbR4C3YM5yqIJDuTxlabMRGmBgxDwazyXghq9p07-kafO1Egn7o7g',
-        isFavorite: false,
-    },
-    {
-        id: 3,
-        name: 'RF 50mm f/1.8 STM Prime Lens',
-        brand: 'Brand',
-        category: 'Photo',
-        price: 199.0,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCO4f9Y-jqkXBYxkKrIgQT2ozhzYGez20ZAncUOIIpa4vOjsTFuIiyrEwNPGutfh0j83ghqFinrhrmQnGRA5oZbFP9mjrC5ezTwXFcmjNukRjGMoFFf0So2n4RNdKKj1VOTroo-omFNbzEizT9CJpdt3AUErlwQ5fYyeELD2bROrjaXt4lKZhn0rGkXxwVkMXEN3GgmcWhdYvPDRTX1MY3xGH8ZOte8Kb1Xy19CFnoeQ3FRIWqQrIqv4iBCVKkQcW9kpTHQ6jXoEMw',
-        isFavorite: false,
-    },
-    {
-        id: 4,
-        name: 'Modern LED Desk Lamp with USB Port',
-        brand: 'Brand',
-        category: 'Decor',
-        price: 45.5,
-        image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCx8jrIDsQet2gsCPjmllYeBU_c-nkpb_O0bu7E910IcOGwqTbGldHyC6AhFT2sHkACQ4x4cR2T9Mh1IInp8e5aBXI7jn6E0lyyHDGwVIHStqpDWJ9OOicbmpDhOEMZh_uxumz-MzCTqI2RFfHkOzH-UGFhnEpyKptYIrKFtQYFsTO5hFeXPhU3A3irp94FpYbrwyIpg7u9PKwp_yw7f-51g1cRVM88qLCJnpMb9-0zX67a9_dQKvGbsq9BEdT6CQ_OJ9QjGyd-3GQ',
-        isFavorite: true,
-    },
-]);
-
 const cartCount = ref(3);
+const favorites = ref<Set<number>>(new Set());
 
 function toggleFavorite(productId: number) {
-    const product = products.value.find((p) => p.id === productId);
-    if (product) {
-        product.isFavorite = !product.isFavorite;
+    if (favorites.value.has(productId)) {
+        favorites.value.delete(productId);
+    } else {
+        favorites.value.add(productId);
     }
+}
+
+function isFavorite(productId: number): boolean {
+    return favorites.value.has(productId);
 }
 
 function formatPrice(price: number): string {
     return `$${price.toFixed(2)}`;
+}
+
+function getDiscountedPrice(product: Product): number | null {
+    if (product.activeDiscounts.length === 0) return null;
+
+    let price = product.salePrice;
+    for (const discount of product.activeDiscounts) {
+        if (discount.type === 'percentage') {
+            price = price * (1 - discount.value / 100);
+        } else {
+            price = price - discount.value;
+        }
+    }
+    return Math.max(0, price);
+}
+
+function hasDiscount(product: Product): boolean {
+    return product.activeDiscounts.length > 0;
 }
 </script>
 
@@ -237,133 +212,188 @@ function formatPrice(price: number): string {
                 :next-page-url="categoriesNextPageUrl"
             />
 
-            <!-- Featured Products -->
-            <div class="mb-3 mt-4 flex items-center justify-between px-4">
-                <h3
-                    class="text-lg font-bold leading-tight tracking-[-0.015em]"
-                >
-                    Featured Products
-                </h3>
-                <div class="flex gap-1">
-                    <button class="rounded bg-black/5 p-1 dark:bg-white/5">
-                        <svg
-                            class="size-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                            />
-                        </svg>
-                    </button>
-                    <button class="rounded p-1">
-                        <svg
-                            class="size-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                            />
-                        </svg>
-                    </button>
+            <!-- Recommended Products -->
+            <section v-if="recommendedProducts.length > 0 || locationMissing" class="mt-6">
+                <div class="mb-3 flex items-center justify-between px-4">
+                    <h3 class="text-lg font-bold leading-tight tracking-[-0.015em]">
+                        Productos Recomendados
+                    </h3>
+                    <Link href="/products?recommended=1" class="text-sm font-medium text-blue-600">
+                        Ver todos
+                    </Link>
                 </div>
-            </div>
 
-            <!-- Products Grid -->
-            <div class="grid grid-cols-2 gap-4 px-4">
-                <template v-if="locationMissing">
-                    <ProductSkeleton v-for="n in 6" :key="n" />
-                </template>
-                <template v-else>
-                    <div
-                        v-for="product in products"
-                        :key="product.id"
-                        class="flex flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
-                    >
-                        <div
-                            class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50"
-                        >
-                            <Link :href="`/product/${product.id}`" class="block size-full">
-                                <img
-                                    :src="product.image"
-                                    :alt="product.name"
-                                    class="size-full object-cover"
-                                />
-                            </Link>
-                            <button
-                                class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/80 backdrop-blur"
-                                @click.stop="toggleFavorite(product.id)"
-                            >
-                                <svg
-                                    :class="[
-                                        'size-5',
-                                        product.isFavorite
-                                            ? 'fill-red-500 text-red-500'
-                                            : 'text-gray-600',
-                                    ]"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                    />
-                                </svg>
-                            </button>
+                <div class="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2">
+                    <template v-if="locationMissing">
+                        <div v-for="n in 4" :key="n" class="min-w-[160px]">
+                            <ProductSkeleton />
                         </div>
-                        <Link :href="`/product/${product.id}`">
-                            <p class="mb-1 text-xs font-medium text-gray-400">
-                                {{ product.brand }} &bull; {{ product.category }}
-                            </p>
-                            <h4 class="mb-2 line-clamp-2 text-sm font-bold leading-snug">
-                                {{ product.name }}
-                            </h4>
-                        </Link>
-                        <div class="mt-auto flex items-center justify-between">
-                            <div class="flex flex-col">
-                                <span class="text-lg font-extrabold text-blue-600">
-                                    {{ formatPrice(product.price) }}
-                                </span>
-                                <span
-                                    v-if="product.originalPrice"
-                                    class="text-[10px] text-gray-400 line-through"
+                    </template>
+                    <template v-else>
+                        <div
+                            v-for="product in recommendedProducts"
+                            :key="product.id"
+                            class="flex min-w-[160px] flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
+                        >
+                            <div class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50">
+                                <Link :href="`/products/${product.slug}`" class="block size-full">
+                                    <img
+                                        :src="product.image"
+                                        :alt="product.name"
+                                        class="size-full object-cover"
+                                    />
+                                </Link>
+                                <button
+                                    class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/80 backdrop-blur"
+                                    @click.stop="toggleFavorite(product.id)"
                                 >
-                                    {{ formatPrice(product.originalPrice) }}
+                                    <svg
+                                        :class="[
+                                            'size-5',
+                                            isFavorite(product.id)
+                                                ? 'fill-red-500 text-red-500'
+                                                : 'text-gray-600',
+                                        ]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                        />
+                                    </svg>
+                                </button>
+                                <span
+                                    v-if="hasDiscount(product)"
+                                    class="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white"
+                                >
+                                    -{{ product.activeDiscounts[0].value }}%
                                 </span>
                             </div>
-                            <button
-                                class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
-                            >
-                                <svg
-                                    class="size-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                            <Link :href="`/products/${product.slug}`">
+                                <p class="mb-1 text-xs font-medium text-gray-400">
+                                    {{ product.category?.name ?? 'Sin categoría' }}
+                                </p>
+                                <h4 class="mb-2 line-clamp-2 text-sm font-bold leading-snug">
+                                    {{ product.name }}
+                                </h4>
+                            </Link>
+                            <div class="mt-auto flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-lg font-extrabold text-blue-600">
+                                        {{ formatPrice(getDiscountedPrice(product) ?? product.salePrice) }}
+                                    </span>
+                                    <span
+                                        v-if="hasDiscount(product)"
+                                        class="text-[10px] text-gray-400 line-through"
+                                    >
+                                        {{ formatPrice(product.salePrice) }}
+                                    </span>
+                                </div>
+                                <button
+                                    class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
                                 >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M12 4v16m8-8H4"
-                                    />
-                                </svg>
-                            </button>
+                                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- New Arrivals -->
+            <section v-if="newArrivals.length > 0 || locationMissing" class="mt-6">
+                <div class="mb-3 flex items-center justify-between px-4">
+                    <h3 class="text-lg font-bold leading-tight tracking-[-0.015em]">
+                        Nuevos Arribos
+                    </h3>
+                    <Link href="/products?new=1" class="text-sm font-medium text-blue-600">
+                        Ver todos
+                    </Link>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 px-4">
+                    <template v-if="locationMissing">
+                        <ProductSkeleton v-for="n in 4" :key="n" />
+                    </template>
+                    <template v-else>
+                        <div
+                            v-for="product in newArrivals"
+                            :key="product.id"
+                            class="flex flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
+                        >
+                            <div class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50">
+                                <Link :href="`/products/${product.slug}`" class="block size-full">
+                                    <img
+                                        :src="product.image"
+                                        :alt="product.name"
+                                        class="size-full object-cover"
+                                    />
+                                </Link>
+                                <button
+                                    class="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/80 backdrop-blur"
+                                    @click.stop="toggleFavorite(product.id)"
+                                >
+                                    <svg
+                                        :class="[
+                                            'size-5',
+                                            isFavorite(product.id)
+                                                ? 'fill-red-500 text-red-500'
+                                                : 'text-gray-600',
+                                        ]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                        />
+                                    </svg>
+                                </button>
+                                <span class="absolute left-2 top-2 rounded bg-green-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                                    Nuevo
+                                </span>
+                            </div>
+                            <Link :href="`/products/${product.slug}`">
+                                <p class="mb-1 text-xs font-medium text-gray-400">
+                                    {{ product.category?.name ?? 'Sin categoría' }}
+                                </p>
+                                <h4 class="mb-2 line-clamp-2 text-sm font-bold leading-snug">
+                                    {{ product.name }}
+                                </h4>
+                            </Link>
+                            <div class="mt-auto flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-lg font-extrabold text-blue-600">
+                                        {{ formatPrice(getDiscountedPrice(product) ?? product.salePrice) }}
+                                    </span>
+                                    <span
+                                        v-if="hasDiscount(product)"
+                                        class="text-[10px] text-gray-400 line-through"
+                                    >
+                                        {{ formatPrice(product.salePrice) }}
+                                    </span>
+                                </div>
+                                <button
+                                    class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
+                                >
+                                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
         </main>
 
         </div>

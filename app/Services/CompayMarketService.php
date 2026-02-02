@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTOs\BannerDTO;
 use App\DTOs\CurrencyDTO;
+use App\DTOs\MarketplaceHomeDTO;
 use App\DTOs\ProductDTO;
 use App\DTOs\ProvinceDTO;
 use App\DTOs\SettingsDTO;
@@ -274,6 +275,35 @@ class CompayMarketService
             fn ($currency) => CurrencyDTO::fromArray($currency),
             $response['currencies'] ?? []
         );
+    }
+
+    /**
+     * Obtiene los datos del marketplace home (productos recomendados y otras secciones).
+     *
+     * @param  string  $provinceSlug  Slug de la provincia.
+     * @param  string  $currency  Código ISO de la moneda (ej: USD, EUR).
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
+     *
+     * @throws ConnectionException
+     */
+    public function getMarketplaceHome(string $provinceSlug, string $currency, bool $cache = false, ?int $cacheTtl = null): MarketplaceHomeDTO
+    {
+        $params = [
+            'province_slug' => $provinceSlug,
+            'currency' => $currency,
+        ];
+
+        $cacheKey = $this->buildCacheKey('/products/marketplace_home', $params);
+
+        $response = $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get('/products/marketplace_home', $params)->json(),
+            $cache,
+            $cacheTtl
+        );
+
+        return MarketplaceHomeDTO::fromArray($response ?? []);
     }
 
     /**

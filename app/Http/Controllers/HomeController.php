@@ -27,10 +27,25 @@ class HomeController extends Controller
             $nextPageUrl = route('home', ['page' => $nextPage]);
         }
 
+        // Get marketplace home data with recommended products
+        $province = session('selected_province');
+        $currency = session('selected_currency');
+
+        $marketplaceHome = null;
+        if ($province && $currency) {
+            $marketplaceHome = $this->compayMarketService->getMarketplaceHome(
+                provinceSlug: $province->slug,
+                currency: $currency->isoCode,
+                cache: true
+            );
+        }
+
         return Inertia::render('Home', [
             'banners' => $banners,
             'categories' => Inertia::merge($categories['data'] ?? []),
             'categoriesNextPageUrl' => $nextPageUrl,
+            'recommendedProducts' => $marketplaceHome?->recommendedProducts ?? [],
+            'newArrivals' => $marketplaceHome?->newArrivals ?? [],
         ]);
     }
 }
