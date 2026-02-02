@@ -3,6 +3,8 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
+import { nativephpMobile, nativephpHotFile } from './vendor/nativephp/mobile/resources/js/vite-plugin.js';
+
 
 export default defineConfig({
     plugins: [
@@ -10,6 +12,7 @@ export default defineConfig({
             input: ['resources/js/app.ts'],
             ssr: 'resources/js/ssr.ts',
             refresh: true,
+            hotFile: nativephpHotFile(),
         }),
         tailwindcss(),
         wayfinder({
@@ -23,5 +26,6 @@ export default defineConfig({
                 },
             },
         }),
+        nativephpMobile(),
     ],
 });
