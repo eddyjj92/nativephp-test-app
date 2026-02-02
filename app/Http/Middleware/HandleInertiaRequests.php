@@ -42,8 +42,8 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'location' => [
-                'province' => $request->session()->get('location_province'),
-                'municipality' => $request->session()->get('location_municipality'),
+                'province' => $request->session()->get('selected_province'),
+                'municipality' => $request->session()->get('selected_municipality'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

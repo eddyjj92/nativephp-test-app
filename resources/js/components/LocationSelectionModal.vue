@@ -24,21 +24,21 @@ const municipalities = ref<Municipality[]>([]);
 const loading = ref(true);
 
 const form = useForm({
-    province: '',
-    municipality: '',
+    province: '' as string | number,
+    municipality: '' as string | number,
 });
 
 // Fetch data on mount
 onMounted(async () => {
     try {
-        const response = await axios.get('/locations/data');
+        const response = await axios.get('/locations');
         provinces.value = response.data.provinces;
         municipalities.value = response.data.municipalities;
         
-        // Pre-fill if exists in page props (for manual change)
+        // Pre-fill if exists in page props (accessing nested ID from DTO object)
         const currentLoc = page.props.location as any;
-        if (currentLoc?.province) form.province = currentLoc.province;
-        if (currentLoc?.municipality) form.municipality = currentLoc.municipality;
+        if (currentLoc?.province?.id) form.province = currentLoc.province.id;
+        if (currentLoc?.municipality?.id) form.municipality = currentLoc.municipality.id;
         
     } catch (error) {
         console.error('Failed to load location data', error);
@@ -49,13 +49,12 @@ onMounted(async () => {
 
 const filteredMunicipalities = computed(() => {
     if (!form.province) return [];
-    return municipalities.value.filter(m => m.provinceId === form.province);
+    return municipalities.value.filter(m => m.provinceId == form.province);
 });
 
 const submit = () => {
-    form.post('/locations/set', {
+    form.post('/locations', {
         onSuccess: () => {
-            // Force reload to update middleware state effectively or let Inertia handle it via prop update
             window.location.reload(); 
         }
     });

@@ -2,53 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use App\DTOs\MunicipalityDTO;
-use App\DTOs\ProvinceDTO;
-use Illuminate\Http\Request;
+use App\Services\CompayMarketService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
+/**
+ * Controlador para gestionar la ubicación de entrega del usuario.
+ * Maneja la obtención de datos geográficos desde la API y su persistencia en la sesión.
+ */
 class LocationController extends Controller
 {
     /**
-     * Get the list of provinces and municipalities.
+     * Crea una nueva instancia del controlador.
+     *
+     * @param  CompayMarketService  $compayMarketService  Servicio de la API de Compay Market.
+     */
+    public function __construct(
+        protected CompayMarketService $compayMarketService
+    ) {}
+
+    /**
+     * Obtiene la lista de provincias y municipios desde la API real.
+     * Filtra solo por provincias con estado 'active'.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
-        // Mock data - In a real app, this would come from a DB or API service
-        $provinces = [
-            new ProvinceDTO('havana', 'La Habana'),
-            new ProvinceDTO('santiago', 'Santiago de Cuba'),
-            new ProvinceDTO('matanzas', 'Matanzas'),
-        ];
+        try {
+            $provinces = $this->compayMarketService->getProvinces('active');
 
-        $municipalities = [
-            new MunicipalityDTO('plaza', 'Plaza de la Revolución', 'havana'),
-            new MunicipalityDTO('playa', 'Playa', 'havana'),
-            new MunicipalityDTO('centro_habana', 'Centro Habana', 'havana'),
-            new MunicipalityDTO('santiago_muni', 'Santiago de Cuba', 'santiago'),
-            new MunicipalityDTO('palma', 'Palma Soriano', 'santiago'),
-            new MunicipalityDTO('matanzas_muni', 'Matanzas', 'matanzas'),
-            new MunicipalityDTO('varadero', 'Varadero', 'matanzas'),
-        ];
+            $municipalities = [];
+            foreach ($provinces as $province) {
+                foreach ($province->municipalities as $muni) {
+                    $municipalities[] = $muni;
+                }
+            }
 
-        return response()->json([
-            'provinces' => $provinces,
-            'municipalities' => $municipalities,
-        ]);
+            return response()->json([
+                'provinces' => $provinces,
+                'municipalities' => $municipalities,
+            ]);
+        } catch (\Exception $e) {
+            // Log error or handle gracefully
+            return response()->json([
+                'provinces' => [],
+                'municipalities' => [],
+                'error' => 'Failed to load location data'.$e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
-     * Save the selected location to the session.
+     * Guarda los objetos DTO de la provincia y municipio seleccionados en la sesión.
+     * Valida la existencia de los IDs contra los datos reales de la API.
+     *
+     * @param  Request  $request  Petición con IDs de provincia y municipio.
      */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'province' => 'required|string',
-            'municipality' => 'required|string',
+            'province' => 'required',
+            'municipality' => 'required',
         ]);
 
-        $request->session()->put('location_province', $validated['province']);
-        $request->session()->put('location_municipality', $validated['municipality']);
+        try {
+            $provinces = $this->compayMarketService->getProvinces('active');
+
+            $province = collect($provinces)->first(fn ($p) => $p->id == $validated['province']);
+            $municipality = null;
+
+            if ($province) {
+                $municipality = collect($province->municipalities)->first(fn ($m) => $m->id == $validated['municipality']);
+            }
+
+            if ($province && $municipality) {
+                $request->session()->put('selected_province', $province);
+                $request->session()->put('selected_municipality', $municipality);
+            }
+        } catch (\Exception $e) {
+            // If API fails during validation, we can't verify the location.
+            // Option: Allow it blindly OR fail. Failing is safer to prevent invalid state.
+            return back()->withErrors(['location' => 'Unable to verify location settings. Please try again.']);
+        }
 
         return back();
     }

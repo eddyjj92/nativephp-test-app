@@ -3,13 +3,10 @@ import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const page = usePage();
-const location = computed(() => page.props.location as { province: string; municipality: string } | null);
+const location = computed(() => page.props.location as { province: any; municipality: any } | null);
 
 const provinceName = computed(() => {
-    if (!location.value?.province) return 'Location';
-    // Simple capitalization for ID (e.g. 'havana' -> 'Havana')
-    // In a real app, map IDs to names or store names in session
-    return location.value.province.charAt(0).toUpperCase() + location.value.province.slice(1);
+    return location.value?.province?.name || 'Location';
 });
 
 const emit = defineEmits(['open-location']);

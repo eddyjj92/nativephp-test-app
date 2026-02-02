@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\ProvinceDTO;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
@@ -35,7 +36,7 @@ class CompayMarketService
      */
     protected function http(): PendingRequest
     {
-        $request = Http::baseUrl(config('services.compay_market.base_url'))
+        $request = Http::baseUrl(config('services.compay_market.api_base_url'))
             ->timeout(30)
             ->acceptJson();
 
@@ -55,6 +56,28 @@ class CompayMarketService
             'email' => $email,
             'password' => $password,
         ])->json();
+    }
+
+    /**
+     * Obtiene la lista de provincias (Endpoint Público).
+     *
+     * @param  string|null  $status  Estado de la entrega ('active', 'inactive' o null).
+     * @return ProvinceDTO[]
+     */
+    public function getProvinces(?string $status = null): array
+    {
+        $params = [];
+        if ($status) {
+            $params['status'] = $status;
+        }
+
+        $response = $this->http()->get('/provinces', $params)->json();
+
+
+        return array_map(
+            fn ($province) => ProvinceDTO::fromArray($province),
+            $response['provinces'] ?? []
+        );
     }
 
     /**

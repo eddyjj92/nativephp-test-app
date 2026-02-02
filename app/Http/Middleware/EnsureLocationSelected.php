@@ -17,8 +17,8 @@ class EnsureLocationSelected
     public function handle(Request $request, Closure $next): Response
     {
         // Verificar si la ubicación está en la sesión
-        $hasLocation = $request->session()->has('location_province') && 
-                       $request->session()->has('location_municipality');
+        $hasLocation = $request->session()->has('selected_province') &&
+                       $request->session()->has('selected_municipality');
 
         if (! $hasLocation) {
             // Compartir la bandera con Inertia para que el frontend sepa que debe abrir el modal
