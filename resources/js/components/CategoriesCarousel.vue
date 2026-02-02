@@ -1,12 +1,66 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { WhenVisible } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { ref, watch, onUnmounted } from 'vue';
 import type { Category } from '@/types';
 
-defineProps<{
+const props = defineProps<{
     categories: Category[];
     nextPageUrl?: string | null;
 }>();
+
+const isLoading = ref(false);
+const triggerRef = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
+
+function loadMore() {
+    if (!props.nextPageUrl || isLoading.value) return;
+
+    isLoading.value = true;
+
+    router.get(props.nextPageUrl, {}, {
+        preserveState: true,
+        preserveScroll: true,
+        only: ['categories', 'categoriesNextPageUrl'],
+        onFinish: () => {
+            isLoading.value = false;
+        },
+    });
+}
+
+// Set up intersection observer for infinite scroll trigger
+watch(triggerRef, (el, _, onCleanup) => {
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
+
+    if (!el) return;
+
+    observer = new IntersectionObserver(
+        (entries) => {
+            if (entries[0].isIntersecting) {
+                loadMore();
+            }
+        },
+        { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    observer.observe(el);
+
+    onCleanup(() => {
+        if (observer) {
+            observer.disconnect();
+            observer = null;
+        }
+    });
+}, { immediate: true });
+
+onUnmounted(() => {
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
+});
 </script>
 
 <template>
@@ -38,20 +92,23 @@ defineProps<{
                     class="size-full object-contain"
                 />
             </div>
-            <p class="text-center text-[10px] font-bold leading-tight text-gray-700 dark:text-gray-300 line-clamp-2">
+            <p class="line-clamp-2 text-center text-[10px] font-bold leading-tight text-gray-700 dark:text-gray-300">
                 {{ category.name }}
             </p>
         </Link>
 
-        <!-- Infinite Scroll Trigger -->
-        <WhenVisible
+        <!-- Infinite Scroll Trigger with Bouncing Dots -->
+        <div
             v-if="nextPageUrl"
-            :href="nextPageUrl"
-            :only="['categories', 'categoriesNextPageUrl']"
-            class="flex min-w-[20px] items-center justify-center"
+            ref="triggerRef"
+            class="flex min-w-[70px] items-center justify-center"
         >
-            <div class="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-        </WhenVisible>
+            <div class="flex items-center gap-1">
+                <span class="size-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.3s]"></span>
+                <span class="size-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.15s]"></span>
+                <span class="size-2 animate-bounce rounded-full bg-blue-600"></span>
+            </div>
+        </div>
     </div>
 </template>
 
