@@ -45,7 +45,4 @@
     <body class="font-sans antialiased nativephp-safe-area">
         @inertia
     </body>
-    <native:bottom-nav>
-        <native:bottom-nav-item id="home" icon="home" label="Home" url="/home" />
-    </native:bottom-nav>
 </html>
