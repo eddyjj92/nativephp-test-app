@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import type { AppPageProps } from '@/types';
 
-const page = usePage();
+const page = usePage<AppPageProps>();
 const location = computed(() => page.props.location as { province: any; municipality: any } | null);
+const settings = computed(() => page.props.settings);
 
 const provinceName = computed(() => {
     return location.value?.province?.name || 'Location';
@@ -15,23 +18,8 @@ const emit = defineEmits(['open-location']);
 <template>
     <header class="mobile-top-bar sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900">
         <div class="mb-2 flex items-center justify-between px-4">
-            <div class="flex items-center gap-2">
-                <div class="rounded-lg bg-blue-600 p-1">
-                    <svg
-                        class="size-6 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
-                    </svg>
-                </div>
-                <h1 class="text-xl font-extrabold tracking-tight">Compay Market</h1>
+            <div class="flex items-center">
+                <AppLogoIcon class="h-8 w-auto" />
             </div>
             
             <button
