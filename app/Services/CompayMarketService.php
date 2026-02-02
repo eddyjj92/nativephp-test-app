@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\BannerDTO;
+use App\DTOs\CurrencyDTO;
 use App\DTOs\ProductDTO;
 use App\DTOs\ProvinceDTO;
 use App\DTOs\SettingsDTO;
@@ -246,6 +247,32 @@ class CompayMarketService
         return array_map(
             fn ($banner) => BannerDTO::fromArray($banner),
             $response['banners'] ?? []
+        );
+    }
+
+    /**
+     * Obtiene la lista de monedas disponibles.
+     *
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
+     * @return CurrencyDTO[]
+     *
+     * @throws ConnectionException
+     */
+    public function getCurrencies(bool $cache = false, ?int $cacheTtl = null): array
+    {
+        $cacheKey = $this->buildCacheKey('/currencies');
+
+        $response = $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get('/currencies')->json(),
+            $cache,
+            $cacheTtl
+        );
+
+        return array_map(
+            fn ($currency) => CurrencyDTO::fromArray($currency),
+            $response['currencies'] ?? []
         );
     }
 
