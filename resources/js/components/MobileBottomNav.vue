@@ -23,7 +23,7 @@ function itemClasses(id: NavId): string[] {
 
 <template>
     <nav
-        class="fixed inset-x-0 bottom-0 z-50 flex items-center justify-between border-t border-gray-100 bg-white/90 px-6 pb-6 pt-2 backdrop-blur-md dark:border-white/5 dark:bg-slate-900/95"
+        class="fixed inset-x-0 bottom-0 z-50 flex items-center justify-between border-t border-gray-100 bg-white/90 px-6 pb-[calc(var(--inset-bottom,0px)+0.5rem)] pl-[calc(var(--inset-left,0px)+1.5rem)] pr-[calc(var(--inset-right,0px)+1.5rem)] pt-2 backdrop-blur-md dark:border-white/5 dark:bg-slate-900/95"
     >
         <Link href="/" :class="itemClasses('home')">
             <svg

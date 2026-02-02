@@ -16,7 +16,7 @@ const emit = defineEmits(['open-location']);
 </script>
 
 <template>
-    <header class="mobile-top-bar sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900">
+    <header class="mobile-top-bar sticky top-0 z-50 bg-slate-50 pb-2 pt-[calc(var(--inset-top,0px)+1rem)] pl-[var(--inset-left,0px)] pr-[var(--inset-right,0px)] dark:bg-slate-900">
         <div class="mb-2 flex items-center justify-between px-4">
             <div class="flex items-center">
                 <AppLogoIcon class="h-8 w-auto" />

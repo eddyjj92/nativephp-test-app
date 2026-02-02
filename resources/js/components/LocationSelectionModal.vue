@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
+import { ref, onMounted, computed } from 'vue';
 
 type Province = {
     id: string;

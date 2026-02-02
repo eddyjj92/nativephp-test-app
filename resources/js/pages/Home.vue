@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import MobileLayout from '@/layouts/MobileLayout.vue';
-import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import CategoriesCarousel from '@/components/CategoriesCarousel.vue';
+import ProductSkeleton from '@/components/ProductSkeleton.vue';
+import MobileLayout from '@/layouts/MobileLayout.vue';
 import type { Category } from '@/types';
 
 type Product = {
