@@ -197,16 +197,21 @@ class CompayMarketService
      *
      * @param  string  $id  Identificador del producto.
      * @param  string|null  $currency  Código ISO de la moneda (ej: USD, EUR).
+     * @param  string|null  $provinceSlug  Slug de la provincia.
      * @param  bool  $cache  Si se debe cachear la respuesta.
      * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
      *
      * @throws ConnectionException
      */
-    public function getProduct(string $id, ?string $currency = null, bool $cache = false, ?int $cacheTtl = null): ?ProductDTO
+    public function getProduct(string $id, ?string $currency = null, ?string $provinceSlug = null, bool $cache = false, ?int $cacheTtl = null): ?ProductDTO
     {
         $params = [];
         if ($currency) {
             $params['currency'] = $currency;
+        }
+
+        if ($provinceSlug) {
+            $params['province_slug'] = $provinceSlug;
         }
 
         $cacheKey = $this->buildCacheKey("/products/{$id}", $params);

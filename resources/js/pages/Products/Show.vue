@@ -96,9 +96,7 @@ function addToCart() {
 </script>
 
 <template>
-    <Head :title="product.name" />
-
-    <MobileLayout active-nav="catalog" :cart-count="cartCount" :show-bottom-bar="false">
+    <MobileLayout active-nav="catalog" :cart-count="cartCount">
         <div
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
@@ -286,7 +284,7 @@ function addToCart() {
 
             <!-- Bottom Action Bar -->
             <div
-                class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white px-4 pb-[calc(var(--inset-bottom,0px)+1rem)] pt-4 dark:border-white/5 dark:bg-slate-900"
+                class="fixed inset-x-0 bottom-[calc(var(--inset-bottom,0px)+3.8rem)] z-40 border-t border-gray-100 bg-white px-4 pb-4 pt-4 dark:border-white/5 dark:bg-slate-900"
             >
                 <div class="flex items-center gap-3">
                     <button

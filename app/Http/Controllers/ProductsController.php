@@ -58,10 +58,12 @@ class ProductsController extends Controller
     public function show(int $id): Response
     {
         $currency = session('selected_currency');
+        $province = session('selected_province');
 
         $product = $this->compayMarketService->getProduct(
             id: (string) $id,
             currency: $currency?->isoCode,
+            provinceSlug: $province?->slug,
             cache: true
         );
 
