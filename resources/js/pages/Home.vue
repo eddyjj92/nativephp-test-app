@@ -243,7 +243,7 @@ function hasDiscount(product: Product): boolean {
                             class="flex flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
                         >
                             <div class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50">
-                                <Link :href="`/products/${product.slug}`" class="block size-full">
+                                <Link :href="`/product/${product.id}`" class="block size-full">
                                     <img
                                         :src="product.image"
                                         :alt="product.name"
@@ -335,7 +335,7 @@ function hasDiscount(product: Product): boolean {
                             class="flex flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
                         >
                             <div class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50">
-                                <Link :href="`/products/${product.slug}`" class="block size-full">
+                                <Link :href="`/product/${product.id}`" class="block size-full">
                                     <img
                                         :src="product.image"
                                         :alt="product.name"
