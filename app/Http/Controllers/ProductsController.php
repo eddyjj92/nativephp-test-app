@@ -49,4 +49,17 @@ class ProductsController extends Controller
             'categorySlug' => $categorySlug,
         ]);
     }
+
+    public function show(string $slug): Response
+    {
+        $product = $this->compayMarketService->getProduct($slug, cache: true);
+
+        if (! $product) {
+            abort(404, 'Producto no encontrado');
+        }
+
+        return Inertia::render('Products/Show', [
+            'product' => $product,
+        ]);
+    }
 }

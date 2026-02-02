@@ -231,7 +231,7 @@ function hasDiscount(product: Product): boolean {
                         <div
                             class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-slate-700/50"
                         >
-                            <Link :href="`/product/${product.slug}`" class="block size-full">
+                            <Link :href="`/product/${product.id}`" class="block size-full">
                                 <img :src="product.image" :alt="product.name" class="size-full object-cover" />
                             </Link>
 
