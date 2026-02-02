@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\CompayMarketService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -15,6 +16,8 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(protected CompayMarketService $compayMarketService) {}
 
     /**
      * Determines the current asset version.
@@ -38,6 +41,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'settings' => $this->compayMarketService->getSettings(cache: true),
             'auth' => [
                 'user' => $request->user(),
             ],

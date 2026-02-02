@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTOs\BannerDTO;
 use App\DTOs\ProvinceDTO;
+use App\DTOs\SettingsDTO;
 use Closure;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -97,6 +98,29 @@ class CompayMarketService
             'email' => $email,
             'password' => $password,
         ])->json();
+    }
+
+    /**
+     * Obtiene la configuración del sitio (Endpoint Público).
+     *
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
+     * @return SettingsDTO
+     *
+     * @throws ConnectionException
+     */
+    public function getSettings(bool $cache = false, ?int $cacheTtl = null): SettingsDTO
+    {
+        $cacheKey = $this->buildCacheKey('/settings');
+
+        $response = $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get('/settings')->json(),
+            $cache,
+            $cacheTtl
+        );
+
+        return SettingsDTO::fromArray($response['settings'] ?? []);
     }
 
     /**
