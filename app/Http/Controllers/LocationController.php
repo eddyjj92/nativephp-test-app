@@ -30,7 +30,7 @@ class LocationController extends Controller
     public function index()
     {
         try {
-            $provinces = $this->compayMarketService->getProvinces('active');
+            $provinces = $this->compayMarketService->getProvinces('active', cache: true);
 
             $municipalities = [];
             foreach ($provinces as $province) {
@@ -67,7 +67,7 @@ class LocationController extends Controller
         ]);
 
         try {
-            $provinces = $this->compayMarketService->getProvinces('active');
+            $provinces = $this->compayMarketService->getProvinces('active', cache: true);
 
             $province = collect($provinces)->first(fn ($p) => $p->id == $validated['province']);
             $municipality = null;

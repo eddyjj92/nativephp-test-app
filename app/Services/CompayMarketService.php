@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\DTOs\ProvinceDTO;
+use Closure;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 /**
@@ -13,6 +15,11 @@ use Illuminate\Support\Facades\Http;
  */
 class CompayMarketService
 {
+    /**
+     * Duración por defecto del caché en segundos (10 minutos).
+     */
+    protected const DEFAULT_CACHE_TTL = 600;
+
     /**
      * El token de API para peticiones autenticadas.
      */
@@ -48,7 +55,40 @@ class CompayMarketService
     }
 
     /**
+     * Ejecuta una petición con soporte de caché opcional.
+     *
+     * @param  string  $cacheKey  Clave única para identificar el caché.
+     * @param  Closure  $callback  Función que realiza la petición HTTP.
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos (null usa el valor por defecto).
+     */
+    protected function cached(string $cacheKey, Closure $callback, bool $cache = false, ?int $cacheTtl = null): mixed
+    {
+        if (! $cache) {
+            return $callback();
+        }
+
+        $ttl = $cacheTtl ?? self::DEFAULT_CACHE_TTL;
+
+        return Cache::remember($cacheKey, $ttl, $callback);
+    }
+
+    /**
+     * Genera una clave de caché única basada en el endpoint y parámetros.
+     *
+     * @param  string  $endpoint  El endpoint de la API.
+     * @param  array  $params  Parámetros de la petición.
+     */
+    protected function buildCacheKey(string $endpoint, array $params = []): string
+    {
+        $paramsHash = ! empty($params) ? '_'.md5(serialize($params)) : '';
+
+        return 'compay_market_'.str_replace('/', '_', trim($endpoint, '/')).$paramsHash;
+    }
+
+    /**
      * Inicia sesión para obtener un token de acceso (Endpoint Público).
+     * Este método NO debe ser cacheado por seguridad.
      */
     public function login(string $email, string $password): array
     {
@@ -62,17 +102,25 @@ class CompayMarketService
      * Obtiene la lista de provincias (Endpoint Público).
      *
      * @param  string|null  $status  Estado de la entrega ('active', 'inactive' o null).
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
      * @return ProvinceDTO[]
      */
-    public function getProvinces(?string $status = null): array
+    public function getProvinces(?string $status = null, bool $cache = false, ?int $cacheTtl = null): array
     {
         $params = [];
         if ($status) {
             $params['status'] = $status;
         }
 
-        $response = $this->http()->get('/provinces', $params)->json();
+        $cacheKey = $this->buildCacheKey('/provinces', $params);
 
+        $response = $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get('/provinces', $params)->json(),
+            $cache,
+            $cacheTtl
+        );
 
         return array_map(
             fn ($province) => ProvinceDTO::fromArray($province),
@@ -84,29 +132,48 @@ class CompayMarketService
      * Obtiene la lista de productos.
      *
      * @param  array  $params  Parámetros de filtrado o paginación.
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
      *
      * @throws ConnectionException
      */
-    public function getProducts(array $params = []): array
+    public function getProducts(array $params = [], bool $cache = false, ?int $cacheTtl = null): array
     {
-        return $this->http()->get('/products', $params)->json();
+        $cacheKey = $this->buildCacheKey('/products', $params);
+
+        return $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get('/products', $params)->json(),
+            $cache,
+            $cacheTtl
+        );
     }
 
     /**
      * Obtiene los detalles de un producto específico.
      *
      * @param  string  $id  Identificador del producto.
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
      *
      * @throws ConnectionException
      */
-    public function getProduct(string $id): array
+    public function getProduct(string $id, bool $cache = false, ?int $cacheTtl = null): array
     {
-        return $this->http()->get("/products/{$id}")->json();
+        $cacheKey = $this->buildCacheKey("/products/{$id}");
+
+        return $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get("/products/{$id}")->json(),
+            $cache,
+            $cacheTtl
+        );
     }
 
     /**
      * Crea una nueva orden de compra (Endpoint Autenticado).
      * Requiere haber llamado a setToken() previamente.
+     * Este método NO debe ser cacheado.
      *
      * @param  array  $data  Datos de la orden y productos.
      *
@@ -115,5 +182,18 @@ class CompayMarketService
     public function createOrder(array $data): array
     {
         return $this->http()->post('/orders', $data)->json();
+    }
+
+    /**
+     * Limpia el caché de un endpoint específico.
+     *
+     * @param  string  $endpoint  El endpoint de la API.
+     * @param  array  $params  Parámetros de la petición.
+     */
+    public function clearCache(string $endpoint, array $params = []): bool
+    {
+        $cacheKey = $this->buildCacheKey($endpoint, $params);
+
+        return Cache::forget($cacheKey);
     }
 }
