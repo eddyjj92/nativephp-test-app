@@ -133,7 +133,7 @@ function applyPromoCode() {
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 pb-64">
+        <main class="flex-1 pb-4">
             <!-- Empty Cart State -->
             <div
                 v-if="cartItems.length === 0"

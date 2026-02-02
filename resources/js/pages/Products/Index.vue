@@ -209,7 +209,7 @@ function hasDiscount(product: Product): boolean {
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 px-4 pb-24">
+            <main class="flex-1 px-4 pb-4">
                 <!-- Empty State -->
                 <div v-if="products.length === 0 && !isLoading" class="flex flex-col items-center justify-center py-16">
                     <svg class="mb-4 size-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

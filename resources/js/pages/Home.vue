@@ -166,7 +166,7 @@ function hasDiscount(product: Product): boolean {
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
         <!-- Main Content -->
-        <main class="flex-1 pb-24">
+        <main class="flex-1 pb-4">
             <!-- Banner Carousel -->
             <div
                 ref="carouselRef"

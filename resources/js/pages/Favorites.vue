@@ -117,7 +117,7 @@ function moveAllToCart() {
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 pb-24">
+        <main class="flex-1 pb-4">
             <!-- Items Count -->
             <div v-if="favorites.length > 0" class="px-4 py-4">
                 <p class="text-sm text-gray-500">
