@@ -87,10 +87,15 @@ const startAutoplay = () => {
         const bannerElement = carouselRef.value.children[activeBannerIndex.value] as HTMLElement;
 
         if (bannerElement) {
-            bannerElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest',
-                inline: 'center'
+            // Use scrollLeft instead of scrollIntoView to avoid vertical page scroll
+            const containerWidth = carouselRef.value.offsetWidth;
+            const bannerWidth = bannerElement.offsetWidth;
+            const bannerLeft = bannerElement.offsetLeft;
+            const scrollPosition = bannerLeft - (containerWidth - bannerWidth) / 2;
+
+            carouselRef.value.scrollTo({
+                left: scrollPosition,
+                behavior: 'smooth'
             });
         }
     }, 4000);
@@ -223,17 +228,15 @@ function hasDiscount(product: Product): boolean {
                     </Link>
                 </div>
 
-                <div class="hide-scrollbar flex gap-3 overflow-x-auto px-4 pb-2">
+                <div class="grid grid-cols-2 gap-4 px-4">
                     <template v-if="locationMissing">
-                        <div v-for="n in 4" :key="n" class="min-w-[160px]">
-                            <ProductSkeleton />
-                        </div>
+                        <ProductSkeleton v-for="n in 4" :key="n" />
                     </template>
                     <template v-else>
                         <div
                             v-for="product in recommendedProducts"
                             :key="product.id"
-                            class="flex min-w-[160px] flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
+                            class="flex flex-col rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800/50"
                         >
                             <div class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50">
                                 <Link :href="`/products/${product.slug}`" class="block size-full">
