@@ -20,7 +20,7 @@ class ProductDTO
         public string $image,
         public string $status,
         public bool $recommended,
-        public int $stock,
+        public ?int $stock,
         public array $activeDiscounts = [],
         public ?CategoryDTO $category = null,
     ) {}
@@ -49,7 +49,7 @@ class ProductDTO
             image: $data['image'] ?? '',
             status: $data['status'] ?? 'DISABLED',
             recommended: (bool) ($data['recommended'] ?? false),
-            stock: (int) ($data['stock'] ?? 0),
+            stock: isset($data['stock']) ? (int) $data['stock'] : null,
             activeDiscounts: $activeDiscounts,
             category: $category,
         );
@@ -57,7 +57,9 @@ class ProductDTO
 
     public function isAvailable(): bool
     {
-        return $this->status === 'ENABLED' && $this->stock > 0;
+        // If stock is null (not provided by API), assume available if status is ENABLED
+        // If stock is provided, check that it's greater than 0
+        return $this->status === 'ENABLED' && ($this->stock === null || $this->stock > 0);
     }
 
     public function hasDiscount(): bool

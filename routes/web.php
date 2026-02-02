@@ -27,7 +27,7 @@ Route::get('/conversations/{id}', function (string $id) {
     return Inertia::render('Chat', ['id' => $id]);
 })->name('chat.show');
 
-Route::get('/product/{slug}', [ProductsController::class, 'show'])->name('products.show');
+Route::get('/product/{id}', [ProductsController::class, 'show'])->name('products.show');
 
 Route::get('/favorites', function () {
     return Inertia::render('Favorites');

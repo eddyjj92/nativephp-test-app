@@ -63,7 +63,7 @@ export interface Product {
     image: string;
     status: 'ENABLED' | 'DISABLED';
     recommended: boolean;
-    stock: number;
+    stock: number | null;
     activeDiscounts: Discount[];
     category: Category | null;
 }

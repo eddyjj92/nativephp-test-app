@@ -42,10 +42,17 @@ const discountBadge = computed(() => {
 });
 
 const isAvailable = computed(() => {
-    return props.product.status === 'ENABLED' && props.product.stock > 0;
+    // If stock is null (not provided by API), assume available if status is ENABLED
+    // If stock is provided, check that it's greater than 0
+    return props.product.status === 'ENABLED' && (props.product.stock === null || props.product.stock > 0);
 });
 
+const hasStockInfo = computed(() => props.product.stock !== null);
+
 const stockStatus = computed(() => {
+    if (props.product.stock === null) {
+        return { text: 'Disponible', class: 'text-green-600' };
+    }
     if (props.product.stock === 0) {
         return { text: 'Agotado', class: 'text-red-600' };
     }

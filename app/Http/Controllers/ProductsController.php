@@ -50,9 +50,9 @@ class ProductsController extends Controller
         ]);
     }
 
-    public function show(string $slug): Response
+    public function show(int $id): Response
     {
-        $product = $this->compayMarketService->getProduct($slug, cache: true);
+        $product = $this->compayMarketService->getProduct((string) $id, cache: true);
 
         if (! $product) {
             abort(404, 'Producto no encontrado');
