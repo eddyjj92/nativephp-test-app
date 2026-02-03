@@ -31,6 +31,7 @@ class ProductsController extends Controller
             $params['currency'] = $currency->isoCode;
         }
 
+        $params['category_id'] = null;
         if ($request->query('category_id')) {
             $params['category_id'] = $request->query('category_id');
         }
@@ -43,7 +44,7 @@ class ProductsController extends Controller
             $nextPage = $productsResponse['current_page'] + 1;
             $routeParams = ['page' => $nextPage];
             $nextPageUrl = $params['category_id']
-                ? route('products.category', ['categoryId' => $categoryId, ...$routeParams])
+                ? route('products.category', ['categoryId' => $params['category_id'], ...$routeParams])
                 : route('products.index', $routeParams);
         }
 

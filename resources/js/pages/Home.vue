@@ -155,7 +155,7 @@ function addToCart(product: Product) {
             <!-- Banner Carousel -->
             <div
                 ref="carouselRef"
-                class="hide-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 py-4 scroll-smooth"
+                class="hide-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pt-2 pb-4 scroll-smooth"
                 @touchstart="stopAutoplay"
                 @touchend="startAutoplay"
             >

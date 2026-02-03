@@ -38,10 +38,7 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
         :style="{ '--mobile-topbar-height': topBarHeight }"
     >
         <MobileTopBar v-if="props.showTopBar" @open-location="manualLocationModal = true" />
-        <div
-            class="mobile-layout-content"
-            :class="props.showTopBar ? 'pt-2' : 'pt-0'"
-        >
+        <div class="mobile-layout-content">
             <slot />
         </div>
         
