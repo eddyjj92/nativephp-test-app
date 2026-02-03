@@ -16,10 +16,10 @@ class CompayAuthController extends Controller
 
         try {
             $response = $service->login($validated['email'], $validated['password']);
-            
+
             $request->session()->put('compay_token', $response->token);
             $request->session()->put('compay_user', $response->user);
-            
+
             return back();
         } catch (\Exception $e) {
             return back()->withErrors(['email' => 'Credenciales incorrectas.']);
@@ -29,6 +29,7 @@ class CompayAuthController extends Controller
     public function logout(Request $request)
     {
         $request->session()->forget(['compay_token', 'compay_user']);
+
         return redirect()->route('home');
     }
 }

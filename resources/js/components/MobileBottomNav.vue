@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import { home, cart, favorites, profile } from '@/routes';
 import { index as productsIndex } from '@/routes/products';
-import { computed } from 'vue';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
 

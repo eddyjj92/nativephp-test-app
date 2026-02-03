@@ -22,6 +22,17 @@ export type Settings = {
     frequently_questions: any[];
 };
 
+export interface Banner {
+    id: number
+    image: string
+    mobileImage: string
+    status: string
+    type: 'discount' | 'informative'
+    bannerableId: number
+    bannerableType: string
+    bannerable: Discount | any | null
+}
+
 export interface Department {
     id: number;
     name: string;

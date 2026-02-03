@@ -1,5 +1,5 @@
-import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const isOffline = ref(false);
 const errorMessage = ref<string | null>(null);

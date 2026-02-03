@@ -14,9 +14,6 @@ class HomeController extends Controller
 
     public function __invoke(): Response
     {
-        $banners = $this->compayMarketService->getBanners('active', cache: true);
-
-        // Get marketplace home data with recommended products
         $province = session('selected_province');
         $currency = session('selected_currency');
 
@@ -41,25 +38,40 @@ class HomeController extends Controller
             $nextPageUrl = route('home', ['page' => $nextPage]);
         }
 
-        // Get marketplace home data with recommended products
-        $province = session('selected_province');
-        $currency = session('selected_currency');
-
-        $marketplaceHome = null;
-        if ($province && $currency) {
-            $marketplaceHome = $this->compayMarketService->getMarketplaceHome(
-                provinceSlug: $province->slug,
-                currency: $currency->isoCode,
-                cache: true
-            );
-        }
-
         return Inertia::render('Home', [
-            'banners' => $banners,
+            // Banners are deferred - loaded after initial render
+            'banners' => Inertia::defer(fn () => $this->compayMarketService->getBanners('active', cache: true)),
+
+            // Categories load immediately (they're smaller)
             'categories' => Inertia::merge($categories['data'] ?? []),
             'categoriesNextPageUrl' => $nextPageUrl,
-            'recommendedProducts' => $marketplaceHome?->recommendedProducts ?? [],
-            'newArrivals' => $marketplaceHome?->newArrivals ?? [],
+
+            // Products are deferred - loaded after initial render
+            'recommendedProducts' => Inertia::defer(function () use ($province, $currency) {
+                if (! $province || ! $currency) {
+                    return [];
+                }
+                $marketplaceHome = $this->compayMarketService->getMarketplaceHome(
+                    provinceSlug: $province->slug,
+                    currency: $currency->isoCode,
+                    cache: true
+                );
+
+                return $marketplaceHome?->recommendedProducts ?? [];
+            }),
+
+            'newArrivals' => Inertia::defer(function () use ($province, $currency) {
+                if (! $province || ! $currency) {
+                    return [];
+                }
+                $marketplaceHome = $this->compayMarketService->getMarketplaceHome(
+                    provinceSlug: $province->slug,
+                    currency: $currency->isoCode,
+                    cache: true
+                );
+
+                return $marketplaceHome?->newArrivals ?? [];
+            }),
         ]);
     }
 }
