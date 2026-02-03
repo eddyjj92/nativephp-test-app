@@ -41,7 +41,7 @@ function itemClasses(id: NavId): string[] {
                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                 />
             </svg>
-            <span>Home</span>
+            <span>Inicio</span>
         </Link>
 
         <Link :href="productsIndex().url" :class="itemClasses('catalog')">
@@ -58,7 +58,7 @@ function itemClasses(id: NavId): string[] {
                     d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                 />
             </svg>
-            <span>Catalog</span>
+            <span>Catalogo</span>
         </Link>
 
         <Link :href="cart().url" :class="['relative', ...itemClasses('cart')]">
@@ -75,7 +75,7 @@ function itemClasses(id: NavId): string[] {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
             </svg>
-            <span>Cart</span>
+            <span>Carrito</span>
             <div
                 v-if="props.cartCount > 0"
                 class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[8px] font-bold text-white dark:border-slate-900"
@@ -98,7 +98,7 @@ function itemClasses(id: NavId): string[] {
                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
             </svg>
-            <span>Saved</span>
+            <span>Favoritos</span>
         </Link>
 
         <Link :href="profile().url" :class="itemClasses('profile')">
@@ -115,7 +115,7 @@ function itemClasses(id: NavId): string[] {
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                 />
             </svg>
-            <span>Profile</span>
+            <span>Perfil</span>
         </Link>
     </nav>
 </template>

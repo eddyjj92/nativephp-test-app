@@ -14,9 +14,7 @@ const paymentMethod = ref('card');
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
             <!-- Header (Standardized) -->
-            <header
-                class="sticky top-0 z-50 border-b border-gray-100 bg-slate-50 pb-3 pt-4 dark:border-white/5 dark:bg-slate-900"
-            >
+            <header class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900">
                 <div class="flex items-center justify-between px-4">
                     <div class="flex items-center gap-3">
                         <Link
@@ -62,7 +60,7 @@ const paymentMethod = ref('card');
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 px-4 pb-32 pt-4">
+            <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+60px)]">
                 <!-- Shipping Address -->
                 <section class="mb-6">
                     <h2 class="mb-3 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">

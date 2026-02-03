@@ -78,12 +78,11 @@ function moveAllToCart() {
 
     <MobileLayout active-nav="saved" :cart-count="cartCount">
         <div
-            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+            class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
         <!-- Header -->
-        <header
-            class="sticky top-0 z-50 border-b border-gray-100 bg-slate-50 pb-3 pt-4 dark:border-white/5 dark:bg-slate-900"
-        >
+        <header class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900">
+
             <div class="flex items-center justify-between px-4">
                 <div class="flex items-center gap-3">
                     <Link
@@ -104,24 +103,24 @@ function moveAllToCart() {
                             />
                         </svg>
                     </Link>
-                    <h1 class="text-lg font-bold">Saved Items</h1>
+                    <h1 class="text-lg font-bold">Productos Guardados</h1>
                 </div>
                 <button
                     v-if="favorites.length > 0"
                     class="text-sm font-semibold text-blue-600"
                     @click="moveAllToCart"
                 >
-                    Move all to cart
+                    Mover todo al carrito
                 </button>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 pb-4">
+        <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+60px)]">
             <!-- Items Count -->
             <div v-if="favorites.length > 0" class="px-4 py-4">
                 <p class="text-sm text-gray-500">
-                    {{ itemCount }} item{{ itemCount !== 1 ? 's' : '' }} saved in your list
+                    {{ itemCount }} producto{{ itemCount !== 1 ? 's' : '' }} guardados en su lista
                 </p>
             </div>
 

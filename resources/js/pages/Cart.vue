@@ -92,20 +92,20 @@ function applyPromoCode() {
                             />
                         </svg>
                     </Link>
-                    <h1 class="text-lg font-bold">Shopping Cart</h1>
+                    <h1 class="text-lg font-bold">Carrito de Compras</h1>
                 </div>
                 <button
                     v-if="cartItems.length > 0"
                     class="text-sm font-semibold text-blue-600"
                     @click="clearCart"
                 >
-                    Clear All
+                    Limpiar Todo
                 </button>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+20px)]">
+        <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+40px)]">
             <!-- Empty Cart State -->
             <div
                 v-if="cartItems.length === 0"

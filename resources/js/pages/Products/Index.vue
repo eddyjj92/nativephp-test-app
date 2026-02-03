@@ -158,7 +158,7 @@ function addToCart(product: Product) {
                                 />
                             </svg>
                         </Link>
-                        <h1 class="text-lg font-bold">{{ categoryTitle }}ssssssss</h1>
+                        <h1 class="text-lg font-bold">{{ categoryTitle }}</h1>
                         <span class="text-sm text-gray-500">({{ total }})</span>
                     </div>
                     <button class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10">

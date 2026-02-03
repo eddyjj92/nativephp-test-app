@@ -16,9 +16,8 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
             <!-- TopAppBar -->
-            <header
-                class="sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900"
-            >
+            <header class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900">
+
                 <div class="mb-3 flex items-center justify-between px-4">
                     <div class="flex items-center gap-3">
                         <Link
@@ -70,7 +69,7 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
             </header>
 
             <!-- Content Area -->
-            <main class="flex-1 pb-32 pt-4">
+            <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+60px)]">
                 <!-- ProfileHeader -->
                 <div class="flex px-4 pb-4 @container">
                     <div class="flex w-full flex-col gap-4 items-center">
