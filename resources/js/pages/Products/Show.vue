@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { add } from '@/routes/cart';
 import type { Product } from '@/types';
@@ -9,10 +10,10 @@ const props = defineProps<{
     product: Product;
 }>();
 
+const { handleImageError } = useImageRefresh();
 const quantity = ref(1);
 const isFavorite = ref(false);
 const showFullDescription = ref(false);
-const cartCount = ref(0);
 
 const hasDiscount = computed(() => {
     return props.product.activeDiscounts && props.product.activeDiscounts.length > 0;
@@ -100,7 +101,7 @@ function addToCart() {
 </script>
 
 <template>
-    <MobileLayout active-nav="catalog" :cart-count="cartCount">
+    <MobileLayout active-nav="catalog">
         <div
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
@@ -140,7 +141,12 @@ function addToCart() {
             <main class="flex-1 pb-40">
                 <!-- Product Image -->
                 <div class="relative aspect-square w-full bg-white dark:bg-slate-800">
-                    <img :src="product.image" :alt="product.name" class="size-full object-contain p-4" />
+                    <img
+                        :src="product.image"
+                        :alt="product.name"
+                        class="size-full object-contain p-4"
+                        @error="handleImageError(product.id, $event)"
+                    />
 
                     <!-- Discount Badge -->
                     <div

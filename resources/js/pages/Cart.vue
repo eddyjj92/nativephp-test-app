@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { update, remove, clear } from '@/routes/cart';
 
+const { handleImageError } = useImageRefresh();
 const page = usePage();
 const cart = computed(() => (page.props.cart as any) || { items: [], count: 0, total: 0 });
 const cartItems = computed(() => cart.value.items);
@@ -16,8 +18,6 @@ const subtotal = computed(() => cart.value.total);
 const total = computed(() => {
     return subtotal.value + shippingFee;
 });
-
-const cartCount = computed(() => cart.value.count);
 
 function formatPrice(price: number): string {
     const currency = page.props.selectedCurrency as any;
@@ -64,7 +64,7 @@ function applyPromoCode() {
 <template>
     <Head title="Shopping Cart" />
 
-    <MobileLayout active-nav="cart" :cart-count="cartCount">
+    <MobileLayout active-nav="cart">
         <div
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
@@ -153,6 +153,7 @@ function applyPromoCode() {
                             :src="item.product.image"
                             :alt="item.product.name"
                             class="size-full object-cover"
+                            @error="handleImageError(item.product.id, $event)"
                         />
                     </div>
 

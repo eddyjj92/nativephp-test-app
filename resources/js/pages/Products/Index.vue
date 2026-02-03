@@ -2,6 +2,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, watch, onUnmounted, computed } from 'vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
+import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { add } from '@/routes/cart';
 import type { Product } from '@/types';
@@ -37,7 +38,8 @@ const filters = ref<FilterOption[]>([
     { id: 'price', label: 'Precio', hasDropdown: true },
 ]);
 
-const cartCount = ref(0);
+const { handleImageError } = useImageRefresh();
+const page = usePage();
 const isLoading = ref(false);
 const triggerRef = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
@@ -101,7 +103,6 @@ onUnmounted(() => {
 });
 
 function formatPrice(price: number): string {
-    const page = usePage();
     const currency = page.props.selectedCurrency as any;
     const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
     return `${symbol}${price.toFixed(2)}`;
@@ -142,7 +143,7 @@ function addToCart(product: Product) {
 <template>
     <Head :title="categoryTitle" />
 
-    <MobileLayout active-nav="catalog" :cart-count="cartCount">
+    <MobileLayout active-nav="catalog">
         <div
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
@@ -245,7 +246,12 @@ function addToCart(product: Product) {
                             class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-slate-700/50"
                         >
                             <Link :href="`/product/${product.id}`" class="block size-full">
-                                <img :src="product.image" :alt="product.name" class="size-full object-cover" />
+                                <img
+                                    :src="product.image"
+                                    :alt="product.name"
+                                    class="size-full object-cover"
+                                    @error="handleImageError(product.id, $event)"
+                                />
                             </Link>
 
                             <!-- Discount Badge -->

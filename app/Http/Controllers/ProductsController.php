@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\CompayMarketService;
+use Illuminate\Http\JsonResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -11,6 +12,50 @@ class ProductsController extends Controller
     public function __construct(
         protected CompayMarketService $compayMarketService
     ) {}
+
+    /**
+     * Invalida el caché de un producto y lo vuelve a obtener de la API.
+     * Útil cuando las imágenes temporales expiran (Error 403).
+     */
+    public function refresh(int $id): JsonResponse
+    {
+        $currency = session('selected_currency');
+        $province = session('selected_province');
+
+        $params = [];
+        if ($currency) {
+            $params['currency'] = $currency->isoCode;
+        }
+        if ($province) {
+            $params['province_slug'] = $province->slug;
+        }
+
+        // 1. Obtener datos frescos de la API directamente (sin usar el caché)
+        $product = $this->compayMarketService->getProduct(
+            id: (string) $id,
+            currency: $currency?->isoCode,
+            provinceSlug: $province?->slug,
+            cache: false // Bypass cache
+        );
+
+        if ($product) {
+            // 2. Si obtuvimos el producto, invalidamos el caché anterior
+            $this->compayMarketService->clearCache("/products/{$id}", $params);
+            
+            // 3. Volvemos a pedirlo con cache: true para que se guarde la versión fresca
+            $this->compayMarketService->getProduct(
+                id: (string) $id,
+                currency: $currency?->isoCode,
+                provinceSlug: $province?->slug,
+                cache: true
+            );
+        }
+
+        return response()->json([
+            'success' => (bool) $product,
+            'product' => $product,
+        ]);
+    }
 
     public function index(?string $categorySlug = null): Response
     {

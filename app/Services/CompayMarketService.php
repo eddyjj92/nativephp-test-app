@@ -86,6 +86,7 @@ class CompayMarketService
      */
     protected function buildCacheKey(string $endpoint, array $params = []): string
     {
+        ksort($params);
         $paramsHash = ! empty($params) ? '_'.md5(serialize($params)) : '';
 
         return 'compay_market_'.str_replace('/', '_', trim($endpoint, '/')).$paramsHash;

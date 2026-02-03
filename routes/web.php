@@ -36,6 +36,7 @@ Route::get('/conversations/{id}', function (string $id) {
 })->name('chat.show');
 
 Route::get('/product/{id}', [ProductsController::class, 'show'])->name('products.show');
+Route::post('/product/{id}/refresh', [ProductsController::class, 'refresh'])->name('products.refresh');
 
 Route::get('/favorites', function () {
     return Inertia::render('Favorites');

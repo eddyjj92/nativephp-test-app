@@ -3,37 +3,12 @@ import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import CategoriesCarousel from '@/components/CategoriesCarousel.vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
+import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { add } from '@/routes/cart';
 import type { Category, Product } from '@/types';
 
-type Discount = {
-    id: number;
-    name: string;
-    slug: string;
-    description: string;
-    type: string;
-    value: number;
-    applicableTo: string;
-};
-
-type InformativeBanner = {
-    id: number;
-    name: string;
-    slug: string;
-    description: string;
-};
-
-type Banner = {
-    id: number;
-    image: string;
-    mobileImage: string;
-    status: string;
-    type: 'discount' | 'informative';
-    bannerableId: number;
-    bannerableType: string;
-    bannerable: Discount | InformativeBanner | null;
-};
+// ... (rest of types)
 
 const props = defineProps<{
     banners: Banner[];
@@ -43,6 +18,7 @@ const props = defineProps<{
     newArrivals: Product[];
 }>();
 
+const { handleImageError } = useImageRefresh();
 const page = usePage();
 const locationMissing = computed(() => !!page.props.showLocationModal);
 
@@ -119,7 +95,6 @@ onUnmounted(() => {
     stopAutoplay();
 });
 
-const cartCount = ref(3);
 const favorites = ref<Set<number>>(new Set());
 
 function toggleFavorite(productId: number) {
@@ -171,7 +146,7 @@ function addToCart(product: Product) {
 <template>
     <Head title="Compay Market" />
 
-    <MobileLayout active-nav="home" :cart-count="cartCount">
+    <MobileLayout active-nav="home">
         <div
             class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
@@ -258,6 +233,7 @@ function addToCart(product: Product) {
                                         :src="product.image"
                                         :alt="product.name"
                                         class="size-full object-cover"
+                                        @error="handleImageError(product.id, $event)"
                                     />
                                 </Link>
                                 <button
@@ -351,6 +327,7 @@ function addToCart(product: Product) {
                                         :src="product.image"
                                         :alt="product.name"
                                         class="size-full object-cover"
+                                        @error="handleImageError(product.id, $event)"
                                     />
                                 </Link>
                                 <button
