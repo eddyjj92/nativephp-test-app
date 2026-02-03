@@ -21,7 +21,7 @@ const page = usePage<AppPageProps>();
 
 // If showLocationModal prop is true, it means it's forced by middleware -> not closable
 const isForced = computed(() => !!page.props.showLocationModal);
-const currencies = computed(() => page.props.currencies as Currency[]);
+const currencies = computed(() => (page.props.currencies as Currency[]) || []);
 const selectedCurrency = computed(() => page.props.selectedCurrency as Currency | null);
 
 const provinces = ref<Province[]>([]);

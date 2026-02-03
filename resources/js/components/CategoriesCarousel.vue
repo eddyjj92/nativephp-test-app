@@ -77,25 +77,27 @@ onUnmounted(() => {
     </div>
 
     <div class="hide-scrollbar mb-4 flex gap-4 overflow-x-auto px-4 py-2">
-        <Link
-            v-for="category in categories"
-            :key="category.id"
-            :href="`/products?category_id=${category.id}`"
-            class="flex min-w-[70px] flex-col items-center gap-2"
-        >
-            <div
-                class="flex size-16 items-center justify-center rounded-full bg-white p-2 shadow-sm dark:bg-slate-800/50"
+        <template v-if="categories && categories.length > 0">
+            <Link
+                v-for="category in categories"
+                :key="category.id"
+                :href="`/products?category_id=${category.id}`"
+                class="flex min-w-[70px] flex-col items-center gap-2"
             >
-                <img
-                    :src="category.image"
-                    :alt="category.name"
-                    class="size-full object-contain"
-                />
-            </div>
-            <p class="line-clamp-2 text-center text-[10px] font-bold leading-tight text-gray-700 dark:text-gray-300">
-                {{ category.name }}
-            </p>
-        </Link>
+                <div
+                    class="flex size-16 items-center justify-center rounded-full bg-white p-2 shadow-sm dark:bg-slate-800/50"
+                >
+                    <img
+                        :src="category.image"
+                        :alt="category.name"
+                        class="size-full object-contain"
+                    />
+                </div>
+                <p class="line-clamp-2 text-center text-[10px] font-bold leading-tight text-gray-700 dark:text-gray-300">
+                    {{ category.name }}
+                </p>
+            </Link>
+        </template>
 
         <!-- Infinite Scroll Trigger with Bouncing Dots -->
         <div

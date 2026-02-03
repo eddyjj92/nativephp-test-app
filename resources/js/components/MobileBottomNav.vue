@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits(['login-required']);
 const page = usePage();
-const user = computed(() => page.props.auth.user);
+const user = computed(() => page.props.auth?.user);
 
 function itemClasses(id: NavId): string[] {
     return [
