@@ -17,7 +17,10 @@ type Props = {
 
 const page = usePage();
 const manualLocationModal = ref(false);
-const showLocationModal = computed(() => (page.props.showLocationModal as boolean) || manualLocationModal.value);
+const showLocationModal = computed(
+    () =>
+        (page.props.showLocationModal as boolean) || manualLocationModal.value,
+);
 const computedCartCount = computed(() => (page.props.cart as any)?.count || 0);
 
 const props = withDefaults(defineProps<Props>(), {
@@ -28,27 +31,40 @@ const props = withDefaults(defineProps<Props>(), {
     showBottomBar: true,
 });
 
-const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
+const topBarHeight = computed(() => (props.showTopBar ? 'calc(var(--inset-top, 0px) + 40px)' : '0px'));
 </script>
 
 <template>
     <div
         class="mobile-layout relative min-h-screen bg-slate-50 dark:bg-slate-900"
-        :class="props.showBottomBar ? 'pb-[calc(var(--inset-bottom,0px)+6rem)]' : 'pb-0'"
+        :class="[
+            props.showBottomBar
+                ? 'pb-[calc(var(--inset-bottom,0px)+6rem)]'
+                : 'pb-0',
+            props.showTopBar ? 'pt-[var(--mobile-topbar-height)]' : 'pt-0',
+        ]"
         :style="{ '--mobile-topbar-height': topBarHeight }"
     >
-        <MobileTopBar v-if="props.showTopBar" @open-location="manualLocationModal = true" />
+        <MobileTopBar
+            v-if="props.showTopBar"
+            @open-location="manualLocationModal = true"
+        />
         <div class="mobile-layout-content">
             <slot />
         </div>
-        
+
         <!-- Floating Chat Button -->
         <Link
             v-if="props.showChatButton"
             href="/conversations"
-            class="fixed bottom-[calc(var(--inset-bottom,0px)+6rem)] right-[calc(var(--inset-right,0px)+1rem)] z-50 flex size-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition-transform hover:scale-105"
+            class="fixed right-[calc(var(--inset-right,0px)+1rem)] bottom-[calc(var(--inset-bottom,0px)+6rem)] z-50 flex size-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition-transform hover:scale-105"
         >
-            <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+                class="size-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -58,9 +74,16 @@ const topBarHeight = computed(() => (props.showTopBar ? '112px' : '0px'));
             </svg>
         </Link>
 
-        <MobileBottomNav v-if="props.showBottomBar" :active="props.activeNav" :cart-count="computedCartCount" />
+        <MobileBottomNav
+            v-if="props.showBottomBar"
+            :active="props.activeNav"
+            :cart-count="computedCartCount"
+        />
 
-        <LocationSelectionModal v-if="showLocationModal" @close="manualLocationModal = false" />
+        <LocationSelectionModal
+            v-if="showLocationModal"
+            @close="manualLocationModal = false"
+        />
     </div>
 </template>
 

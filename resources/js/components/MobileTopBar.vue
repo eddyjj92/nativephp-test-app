@@ -5,7 +5,9 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import type { AppPageProps } from '@/types';
 
 const page = usePage<AppPageProps>();
-const location = computed(() => page.props.location as { province: any; municipality: any } | null);
+const location = computed(
+    () => page.props.location as { province: any; municipality: any } | null,
+);
 
 const provinceName = computed(() => {
     return location.value?.province?.name || 'Ubicación';
@@ -15,7 +17,9 @@ defineEmits(['open-location']);
 </script>
 
 <template>
-    <header class="mobile-top-bar sticky top-0 z-50 bg-slate-50 pt-[calc(var(--inset-top,0px)+1rem)] pl-[var(--inset-left,0px)] pr-[var(--inset-right,0px)] dark:bg-slate-900">
+    <header
+        class="mobile-top-bar fixed top-0 right-0 left-0 z-50 bg-slate-50 pt-[calc(var(--inset-top,0px)+5px)] pr-[var(--inset-right,0px)] pl-[var(--inset-left,0px)] shadow-sm dark:bg-slate-900"
+    >
         <div class="mb-2 flex items-center justify-between px-4">
             <div class="flex items-center">
                 <AppLogoIcon class="h-8 w-auto" />
@@ -45,7 +49,9 @@ defineEmits(['open-location']);
                             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                     </svg>
-                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200 max-w-[80px] truncate">
+                    <span
+                        class="max-w-[80px] truncate text-xs font-bold text-slate-700 dark:text-slate-200"
+                    >
                         {{ provinceName }}
                     </span>
                 </button>
@@ -57,7 +63,12 @@ defineEmits(['open-location']);
                 class="flex h-12 w-full items-center rounded-xl border border-gray-100 bg-white shadow-sm dark:border-white/5 dark:bg-slate-800/50"
             >
                 <div class="pl-4 text-gray-400">
-                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                        class="size-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
@@ -72,7 +83,12 @@ defineEmits(['open-location']);
                     class="flex-1 border-none bg-transparent text-sm font-medium placeholder-gray-400 focus:ring-0"
                 />
                 <div class="pr-4 text-blue-600">
-                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                        class="size-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
