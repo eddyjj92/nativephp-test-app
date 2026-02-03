@@ -80,7 +80,7 @@ onUnmounted(() => {
         <Link
             v-for="category in categories"
             :key="category.id"
-            :href="`/products/${category.slug}`"
+            :href="`/products?category_id=${category.id}`"
             class="flex min-w-[70px] flex-col items-center gap-2"
         >
             <div

@@ -19,16 +19,10 @@ const props = defineProps<{
     currentPage: number;
     lastPage: number;
     total: number;
-    categorySlug?: string | null;
+    categoryId?: number | null;
 }>();
 
 const categoryTitle = computed(() => {
-    if (props.categorySlug) {
-        return props.categorySlug
-            .split('-')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-    }
     return 'Productos';
 });
 

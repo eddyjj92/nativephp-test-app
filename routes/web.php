@@ -11,7 +11,7 @@ use Inertia\Inertia;
 Route::get('/', HomeController::class)->name('home');
 
 Route::get('/products', [ProductsController::class, 'index'])->name('products.index');
-Route::get('/products/{categorySlug}', [ProductsController::class, 'index'])->name('products.category');
+Route::get('/products/{categoryId}', [ProductsController::class, 'index'])->name('products.category');
 
 Route::group(['prefix' => 'cart'], function () {
     Route::get('/', function () {
