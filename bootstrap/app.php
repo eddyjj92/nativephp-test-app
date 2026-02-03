@@ -24,5 +24,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Handle Inertia requests - return JSON for connection/server errors
+        $exceptions->render(function (Throwable $e, \Illuminate\Http\Request $request) {
+            if ($request->header('X-Inertia')) {
+                $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
+
+                // For server errors, return a response that frontend can handle
+                if ($status >= 500) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Error del servidor',
+                        'status' => $status,
+                    ], $status)->header('X-Inertia-Error', 'true');
+                }
+            }
+
+            return null; // Let Laravel handle other exceptions normally
+        });
     })->create();

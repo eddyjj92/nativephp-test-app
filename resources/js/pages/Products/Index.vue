@@ -139,10 +139,10 @@ function addToCart(product: Product) {
 
     <MobileLayout active-nav="catalog">
         <div
-            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+            class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
             <!-- Header -->
-            <header class="sticky top-0 z-50 bg-slate-50 pb-2 pt-4 dark:bg-slate-900">
+            <header class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900">
                 <div class="mb-3 flex items-center justify-between px-4">
                     <div class="flex items-center gap-3">
                         <Link
@@ -158,7 +158,7 @@ function addToCart(product: Product) {
                                 />
                             </svg>
                         </Link>
-                        <h1 class="text-lg font-bold">{{ categoryTitle }}</h1>
+                        <h1 class="text-lg font-bold">{{ categoryTitle }}ssssssss</h1>
                         <span class="text-sm text-gray-500">({{ total }})</span>
                     </div>
                     <button class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10">
@@ -214,7 +214,7 @@ function addToCart(product: Product) {
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 px-4 pb-4">
+            <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+100px)]">
                 <!-- Empty State -->
                 <div v-if="products.length === 0 && !isLoading" class="flex flex-col items-center justify-center py-16">
                     <svg class="mb-4 size-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

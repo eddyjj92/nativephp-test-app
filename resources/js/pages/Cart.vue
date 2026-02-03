@@ -70,7 +70,7 @@ function applyPromoCode() {
         >
         <!-- Header -->
         <header
-            class="sticky top-0 z-50 border-b border-gray-100 bg-slate-50 pb-3 pt-4 dark:border-white/5 dark:bg-slate-900"
+            class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900"
         >
             <div class="flex items-center justify-between px-4">
                 <div class="flex items-center gap-3">
@@ -105,7 +105,7 @@ function applyPromoCode() {
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 pb-4">
+        <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+20px)]">
             <!-- Empty Cart State -->
             <div
                 v-if="cartItems.length === 0"

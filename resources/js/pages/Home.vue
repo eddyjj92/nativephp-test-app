@@ -148,10 +148,10 @@ function addToCart(product: Product) {
 
     <MobileLayout active-nav="home">
         <div
-            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+            class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
         <!-- Main Content -->
-        <main class="flex-1 pb-4">
+        <main class="lex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+0px)]">
             <!-- Banner Carousel -->
             <div
                 ref="carouselRef"

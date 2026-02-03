@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import ConnectionError from '@/components/ConnectionError.vue';
 import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
 import MobileBottomNav from '@/components/MobileBottomNav.vue';
 import MobileTopBar from '@/components/MobileTopBar.vue';
+import { useConnectionError } from '@/composables/useConnectionError';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
 
@@ -31,7 +33,11 @@ const props = withDefaults(defineProps<Props>(), {
     showBottomBar: true,
 });
 
-const topBarHeight = computed(() => (props.showTopBar ? 'calc(var(--inset-top, 0px) + 40px)' : '0px'));
+const topBarHeight = computed(() =>
+    props.showTopBar ? 'calc(var(--inset-top, 0px) + 40px)' : '0px',
+);
+
+const { isOffline, errorMessage, retry } = useConnectionError();
 </script>
 
 <template>
@@ -83,6 +89,13 @@ const topBarHeight = computed(() => (props.showTopBar ? 'calc(var(--inset-top, 0
         <LocationSelectionModal
             v-if="showLocationModal"
             @close="manualLocationModal = false"
+        />
+
+        <!-- Connection Error Overlay -->
+        <ConnectionError
+            v-if="isOffline"
+            :message="errorMessage ?? undefined"
+            @retry="retry"
         />
     </div>
 </template>
