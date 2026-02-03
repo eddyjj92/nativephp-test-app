@@ -73,7 +73,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'settings' => $this->compayMarketService->getSettings(cache: true),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ?? $request->session()->get('compay_user'),
             ],
             'location' => [
                 'province' => $request->session()->get('selected_province'),

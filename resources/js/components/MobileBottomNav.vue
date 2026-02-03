@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { home, cart, favorites, profile } from '@/routes';
 import { index as productsIndex } from '@/routes/products';
+import { computed } from 'vue';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
 
@@ -15,11 +16,22 @@ const props = withDefaults(defineProps<Props>(), {
     cartCount: 0,
 });
 
+const emit = defineEmits(['login-required']);
+const page = usePage();
+const user = computed(() => page.props.auth.user);
+
 function itemClasses(id: NavId): string[] {
     return [
         'flex flex-col items-center gap-1 text-[10px] font-bold',
         props.active === id ? 'text-blue-600' : 'text-gray-400',
     ];
+}
+
+function handleProfileClick(e: Event) {
+    if (!user.value) {
+        e.preventDefault();
+        emit('login-required');
+    }
 }
 </script>
 
@@ -101,7 +113,7 @@ function itemClasses(id: NavId): string[] {
             <span>Favoritos</span>
         </Link>
 
-        <Link :href="profile().url" :class="itemClasses('profile')">
+        <Link :href="profile().url" :class="itemClasses('profile')" @click="handleProfileClick">
             <svg
                 class="size-6"
                 fill="none"

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\AuthResponseDTO;
 use App\DTOs\BannerDTO;
 use App\DTOs\CurrencyDTO;
 use App\DTOs\MarketplaceHomeDTO;
@@ -96,12 +97,14 @@ class CompayMarketService
      * Inicia sesión para obtener un token de acceso (Endpoint Público).
      * Este método NO debe ser cacheado por seguridad.
      */
-    public function login(string $email, string $password): array
+    public function login(string $email, string $password): AuthResponseDTO
     {
-        return $this->http()->post('/login', [
+        $response = $this->http()->post('/login', [
             'email' => $email,
             'password' => $password,
         ])->json();
+
+        return AuthResponseDTO::fromArray($response);
     }
 
     /**

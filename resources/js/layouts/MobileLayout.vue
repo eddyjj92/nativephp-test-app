@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import ConnectionError from '@/components/ConnectionError.vue';
 import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
+import LoginModal from '@/components/LoginModal.vue';
 import MobileBottomNav from '@/components/MobileBottomNav.vue';
 import MobileTopBar from '@/components/MobileTopBar.vue';
 import { useConnectionError } from '@/composables/useConnectionError';
@@ -19,6 +20,7 @@ type Props = {
 
 const page = usePage();
 const manualLocationModal = ref(false);
+const loginModalOpen = ref(false);
 const showLocationModal = computed(
     () =>
         (page.props.showLocationModal as boolean) || manualLocationModal.value,
@@ -84,11 +86,17 @@ const { isOffline, errorMessage, retry } = useConnectionError();
             v-if="props.showBottomBar"
             :active="props.activeNav"
             :cart-count="computedCartCount"
+            @login-required="loginModalOpen = true"
         />
 
         <LocationSelectionModal
             v-if="showLocationModal"
             @close="manualLocationModal = false"
+        />
+
+        <LoginModal
+            v-if="loginModalOpen"
+            @close="loginModalOpen = false"
         />
 
         <!-- Connection Error Overlay -->
