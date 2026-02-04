@@ -365,44 +365,18 @@ class CompayMarketService
      */
     public function updateUser(int|string $userId, array $data): array
     {
-        $request = $this->http();
+        $request = $this->http()->asMultipart();
 
-        // Si hay un archivo en avatar o una ruta de archivo local
-        $hasFile = false;
-        if (isset($data['avatar'])) {
-            if ($data['avatar'] instanceof \Illuminate\Http\UploadedFile) {
-                $hasFile = true;
-            } elseif (is_string($data['avatar']) && file_exists($data['avatar'])) {
-                $hasFile = true;
-            }
-        }
+        if (! empty($data['avatar'])) {
+            $avatar = $data['avatar'];
 
-        if ($hasFile) {
-            foreach ($data as $key => $value) {
-                if ($key === 'avatar') {
-                    if ($value instanceof \Illuminate\Http\UploadedFile) {
-                        $request->attach(
-                            $key,
-                            file_get_contents($value->getRealPath()),
-                            $value->getClientOriginalName()
-                        );
-                    } elseif (is_string($value) && file_exists($value)) {
-                        $request->attach(
-                            $key,
-                            file_get_contents($value),
-                            basename($value)
-                        );
-                    }
-                } elseif (is_array($value)) {
-                    foreach ($value as $k => $v) {
-                        $request->attach("{$key}[{$k}]", $v);
-                    }
-                } else {
-                    $request->attach($key, (string) $value);
-                }
+            if ($avatar instanceof \Illuminate\Http\UploadedFile) {
+                $request->attach('avatar', $avatar->get(), $avatar->getClientOriginalName());
+            } elseif (is_string($avatar) && file_exists($avatar)) {
+                $request->attach('avatar', file_get_contents($avatar), basename($avatar));
             }
 
-            return $request->post("/users/{$userId}")->json();
+            unset($data['avatar']);
         }
 
         return $request->post("/users/{$userId}", $data)->json();
