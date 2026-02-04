@@ -28,7 +28,8 @@ function formatPrice(price: number): string {
 function incrementQuantity(itemId: number) {
     const item = cartItems.value.find((i: any) => i.product.id === itemId);
     if (item) {
-        router.put(update(itemId).url, {
+        router.post(update(itemId).url, {
+            _method: 'PUT',
             quantity: item.quantity + 1,
         }, { preserveScroll: true });
     }
@@ -37,20 +38,25 @@ function incrementQuantity(itemId: number) {
 function decrementQuantity(itemId: number) {
     const item = cartItems.value.find((i: any) => i.product.id === itemId);
     if (item && item.quantity > 1) {
-        router.put(update(itemId).url, {
+        router.post(update(itemId).url, {
+            _method: 'PUT',
             quantity: item.quantity - 1,
         }, { preserveScroll: true });
     }
 }
 
 function removeItem(itemId: number) {
-    router.delete(remove(itemId).url, {
+    router.post(remove(itemId).url, {
+        _method: 'DELETE',
+    }, {
         preserveScroll: true
     });
 }
 
 function clearCart() {
-    router.delete(clear().url, {
+    router.post(clear().url, {
+        _method: 'DELETE',
+    }, {
         preserveScroll: true
     });
 }
