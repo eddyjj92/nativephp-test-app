@@ -46,6 +46,12 @@ Route::get('/profile', function () {
     return Inertia::render('Profile');
 })->name('profile');
 
+Route::get('/profile/edit', function () {
+    return Inertia::render('ProfileEdit');
+})->name('profile.edit.mobile');
+
+Route::post('/profile/info/update', [\App\Http\Controllers\CompayAuthController::class, 'updateProfile'])->name('profile.info.update');
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

@@ -36,7 +36,7 @@ class CompayAuthController extends Controller
         }
 
         // Solo permitimos ciertos campos para la actualización simple desde el perfil
-        $data = $request->only(['name', 'email', 'avatar', 'phone_country_code', 'phone']);
+        $data = $request->only(['name', 'email', 'avatar', 'phone_country_code', 'phone', 'address']);
 
         try {
             $response = $service->setToken($token)->updateUser($user->id, $data);
