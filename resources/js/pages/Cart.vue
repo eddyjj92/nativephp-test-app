@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, usePage, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import {  computed } from 'vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { update, remove, clear } from '@/routes/cart';
@@ -10,13 +10,10 @@ const page = usePage();
 const cart = computed(() => (page.props.cart as any) || { items: [], count: 0, total: 0 });
 const cartItems = computed(() => cart.value.items);
 
-const promoCode = ref('');
-const shippingFee = 2.5;
-
 const subtotal = computed(() => cart.value.total);
 
 const total = computed(() => {
-    return subtotal.value + shippingFee;
+    return subtotal.value;
 });
 
 function formatPrice(price: number): string {
@@ -61,10 +58,6 @@ function clearCart() {
     });
 }
 
-function applyPromoCode() {
-    // Promo code logic would go here
-    console.log('Applying promo code:', promoCode.value);
-}
 </script>
 
 <template>
@@ -72,7 +65,7 @@ function applyPromoCode() {
 
     <MobileLayout active-nav="cart">
         <div
-            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+            class="flex flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
         <!-- Header -->
         <header
@@ -111,7 +104,7 @@ function applyPromoCode() {
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+40px)]">
+        <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+60px)]">
             <!-- Empty Cart State -->
             <div
                 v-if="cartItems.length === 0"
@@ -239,43 +232,17 @@ function applyPromoCode() {
                     </div>
                 </div>
             </div>
-
-            <!-- Promo Code -->
-            <div v-if="cartItems.length > 0" class="px-4 py-6">
-                <div
-                    class="flex items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white p-2 dark:border-white/10 dark:bg-slate-800/30"
-                >
-                    <input
-                        v-model="promoCode"
-                        type="text"
-                        placeholder="Promo code"
-                        class="flex-1 border-none bg-transparent px-2 text-sm placeholder-gray-400 focus:ring-0"
-                    />
-                    <button
-                        class="rounded-lg bg-gray-900 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white dark:bg-white dark:text-gray-900"
-                        @click="applyPromoCode"
-                    >
-                        Apply
-                    </button>
-                </div>
-            </div>
         </main>
 
         <!-- Order Summary & Checkout -->
         <div
             v-if="cartItems.length > 0"
-            class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white px-4 pb-24 pt-4 dark:border-white/5 dark:bg-slate-900"
+            class="inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white px-4 pb-4 pt-4 dark:border-white/5 dark:bg-slate-900"
         >
             <div class="mb-4 space-y-2">
                 <div class="flex items-center justify-between text-sm">
                     <span class="text-gray-500">Subtotal</span>
                     <span class="font-semibold">{{ formatPrice(subtotal) }}</span>
-                </div>
-                <div
-                    class="flex items-center justify-between border-b border-gray-100 pb-3 text-sm dark:border-white/5"
-                >
-                    <span class="text-gray-500">Shipping Fee</span>
-                    <span class="font-semibold">{{ formatPrice(shippingFee) }}</span>
                 </div>
                 <div class="flex items-center justify-between pt-1">
                     <span class="text-lg font-bold">Total</span>
