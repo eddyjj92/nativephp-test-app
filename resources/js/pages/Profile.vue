@@ -32,11 +32,13 @@ const form = useForm({
     avatar: null as File | string | null,
 });
 
+const nativePreviewUrl = ref<string | null>(null);
+
 const selectImage = async () => {
     try {
         await camera.pickImages()
-            .multiple()
-            .maxItems(5)
+            .id('profile-pic')
+            .maxItems(1)
 
     } catch (error) {
         console.error('Error picking image:', error);
@@ -51,12 +53,26 @@ const takePhoto = async () => {
     }
 };
 
-const handlePhotoSelected = (payload: any) => {
+const handlePhotoSelected = async (payload: any) => {
     if (payload.id === 'profile-pic') {
+        let path = '';
         if (payload.path) {
-            form.avatar = payload.path;
+            path = payload.path;
         } else if (payload.paths && payload.paths.length > 0) {
-            form.avatar = payload.paths[0];
+            path = payload.paths[0];
+        }
+
+        if (path) {
+            form.avatar = path;
+            try {
+                // Obtenemos el preview en Base64 desde Laravel
+                const response = await fetch(`/native/preview?path=${encodeURIComponent(path)}`);
+                if (response.ok) {
+                    nativePreviewUrl.value = await response.text();
+                }
+            } catch (error) {
+                console.error('Error cargando previsualización:', error);
+            }
         }
     }
 };
@@ -79,14 +95,16 @@ const submitAvatar = () => {
         onSuccess: () => {
             showEditModal.value = false;
             form.reset();
+            nativePreviewUrl.value = null;
         },
     });
 };
 
 const previewUrl = computed(() => {
+    if (nativePreviewUrl.value) return nativePreviewUrl.value;
     if (!form.avatar) return null;
     if (typeof form.avatar === 'string') return form.avatar;
-    return URL.createObjectURL(form.avatar);
+    return URL.createObjectURL(form.avatar as Blob);
 });
 
 function getInitials(name: string = '') {

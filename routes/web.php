@@ -57,8 +57,26 @@ Route::group(['prefix' => 'locations'], function () {
 
 Route::post('/currency', [CurrencyController::class, 'store'])->name('currency.set');
 
-Route::post('/login', [\App\Http\Controllers\CompayAuthController::class, 'login'])->name('login.api');
-Route::post('/logout', [\App\Http\Controllers\CompayAuthController::class, 'logout'])->name('logout.api');
-Route::post('/profile/update', [\App\Http\Controllers\CompayAuthController::class, 'updateProfile'])->name('profile.update');
+Route::post('/login', [\App\Http\Controllers\CompayAuthController::class, 'login'])->name('login.store');
+Route::post('/logout', [\App\Http\Controllers\CompayAuthController::class, 'logout'])->name('logout');
+Route::post('/profile/update', [\App\Http\Controllers\CompayAuthController::class, 'updateProfile'])->name('profile.update.api');
+
+Route::get('/native/preview', function () {
+    $path = request('path');
+
+    if (!$path || !\Illuminate\Support\Facades\File::exists($path)) {
+        return response('error', 404);
+    }
+
+    try {
+        $file = \Illuminate\Support\Facades\File::get($path);
+        $type = \Illuminate\Support\Facades\File::mimeType($path);
+        $base64 = base64_encode($file);
+
+        return response("data:$type;base64,$base64");
+    } catch (\Exception $e) {
+        return response('error', 500);
+    }
+})->name('native.preview');
 
 require __DIR__.'/settings.php';
