@@ -39,23 +39,6 @@ export function useConnectionError() {
 export function setupConnectionErrorInterceptor() {
     const { showError } = useConnectionError();
 
-    // Intercept Inertia navigation errors
-    router.on('error', (event) => {
-        // Network error or timeout
-        if (!navigator.onLine) {
-            showError('No tienes conexión a internet.', window.location.href);
-            event.preventDefault();
-            return;
-        }
-
-        // Generic error
-        showError(
-            'Ocurrió un error. Verifica tu conexión.',
-            window.location.href,
-        );
-        event.preventDefault();
-    });
-
     router.on('invalid', (event) => {
         // Server returned invalid response (could be network issue)
         const response = event.detail.response;

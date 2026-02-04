@@ -1,6 +1,16 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import MobileLayout from '@/layouts/MobileLayout.vue';
+import { computed } from 'vue';
+
+// Datos del usuario autenticado desde las props compartidas de Inertia
+const page = usePage();
+const user = computed(() => (page.props.auth as any)?.user ?? null);
+
+// Logout usando Fortify (POST /logout)
+function logout() {
+    router.post('/logout');
+}
 </script>
 
 <template>
@@ -78,23 +88,23 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
                                 <div
                                     class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 border-4 border-primary/10"
                                     data-alt="User profile picture showing a smiling person"
-                                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCG66UxMbuzQ0pc9itREWkbr2giJqFBq93cjLIAJdzah3OH00cVgDnLoCwy4Z2BUsUzAX2UHCHzArim80KszwnoaBghI9l3EoAsjF77MD9uzz80g6Tu7OEXhZhKATNgnkYKVHNN8nKn1JtE5kpsl2ZSgW4tA6G6PcwsO0jp_hv61EYirL9AChO2wh6H2h8VedkRdhrwKXYfb33uf8owON8gYZ0_52XFrhWaCSK7FXGNLBBqm0-IzClZeQuTmnob8gUh_fJTF4IVkR4');"
+                                    :style="user?.avatar ? { backgroundImage: `url('${user.avatar}')` } : undefined"
                                 ></div>
-                                <div class="absolute bottom-1 right-1 bg-primary text-white p-1.5 rounded-full border-2 border-white dark:border-slate-900">
-                                    <span class="material-symbols-outlined text-[16px] block">edit</span>
+                                <div
+                                    class="absolute bottom-1 right-1 grid place-items-center rounded-full border-2 border-white dark:border-slate-900 bg-primary text-white size-9 shadow-sm"
+                                >
+                                    <span class="material-symbols-outlined text-[18px] leading-none">edit</span>
                                 </div>
                             </div>
                             <div class="flex flex-col items-center justify-center">
-                                <h2 class="text-slate-900 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">
-                                    Alex Thompson
+                                <h2 class="text-xl font-semibold">
+                                    {{ user?.name ?? 'User' }}
                                 </h2>
-                                <div class="mt-1 flex items-center gap-2">
-                                    <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                        Gold Member
-                                    </span>
-                                </div>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm">
+                                    {{ user?.email ?? '' }}
+                                </p>
                                 <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">
-                                    Member since 2022
+                                    Miembro desde {{ new Date(user?.created_at ?? '').toLocaleDateString(undefined, { year: 'numeric', month: 'long' }) }}
                                 </p>
                             </div>
                         </div>
@@ -203,6 +213,7 @@ import MobileLayout from '@/layouts/MobileLayout.vue';
                     </div>
                     <div
                         class="flex items-center gap-4 bg-white dark:bg-slate-800/30 px-4 min-h-[64px] justify-between cursor-pointer active:bg-slate-100 dark:active:bg-slate-800"
+                        @click="logout"
                     >
                         <div class="flex items-center gap-4">
                             <div class="text-red-500 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 shrink-0 size-10">

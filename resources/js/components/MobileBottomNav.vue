@@ -27,11 +27,8 @@ function itemClasses(id: NavId): string[] {
     ];
 }
 
-function handleProfileClick(e: Event) {
-    if (!user.value) {
-        e.preventDefault();
-        emit('login-required');
-    }
+function handleProfileClick() {
+    emit('login-required');
 }
 </script>
 
@@ -113,7 +110,7 @@ function handleProfileClick(e: Event) {
             <span>Favoritos</span>
         </Link>
 
-        <Link :href="profile().url" :class="itemClasses('profile')" @click="handleProfileClick">
+        <Link v-if="user" :href="profile().url" :class="itemClasses('profile')">
             <svg
                 class="size-6"
                 fill="none"
@@ -129,5 +126,21 @@ function handleProfileClick(e: Event) {
             </svg>
             <span>Perfil</span>
         </Link>
+        <div v-else :class="itemClasses('profile')" @click="handleProfileClick">
+            <svg
+                class="size-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+            </svg>
+            <span>Perfil</span>
+        </div>
     </nav>
 </template>

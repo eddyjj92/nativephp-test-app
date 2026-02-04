@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { useForm, router } from '@inertiajs/vue3';
 
 const emit = defineEmits(['close']);
 
@@ -12,6 +12,7 @@ const submit = () => {
     form.post('/login-api', {
         preserveScroll: true,
         onSuccess: () => {
+            router.visit('/profile')
             emit('close');
         },
     });

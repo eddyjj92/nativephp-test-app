@@ -29,6 +29,11 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->header('X-Inertia')) {
                 $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
 
+                // Ignore validation errors - let Laravel handle them normally (redirect back with errors)
+                if ($status === 422) {
+                    return null;
+                }
+
                 // For server errors, return a response that frontend can handle
                 if ($status >= 500) {
                     return response()->json([
