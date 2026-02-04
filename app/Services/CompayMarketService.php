@@ -357,6 +357,41 @@ class CompayMarketService
     }
 
     /**
+     * Actualiza los datos del usuario (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  int|string  $userId  ID del usuario.
+     * @param  array  $data  Datos a actualizar.
+     */
+    public function updateUser(int|string $userId, array $data): array
+    {
+        $request = $this->http();
+
+        // Si hay un archivo en avatar, manejamos la petición como multipart
+        if (isset($data['avatar']) && $data['avatar'] instanceof \Illuminate\Http\UploadedFile) {
+            foreach ($data as $key => $value) {
+                if ($key === 'avatar' && $value instanceof \Illuminate\Http\UploadedFile) {
+                    $request->attach(
+                        $key,
+                        file_get_contents($value->getRealPath()),
+                        $value->getClientOriginalName()
+                    );
+                } elseif (is_array($value)) {
+                    foreach ($value as $k => $v) {
+                        $request->attach("{$key}[{$k}]", $v);
+                    }
+                } else {
+                    $request->attach($key, (string) $value);
+                }
+            }
+
+            return $request->post("/users/{$userId}")->json();
+        }
+
+        return $request->post("/users/{$userId}", $data)->json();
+    }
+
+    /**
      * Limpia el caché de un endpoint específico.
      *
      * @param  string  $endpoint  El endpoint de la API.

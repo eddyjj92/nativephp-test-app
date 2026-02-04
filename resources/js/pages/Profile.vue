@@ -1,11 +1,67 @@
 <script setup lang="ts">
-import { Head, Link, usePage, router } from '@inertiajs/vue3';
+import { Head, Link, usePage, router, useForm } from '@inertiajs/vue3';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+    UserPen,
+    Bell,
+    ChevronLeft,
+    ShoppingBag,
+    MapPin,
+    CreditCard,
+    Ticket,
+    User,
+    HelpCircle,
+    LogOut,
+    ChevronRight,
+    Upload,
+    X,
+} from 'lucide-vue-next';
 
 // Datos del usuario autenticado desde las props compartidas de Inertia
 const page = usePage();
 const user = computed(() => (page.props.auth as any)?.user ?? null);
+
+const showEditModal = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const form = useForm({
+    avatar: null as File | null,
+});
+
+const onFileChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+        form.avatar = target.files[0];
+    }
+};
+
+const submitAvatar = () => {
+    if (!form.avatar) return;
+
+    form.post('/profile/update', {
+        preserveScroll: true,
+        onSuccess: () => {
+            showEditModal.value = false;
+            form.reset();
+        },
+    });
+};
+
+const previewUrl = computed(() => {
+    return form.avatar ? URL.createObjectURL(form.avatar) : null;
+});
+
+function getInitials(name: string = '') {
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+}
 
 // Logout usando Fortify (POST /logout)
 function logout() {
@@ -14,12 +70,7 @@ function logout() {
 </script>
 
 <template>
-    <Head title="User Profile - Compay Market">
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        />
-    </Head>
+    <Head title="User Profile - Compay Market" />
 
     <MobileLayout active-nav="profile">
         <div
@@ -34,46 +85,12 @@ function logout() {
                             href="/"
                             class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                         >
-                            <svg
-                                class="size-6 text-slate-900 dark:text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 19l-7-7 7-7"
-                                />
-                            </svg>
+                            <ChevronLeft class="size-6 text-slate-900 dark:text-white" />
                         </Link>
                         <h1 class="text-lg font-bold">Profile</h1>
                     </div>
                     <div class="flex items-center">
-                        <button
-                            class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-                        >
-                            <svg
-                                class="size-6 text-slate-900 dark:text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                                />
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                            </svg>
-                        </button>
+
                     </div>
                 </div>
             </header>
@@ -83,20 +100,30 @@ function logout() {
                 <!-- ProfileHeader -->
                 <div class="flex px-4 pb-4 @container">
                     <div class="flex w-full flex-col gap-4 items-center">
-                        <div class="flex gap-4 flex-col items-center">
-                            <div class="relative">
-                                <div
-                                    class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 border-4 border-primary/10"
-                                    data-alt="User profile picture showing a smiling person"
-                                    :style="user?.avatar ? { backgroundImage: `url('${user.avatar}')` } : undefined"
-                                ></div>
-                                <div
-                                    class="absolute bottom-1 right-1 grid place-items-center rounded-full border-2 border-white dark:border-slate-900 bg-primary text-white size-9 shadow-sm"
-                                >
-                                    <span class="material-symbols-outlined text-[18px] leading-none">edit</span>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-center justify-center">
+                        <div class="flex flex-col items-center gap-2">
+                            <Avatar class="size-32 border-4 border-primary/10">
+                                <AvatarImage
+                                    v-if="user?.avatar"
+                                    :src="user.avatar"
+                                    :alt="user.name"
+                                    class="object-cover"
+                                />
+                                <AvatarFallback class="text-3xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-500">
+                                    {{ getInitials(user?.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+                            
+                            <Button
+                                @click="showEditModal = true"
+                                variant="outline"
+                                size="sm"
+                                class="h-8 gap-1 rounded-full px-3 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10"
+                            >
+                                <UserPen class="size-4" />
+                                <span class="text-xs font-bold">Editar Foto</span>
+                            </Button>
+
+                            <div class="mt-1 flex flex-col items-center justify-center">
                                 <h2 class="text-xl font-semibold">
                                     {{ user?.name ?? 'User' }}
                                 </h2>
@@ -116,14 +143,14 @@ function logout() {
                         class="flex flex-1 gap-3 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-800/50 p-4 flex-col cursor-pointer transition-all active:scale-95 shadow-sm"
                     >
                         <div class="text-primary" data-icon="ShoppingBag">
-                            <span class="material-symbols-outlined">shopping_bag</span>
+                            <ShoppingBag class="size-6" />
                         </div>
                         <div class="flex flex-col gap-1">
                             <h2 class="text-slate-900 dark:text-white text-base font-bold leading-tight">
-                                My Orders
+                                Mis Ordenes
                             </h2>
                             <p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">
-                                1 Active Order
+                                3 Ordenes Pagadas
                             </p>
                         </div>
                     </div>
@@ -131,29 +158,14 @@ function logout() {
                         class="flex flex-1 gap-3 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-800/50 p-4 flex-col cursor-pointer transition-all active:scale-95 shadow-sm"
                     >
                         <div class="text-primary" data-icon="MapPin">
-                            <span class="material-symbols-outlined">location_on</span>
+                            <MapPin class="size-6" />
                         </div>
                         <div class="flex flex-col gap-1">
                             <h2 class="text-slate-900 dark:text-white text-base font-bold leading-tight">
-                                Shipping
+                                Beneficiarios
                             </h2>
                             <p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">
-                                2 Addresses
-                            </p>
-                        </div>
-                    </div>
-                    <div
-                        class="flex flex-1 gap-3 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-800/50 p-4 flex-col cursor-pointer transition-all active:scale-95 shadow-sm"
-                    >
-                        <div class="text-primary" data-icon="CreditCard">
-                            <span class="material-symbols-outlined">credit_card</span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <h2 class="text-slate-900 dark:text-white text-base font-bold leading-tight">
-                                Payments
-                            </h2>
-                            <p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">
-                                Visa •••• 4242
+                                2 Beneficiarios
                             </p>
                         </div>
                     </div>
@@ -161,14 +173,14 @@ function logout() {
                         class="flex flex-1 gap-3 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-800/50 p-4 flex-col cursor-pointer transition-all active:scale-95 shadow-sm"
                     >
                         <div class="text-primary" data-icon="Ticket">
-                            <span class="material-symbols-outlined">confirmation_number</span>
+                            <Ticket class="size-6" />
                         </div>
                         <div class="flex flex-col gap-1">
                             <h2 class="text-slate-900 dark:text-white text-base font-bold leading-tight">
-                                Coupons
+                                Descuentos
                             </h2>
                             <p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">
-                                4 Available
+                                1 Disponible
                             </p>
                         </div>
                     </div>
@@ -176,7 +188,7 @@ function logout() {
                 <!-- SectionHeader -->
                 <div class="mt-2">
                     <h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
-                        Account Settings
+                        Ajustes de la Cuenta
                     </h3>
                 </div>
                 <!-- ListItems -->
@@ -186,14 +198,14 @@ function logout() {
                     >
                         <div class="flex items-center gap-4">
                             <div class="text-primary flex items-center justify-center rounded-xl bg-primary/10 shrink-0 size-10">
-                                <span class="material-symbols-outlined">person</span>
+                                <User class="size-6" />
                             </div>
                             <p class="text-slate-900 dark:text-white text-base font-semibold leading-normal flex-1 truncate">
-                                Personal Information
+                                Informacion Personal
                             </p>
                         </div>
                         <div class="shrink-0">
-                            <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                            <ChevronRight class="size-6 text-slate-400" />
                         </div>
                     </div>
                     <div
@@ -201,14 +213,14 @@ function logout() {
                     >
                         <div class="flex items-center gap-4">
                             <div class="text-primary flex items-center justify-center rounded-xl bg-primary/10 shrink-0 size-10">
-                                <span class="material-symbols-outlined">help_center</span>
+                                <HelpCircle class="size-6" />
                             </div>
                             <p class="text-slate-900 dark:text-white text-base font-semibold leading-normal flex-1 truncate">
-                                Help Center
+                                Centro de Ayuda
                             </p>
                         </div>
                         <div class="shrink-0">
-                            <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                            <ChevronRight class="size-6 text-slate-400" />
                         </div>
                     </div>
                     <div
@@ -217,18 +229,88 @@ function logout() {
                     >
                         <div class="flex items-center gap-4">
                             <div class="text-red-500 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 shrink-0 size-10">
-                                <span class="material-symbols-outlined">logout</span>
+                                <LogOut class="size-6" />
                             </div>
                             <p class="text-red-500 text-base font-semibold leading-normal flex-1 truncate">
-                                Logout
+                                Cerrar Session
                             </p>
                         </div>
                         <div class="shrink-0">
-                            <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                            <ChevronRight class="size-6 text-slate-400" />
                         </div>
                     </div>
                 </div>
             </main>
+        </div>
+
+        <!-- Modal Editar Foto -->
+        <div
+            v-if="showEditModal"
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+            @click.self="showEditModal = false"
+        >
+            <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
+                <div class="flex items-center justify-between bg-primary px-6 py-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Editar Perfil</h2>
+                        <p class="text-xs text-white/80">Actualiza tu foto de perfil</p>
+                    </div>
+                    <button @click="showEditModal = false" class="rounded-full bg-white/20 p-1 text-white hover:bg-white/30">
+                        <X class="size-5" />
+                    </button>
+                </div>
+
+                <div class="p-6">
+                    <div class="flex flex-col items-center gap-6">
+                        <!-- Preview -->
+                        <div class="relative">
+                            <Avatar class="size-32 border-4 border-primary/10">
+                                <AvatarImage
+                                    v-if="previewUrl"
+                                    :src="previewUrl"
+                                    class="object-cover"
+                                />
+                                <AvatarImage
+                                    v-else-if="user?.avatar"
+                                    :src="user.avatar"
+                                    :alt="user.name"
+                                    class="object-cover"
+                                />
+                                <AvatarFallback class="text-3xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-500">
+                                    {{ getInitials(user?.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+                        </div>
+
+                        <div class="w-full space-y-4">
+                            <button
+                                @click="fileInput?.click()"
+                                class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-4 text-sm font-bold text-slate-600 transition-colors hover:border-primary hover:text-primary dark:border-white/10 dark:text-slate-400"
+                            >
+                                <Upload class="size-6" />
+                                {{ form.avatar ? 'Cambiar imagen' : 'Seleccionar imagen' }}
+                            </button>
+
+                            <input
+                                ref="fileInput"
+                                type="file"
+                                class="hidden"
+                                accept="image/*"
+                                @change="onFileChange"
+                            />
+
+                            <button
+                                @click="submitAvatar"
+                                :disabled="!form.avatar || form.processing"
+                                class="flex w-full items-center justify-center rounded-xl bg-primary py-3.5 font-bold text-white shadow-lg shadow-primary/30 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
+                            >
+                                <span v-if="form.processing">Actualizando...</span>
+                                <span v-else>Guardar Cambios</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </MobileLayout>
 </template>

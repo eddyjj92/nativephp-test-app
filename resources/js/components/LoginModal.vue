@@ -9,7 +9,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post('/login-api', {
+    form.post('/login', {
         preserveScroll: true,
         onSuccess: () => {
             router.visit('/profile')

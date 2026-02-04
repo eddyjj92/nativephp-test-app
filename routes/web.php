@@ -57,7 +57,8 @@ Route::group(['prefix' => 'locations'], function () {
 
 Route::post('/currency', [CurrencyController::class, 'store'])->name('currency.set');
 
-Route::post('/login-api', [\App\Http\Controllers\CompayAuthController::class, 'login'])->name('login.api');
-Route::post('/logout-api', [\App\Http\Controllers\CompayAuthController::class, 'logout'])->name('logout.api');
+Route::post('/login', [\App\Http\Controllers\CompayAuthController::class, 'login'])->name('login.api');
+Route::post('/logout', [\App\Http\Controllers\CompayAuthController::class, 'logout'])->name('logout.api');
+Route::post('/profile/update', [\App\Http\Controllers\CompayAuthController::class, 'updateProfile'])->name('profile.update');
 
 require __DIR__.'/settings.php';
