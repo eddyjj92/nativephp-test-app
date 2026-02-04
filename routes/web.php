@@ -69,9 +69,9 @@ Route::get('/native/preview', function () {
     }
 
     try {
-        $file = \Illuminate\Support\Facades\File::get($path);
+        $fileContent = \Illuminate\Support\Facades\File::get($path);
         $type = \Illuminate\Support\Facades\File::mimeType($path);
-        $base64 = base64_encode($file);
+        $base64 = base64_encode($fileContent);
 
         return response("data:$type;base64,$base64");
     } catch (\Exception $e) {

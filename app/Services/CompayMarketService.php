@@ -372,8 +372,19 @@ class CompayMarketService
 
             if ($avatar instanceof \Illuminate\Http\UploadedFile) {
                 $request->attach('avatar', $avatar->get(), $avatar->getClientOriginalName());
-            } elseif (is_string($avatar) && file_exists($avatar)) {
-                $request->attach('avatar', file_get_contents($avatar), basename($avatar));
+            } elseif (is_string($avatar)) {
+                // Caso 1: String Base64 (enviado desde el canvas de Profile.vue)
+                if (str_starts_with($avatar, 'data:image')) {
+                    $parts = explode(',', $avatar);
+                    if (count($parts) > 1) {
+                        $content = base64_decode($parts[1]);
+                        $request->attach('avatar', $content, 'avatar.jpg');
+                    }
+                } 
+                // Caso 2: Ruta absoluta del sistema (NativePHP sin procesar en JS)
+                elseif (file_exists($avatar)) {
+                    $request->attach('avatar', file_get_contents($avatar), basename($avatar));
+                }
             }
 
             unset($data['avatar']);

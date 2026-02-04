@@ -56,11 +56,8 @@ const takePhoto = async () => {
 };
 
 const handlePhotoSelected = async (payload: any) => {
-    // La galería devuelve { success: true, files: [{ path: '...' }], id: '...' }
-    // La cámara devuelve { path: '...', id: '...' }
     const data = payload;
     
-    // Verificamos el ID. En la galería v3 viene en el objeto raíz.
     if (data.id === 'profile-pic' || !data.id) {
         let path = '';
         
@@ -75,14 +72,44 @@ const handlePhotoSelected = async (payload: any) => {
         }
 
         if (path) {
-            form.avatar = path;
             try {
                 const response = await fetch(`/native/preview?path=${encodeURIComponent(path)}`);
                 if (response.ok) {
-                    nativePreviewUrl.value = await response.text();
+                    const fullBase64 = await response.text();
+                    
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const maxDim = 500; // Reducido a 500px para mínima carga
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height *= maxDim / width;
+                                width = maxDim;
+                            } else {
+                                width *= maxDim / height;
+                                height = maxDim;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx?.drawImage(img, 0, 0, width, height);
+                        
+                        // Calidad bajada al 40% (0.4) para un peso mínimo
+                        const optimizedBase64 = canvas.toDataURL('image/jpeg', 0.4);
+                        nativePreviewUrl.value = optimizedBase64;
+                        
+                        // Guardamos el Base64 optimizado en el form para subir este en lugar del original
+                        form.avatar = optimizedBase64;
+                    };
+                    img.src = fullBase64;
                 }
             } catch (error) {
-                console.error('Error cargando previsualización:', error);
+                console.error('Error procesando imagen:', error);
             }
         }
     }
