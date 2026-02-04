@@ -36,10 +36,12 @@ const nativePreviewUrl = ref<string | null>(null);
 
 const selectImage = async () => {
     try {
+        // Activamos multiple() para que la interfaz de la galería sea más natural
+        // pero mantenemos maxItems(1) si solo queremos una foto de perfil
         await camera.pickImages()
             .id('profile-pic')
-            .maxItems(1)
-
+            .multiple(false)
+            .maxItems(1);
     } catch (error) {
         console.error('Error picking image:', error);
     }
@@ -54,18 +56,27 @@ const takePhoto = async () => {
 };
 
 const handlePhotoSelected = async (payload: any) => {
-    if (payload.id === 'profile-pic') {
+    // La galería devuelve { success: true, files: [{ path: '...' }], id: '...' }
+    // La cámara devuelve { path: '...', id: '...' }
+    const data = payload;
+    
+    // Verificamos el ID. En la galería v3 viene en el objeto raíz.
+    if (data.id === 'profile-pic' || !data.id) {
         let path = '';
-        if (payload.path) {
-            path = payload.path;
-        } else if (payload.paths && payload.paths.length > 0) {
-            path = payload.paths[0];
+        
+        if (data.path) {
+            path = data.path;
+        } else if (data.files && data.files.length > 0) {
+            path = data.files[0].path;
+        } else if (data.paths && data.paths.length > 0) {
+            path = data.paths[0];
+        } else if (Array.isArray(data) && data.length > 0) {
+            path = typeof data[0] === 'string' ? data[0] : data[0].path;
         }
 
         if (path) {
             form.avatar = path;
             try {
-                // Obtenemos el preview en Base64 desde Laravel
                 const response = await fetch(`/native/preview?path=${encodeURIComponent(path)}`);
                 if (response.ok) {
                     nativePreviewUrl.value = await response.text();
