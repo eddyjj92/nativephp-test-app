@@ -299,7 +299,8 @@ return [
     */
 
     'permissions' => [
-        //
+        'camera' => true,
+        'photos' => true,
     ],
 
     /*

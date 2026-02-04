@@ -367,15 +367,32 @@ class CompayMarketService
     {
         $request = $this->http();
 
-        // Si hay un archivo en avatar, manejamos la petición como multipart
-        if (isset($data['avatar']) && $data['avatar'] instanceof \Illuminate\Http\UploadedFile) {
+        // Si hay un archivo en avatar o una ruta de archivo local
+        $hasFile = false;
+        if (isset($data['avatar'])) {
+            if ($data['avatar'] instanceof \Illuminate\Http\UploadedFile) {
+                $hasFile = true;
+            } elseif (is_string($data['avatar']) && file_exists($data['avatar'])) {
+                $hasFile = true;
+            }
+        }
+
+        if ($hasFile) {
             foreach ($data as $key => $value) {
-                if ($key === 'avatar' && $value instanceof \Illuminate\Http\UploadedFile) {
-                    $request->attach(
-                        $key,
-                        file_get_contents($value->getRealPath()),
-                        $value->getClientOriginalName()
-                    );
+                if ($key === 'avatar') {
+                    if ($value instanceof \Illuminate\Http\UploadedFile) {
+                        $request->attach(
+                            $key,
+                            file_get_contents($value->getRealPath()),
+                            $value->getClientOriginalName()
+                        );
+                    } elseif (is_string($value) && file_exists($value)) {
+                        $request->attach(
+                            $key,
+                            file_get_contents($value),
+                            basename($value)
+                        );
+                    }
                 } elseif (is_array($value)) {
                     foreach ($value as $k => $v) {
                         $request->attach("{$key}[{$k}]", $v);

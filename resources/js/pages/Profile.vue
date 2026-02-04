@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { Head, Link, usePage, router, useForm } from '@inertiajs/vue3';
-import MobileLayout from '@/layouts/MobileLayout.vue';
-import { computed, ref } from 'vue';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
     UserPen,
     Bell,
     ChevronLeft,
     ShoppingBag,
     MapPin,
-    CreditCard,
     Ticket,
     User,
     HelpCircle,
@@ -19,24 +14,62 @@ import {
     Upload,
     X,
 } from 'lucide-vue-next';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { camera, on, off, Events } from '#nativephp';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+
+import MobileLayout from '@/layouts/MobileLayout.vue';
+
 
 // Datos del usuario autenticado desde las props compartidas de Inertia
 const page = usePage();
 const user = computed(() => (page.props.auth as any)?.user ?? null);
 
 const showEditModal = ref(false);
-const fileInput = ref<HTMLInputElement | null>(null);
 
 const form = useForm({
-    avatar: null as File | null,
+    avatar: null as File | string | null,
 });
 
-const onFileChange = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    if (target.files && target.files.length > 0) {
-        form.avatar = target.files[0];
+const selectImage = async () => {
+    try {
+        await camera.pickImages()
+            .multiple()
+            .maxItems(5)
+
+    } catch (error) {
+        console.error('Error picking image:', error);
     }
 };
+
+const takePhoto = async () => {
+    try {
+        await camera.getPhoto().id('profile-pic');
+    } catch (error) {
+        console.error('Error taking photo:', error);
+    }
+};
+
+const handlePhotoSelected = (payload: any) => {
+    if (payload.id === 'profile-pic') {
+        if (payload.path) {
+            form.avatar = payload.path;
+        } else if (payload.paths && payload.paths.length > 0) {
+            form.avatar = payload.paths[0];
+        }
+    }
+};
+
+onMounted(() => {
+    on(Events.Camera.PhotoTaken, handlePhotoSelected);
+    on(Events.Gallery.MediaSelected, handlePhotoSelected);
+});
+
+onUnmounted(() => {
+    off(Events.Camera.PhotoTaken, handlePhotoSelected);
+    off(Events.Gallery.MediaSelected, handlePhotoSelected);
+});
 
 const submitAvatar = () => {
     if (!form.avatar) return;
@@ -51,7 +84,9 @@ const submitAvatar = () => {
 };
 
 const previewUrl = computed(() => {
-    return form.avatar ? URL.createObjectURL(form.avatar) : null;
+    if (!form.avatar) return null;
+    if (typeof form.avatar === 'string') return form.avatar;
+    return URL.createObjectURL(form.avatar);
 });
 
 function getInitials(name: string = '') {
@@ -252,8 +287,8 @@ function logout() {
             <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
                 <div class="flex items-center justify-between bg-primary px-6 py-4">
                     <div>
-                        <h2 class="text-lg font-bold text-white">Editar Perfil</h2>
-                        <p class="text-xs text-white/80">Actualiza tu foto de perfil</p>
+                        <h2 class="text-lg font-bold text-white dark:text-black">Editar Perfil</h2>
+                        <p class="text-xs text-white/80 dark:text-black">Actualiza tu foto de perfil</p>
                     </div>
                     <button @click="showEditModal = false" class="rounded-full bg-white/20 p-1 text-white hover:bg-white/30">
                         <X class="size-5" />
@@ -282,22 +317,23 @@ function logout() {
                             </Avatar>
                         </div>
 
-                        <div class="w-full space-y-4">
-                            <button
-                                @click="fileInput?.click()"
-                                class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-4 text-sm font-bold text-slate-600 transition-colors hover:border-primary hover:text-primary dark:border-white/10 dark:text-slate-400"
-                            >
-                                <Upload class="size-6" />
-                                {{ form.avatar ? 'Cambiar imagen' : 'Seleccionar imagen' }}
-                            </button>
-
-                            <input
-                                ref="fileInput"
-                                type="file"
-                                class="hidden"
-                                accept="image/*"
-                                @change="onFileChange"
-                            />
+                        <div class="w-full space-y-3">
+                            <div class="flex gap-3">
+                                <button
+                                    @click="selectImage"
+                                    class="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-4 text-sm font-bold text-slate-600 transition-colors hover:border-primary hover:text-primary dark:border-white/10 dark:text-slate-400"
+                                >
+                                    <Upload class="size-6" />
+                                    Galería
+                                </button>
+                                <button
+                                    @click="takePhoto"
+                                    class="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-4 text-sm font-bold text-slate-600 transition-colors hover:border-primary hover:text-primary dark:border-white/10 dark:text-slate-400"
+                                >
+                                    <UserPen class="size-6" />
+                                    Cámara
+                                </button>
+                            </div>
 
                             <button
                                 @click="submitAvatar"
@@ -305,7 +341,7 @@ function logout() {
                                 class="flex w-full items-center justify-center rounded-xl bg-primary py-3.5 font-bold text-white shadow-lg shadow-primary/30 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
                             >
                                 <span v-if="form.processing">Actualizando...</span>
-                                <span v-else>Guardar Cambios</span>
+                                <span v-else class="dark:text-black">Guardar Cambios</span>
                             </button>
                         </div>
                     </div>
