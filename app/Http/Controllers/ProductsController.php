@@ -26,19 +26,19 @@ class ProductsController extends Controller
         $currency = session('selected_currency');
 
         $params = [
-            'search' => $query,
             'per_page' => 10,
-            'province_id' => $province?->id,
+            'province_slug' => $province?->slug,
         ];
 
         if ($currency) {
             $params['currency'] = $currency->isoCode;
         }
 
-        $productsResponse = $this->compayMarketService->getProducts($params, cache: true);
+        $searchResponse = $this->compayMarketService->searchProducts($query, $params, cache: true);
 
         return response()->json([
-            'products' => $productsResponse['data'],
+            'products' => $searchResponse['data'],
+            'total' => $searchResponse['total_results'],
         ]);
     }
 

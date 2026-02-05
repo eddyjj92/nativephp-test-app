@@ -235,6 +235,42 @@ class CompayMarketService
     }
 
     /**
+     * Busca productos por nombre, código o descripción.
+     *
+     * @param  string  $search  Término de búsqueda.
+     * @param  array  $params  Parámetros adicionales (category_id, currency, province_slug, per_page, etc.).
+     * @param  bool  $cache  Si se debe cachear la respuesta.
+     * @param  int|null  $cacheTtl  Tiempo de vida del caché en segundos.
+     * @return array{data: ProductDTO[], search_term: string, total_results: int}
+     *
+     * @throws ConnectionException
+     */
+    public function searchProducts(string $search, array $params = [], bool $cache = false, ?int $cacheTtl = null): array
+    {
+        $params['search'] = $search;
+
+        $cacheKey = $this->buildCacheKey('/products/search', $params);
+
+        $response = $this->cached(
+            $cacheKey,
+            fn () => $this->http()->get('/products/search', $params)->json(),
+            $cache,
+            $cacheTtl
+        );
+
+        $products = $response['products'] ?? [];
+
+        return [
+            'data' => array_map(
+                fn ($product) => ProductDTO::fromArray($product),
+                $products['data'] ?? $products
+            ),
+            'search_term' => $response['search_term'] ?? $search,
+            'total_results' => (int) ($response['total_results'] ?? count($products)),
+        ];
+    }
+
+    /**
      * Obtiene la lista de banners activos.
      *
      * @param  string|null  $status  Estado del banner ('active', 'inactive' o null).
