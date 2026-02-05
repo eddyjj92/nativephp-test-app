@@ -13,11 +13,14 @@ import {
     ChevronRight,
     Upload,
     X,
+    Sun,
+    Moon,
 } from 'lucide-vue-next';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { camera, on, off, Events } from '#nativephp';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { useAppearance } from '@/composables/useAppearance';
 
 import MobileLayout from '@/layouts/MobileLayout.vue';
 
@@ -146,6 +149,13 @@ const previewUrl = computed(() => {
     return URL.createObjectURL(form.avatar as Blob);
 });
 
+const { resolvedAppearance, updateAppearance } = useAppearance();
+const isDarkMode = computed(() => resolvedAppearance.value === 'dark');
+
+function toggleAppearance() {
+    updateAppearance(isDarkMode.value ? 'light' : 'dark');
+}
+
 function getInitials(name: string = '') {
     return name
         .split(' ')
@@ -182,7 +192,14 @@ function confirmLogout() {
                         <h1 class="text-lg font-bold">Profile</h1>
                     </div>
                     <div class="flex items-center">
-
+                        <button
+                            type="button"
+                            @click="toggleAppearance"
+                            class="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-100 dark:border-white/10 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                        >
+                            <component :is="isDarkMode ? Sun : Moon" class="size-4" />
+                            <span>{{ isDarkMode ? 'Modo Claro' : 'Modo Oscuro' }}</span>
+                        </button>
                     </div>
                 </div>
             </header>

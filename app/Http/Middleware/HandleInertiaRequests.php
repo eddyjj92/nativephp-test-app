@@ -46,10 +46,11 @@ class HandleInertiaRequests extends Middleware
             $request->session()->put('selected_currency', $selectedCurrency);
         }
 
+        $province = $request->session()->get('selected_province');
+
         // Fetch cart items with full product details
         $cartSession = $request->session()->get('cart', []);
         $cartItems = [];
-        $province = $request->session()->get('selected_province');
 
         foreach ($cartSession as $id => $item) {
             $product = $this->compayMarketService->getProduct(
@@ -64,6 +65,25 @@ class HandleInertiaRequests extends Middleware
                     'product' => $product,
                     'quantity' => $item['quantity'],
                     'price' => $product->getDiscountedPrice(),
+                ];
+            }
+        }
+
+        // Fetch favorites with full product details
+        $favoritesSession = $request->session()->get('favorites', []);
+        $favoriteItems = [];
+
+        foreach ($favoritesSession as $id => $item) {
+            $product = $this->compayMarketService->getProduct(
+                id: (string) $id,
+                currency: $selectedCurrency?->isoCode,
+                provinceSlug: $province?->slug,
+                cache: true
+            );
+
+            if ($product) {
+                $favoriteItems[] = [
+                    'product' => $product,
                 ];
             }
         }
@@ -85,6 +105,11 @@ class HandleInertiaRequests extends Middleware
                 'items' => $cartItems,
                 'count' => collect($cartItems)->sum('quantity'),
                 'total' => collect($cartItems)->sum(fn ($item) => $item['price'] * $item['quantity']),
+            ],
+            'favorites' => [
+                'items' => $favoriteItems,
+                'count' => count($favoriteItems),
+                'ids' => array_keys($favoritesSession),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

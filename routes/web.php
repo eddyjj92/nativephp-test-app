@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ProductsController;
@@ -38,9 +39,14 @@ Route::get('/conversations/{id}', function (string $id) {
 Route::get('/product/{id}', [ProductsController::class, 'show'])->name('products.show');
 Route::post('/product/{id}/refresh', [ProductsController::class, 'refresh'])->name('products.refresh');
 
-Route::get('/favorites', function () {
-    return Inertia::render('Favorites');
-})->name('favorites');
+Route::group(['prefix' => 'favorites'], function () {
+    Route::get('/', function () {
+        return Inertia::render('Favorites');
+    })->name('favorites');
+    Route::post('/', [FavoritesController::class, 'store'])->name('favorites.add');
+    Route::delete('/{productId}', [FavoritesController::class, 'destroy'])->name('favorites.remove');
+    Route::delete('/', [FavoritesController::class, 'clear'])->name('favorites.clear');
+});
 
 Route::get('/profile', function () {
     return Inertia::render('Profile');
