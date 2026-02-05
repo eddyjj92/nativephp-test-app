@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, Deferred } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
 import { useCart } from '@/composables/useCart';
@@ -11,10 +11,10 @@ const { addToCart: addToCartOptimistic } = useCart();
 const { removeFromFavorites, clearFavorites, favoritesCount } = useFavorites();
 
 const page = usePage();
-const favoritesData = computed(() => (page.props.favorites as any) || { items: [], count: 0 });
-const favoriteItems = computed(() => favoritesData.value.items);
+const favoritesData = computed(() => (page.props.favorites as any) || { items: [], count: 0, ids: [] });
+const favoriteItems = computed(() => favoritesData.value.items || []);
 
-const itemCount = computed(() => favoritesCount.value);
+const itemCount = computed(() => favoritesData.value.count ?? 0);
 
 function formatPrice(price: number): string {
     const currency = page.props.selectedCurrency as any;
@@ -52,7 +52,7 @@ function addToCart(product: any) {
 
     <MobileLayout active-nav="saved">
         <div
-            class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+            class="flex flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
         <!-- Header -->
         <header class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900">
@@ -91,47 +91,72 @@ function addToCart(product: any) {
 
         <!-- Main Content -->
         <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+60px)]">
-            <!-- Items Count -->
-            <div v-if="favoriteItems.length > 0" class="px-4 py-4">
-                <p class="text-sm text-gray-500">
-                    {{ itemCount }} producto{{ itemCount !== 1 ? 's' : '' }} guardados en su lista
-                </p>
-            </div>
+            <Deferred data="favorites">
+                <template #fallback>
+                    <!-- Skeleton Loading -->
+                    <div class="px-4 py-4">
+                        <div class="h-4 w-48 animate-pulse rounded bg-gray-200 dark:bg-slate-700" />
+                    </div>
+                    <div class="flex flex-col gap-4 px-4">
+                        <div
+                            v-for="i in 2"
+                            :key="i"
+                            class="flex gap-4 rounded-2xl border border-gray-100 bg-white p-4 dark:border-white/5 dark:bg-slate-800/50"
+                        >
+                            <div class="size-28 shrink-0 animate-pulse rounded-xl bg-gray-200 dark:bg-slate-700" />
+                            <div class="flex flex-1 flex-col gap-2">
+                                <div class="h-5 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-slate-700" />
+                                <div class="h-4 w-1/2 animate-pulse rounded bg-gray-200 dark:bg-slate-700" />
+                                <div class="mt-auto">
+                                    <div class="h-6 w-20 animate-pulse rounded bg-gray-200 dark:bg-slate-700" />
+                                </div>
+                                <div class="h-10 w-full animate-pulse rounded-lg bg-gray-200 dark:bg-slate-700" />
+                            </div>
+                        </div>
+                    </div>
+                </template>
 
-            <!-- Empty State -->
-            <div
-                v-if="favoriteItems.length === 0"
-                class="flex flex-col items-center justify-center px-4 py-16"
-            >
-                <svg
-                    class="mb-4 size-24 text-gray-300 dark:text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.5"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                </svg>
-                <h2 class="mb-2 text-lg font-bold text-gray-600 dark:text-gray-400">
-                    No saved items yet
-                </h2>
-                <p class="mb-6 text-center text-sm text-gray-400">
-                    Items you save will appear here.<br />Start exploring and save your favorites!
-                </p>
-                <Link
-                    href="/products"
-                    class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white"
-                >
-                    Explore Products
-                </Link>
-            </div>
+                <!-- Items Count -->
+                <div v-if="favoriteItems.length > 0" class="px-4 py-4">
+                    <p class="text-sm text-gray-500">
+                        {{ itemCount }} producto{{ itemCount !== 1 ? 's' : '' }} guardados en su lista
+                    </p>
+                </div>
 
-            <!-- Favorites List -->
-            <div v-else class="flex flex-col gap-4 px-4">
+                <!-- Empty State -->
+                <div
+                    v-if="favoriteItems.length === 0"
+                    class="flex flex-col items-center justify-center px-4 py-16"
+                >
+                    <svg
+                        class="mb-4 size-24 text-gray-300 dark:text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                    </svg>
+                    <h2 class="mb-2 text-lg font-bold text-gray-600 dark:text-gray-400">
+                        No tienes favoritos guardados
+                    </h2>
+                    <p class="mb-6 text-center text-sm text-gray-400">
+                        Los productos que guardes aparecerán aquí.<br />¡Explora y guarda tus favoritos!
+                    </p>
+                    <Link
+                        href="/products"
+                        class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white"
+                    >
+                        Explorar Productos
+                    </Link>
+                </div>
+
+                <!-- Favorites List -->
+                <div v-else class="flex flex-col gap-4 px-4">
                 <div
                     v-for="item in favoriteItems"
                     :key="item.product.id"
@@ -227,12 +252,13 @@ function addToCart(product: any) {
                 </div>
             </div>
 
-            <!-- Hint Text -->
-            <div v-if="favoriteItems.length > 0" class="px-4 py-6 text-center">
-                <p class="text-sm italic text-gray-400">
-                    Toca el corazón para eliminar un producto de tu lista.
-                </p>
-            </div>
+                <!-- Hint Text -->
+                <div v-if="favoriteItems.length > 0" class="px-4 py-6 text-center">
+                    <p class="text-sm italic text-gray-400">
+                        Toca el corazón para eliminar un producto de tu lista.
+                    </p>
+                </div>
+            </Deferred>
         </main>
 
         </div>

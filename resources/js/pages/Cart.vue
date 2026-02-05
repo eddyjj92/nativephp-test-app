@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, usePage, router } from '@inertiajs/vue3';
+import { Head, Link, usePage, router, Deferred } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
 import { useCart } from '@/composables/useCart';
@@ -11,7 +11,7 @@ const { isProcessing, incrementQuantity, decrementQuantity, removeFromCart, clea
 
 const page = usePage();
 const cart = computed(() => (page.props.cart as any) || { items: [], count: 0, total: 0 });
-const cartItems = computed(() => cart.value.items);
+const cartItems = computed(() => cart.value.items || []);
 
 const showLoginModal = ref(false);
 const isAuthenticated = computed(() => !!(page.props.auth as any)?.user);
@@ -19,7 +19,7 @@ const isAuthenticated = computed(() => !!(page.props.auth as any)?.user);
 const subtotal = computed(() => cart.value.total);
 
 const total = computed(() => {
-    return subtotal.value;
+    return cart.value.total;
 });
 
 function formatPrice(price: number): string {
@@ -82,40 +82,62 @@ function goToCheckout() {
 
         <!-- Main Content -->
         <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+60px)]">
-            <!-- Empty Cart State -->
-            <div
-                v-if="cartItems.length === 0"
-                class="flex flex-col items-center justify-center px-4 py-16"
-            >
-                <svg
-                    class="mb-4 size-24 text-gray-300 dark:text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.5"
-                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                    />
-                </svg>
-                <h2 class="mb-2 text-lg font-bold text-gray-600 dark:text-gray-400">
-                    Your cart is empty
-                </h2>
-                <p class="mb-6 text-sm text-gray-400">
-                    Looks like you haven't added anything yet
-                </p>
-                <Link
-                    href="/products"
-                    class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white"
-                >
-                    Start Shopping
-                </Link>
-            </div>
+            <Deferred data="cart">
+                <template #fallback>
+                    <!-- Skeleton Loading -->
+                    <div class="divide-y divide-gray-100 dark:divide-white/5">
+                        <div
+                            v-for="i in 2"
+                            :key="i"
+                            class="flex gap-4 bg-white px-4 py-4 dark:bg-slate-800/30"
+                        >
+                            <div class="size-24 shrink-0 animate-pulse rounded-xl bg-gray-200 dark:bg-slate-700" />
+                            <div class="flex flex-1 flex-col gap-2">
+                                <div class="h-5 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-slate-700" />
+                                <div class="h-4 w-1/2 animate-pulse rounded bg-gray-200 dark:bg-slate-700" />
+                                <div class="mt-auto flex items-center justify-between">
+                                    <div class="h-8 w-24 animate-pulse rounded-lg bg-gray-200 dark:bg-slate-700" />
+                                    <div class="h-6 w-16 animate-pulse rounded bg-gray-200 dark:bg-slate-700" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
 
-            <!-- Cart Items -->
-            <div v-else class="divide-y divide-gray-100 dark:divide-white/5">
+                <!-- Empty Cart State -->
+                <div
+                    v-if="cartItems.length === 0"
+                    class="flex flex-col items-center justify-center px-4 py-16"
+                >
+                    <svg
+                        class="mb-4 size-24 text-gray-300 dark:text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                        />
+                    </svg>
+                    <h2 class="mb-2 text-lg font-bold text-gray-600 dark:text-gray-400">
+                        Tu carrito está vacío
+                    </h2>
+                    <p class="mb-6 text-sm text-gray-400">
+                        Parece que no has agregado nada aún
+                    </p>
+                    <Link
+                        href="/products"
+                        class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white"
+                    >
+                        Empezar a Comprar
+                    </Link>
+                </div>
+
+                <!-- Cart Items -->
+                <div v-else class="divide-y divide-gray-100 dark:divide-white/5">
                 <div
                     v-for="item in cartItems"
                     :key="item.product.id"
@@ -209,6 +231,7 @@ function goToCheckout() {
                     </div>
                 </div>
             </div>
+            </Deferred>
         </main>
 
         <!-- Order Summary & Checkout -->
