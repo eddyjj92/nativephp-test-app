@@ -92,6 +92,10 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'settings' => $this->compayMarketService->getSettings(cache: true),
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
             'auth' => [
                 'user' => $request->user() ?? $request->session()->get('compay_user'),
             ],

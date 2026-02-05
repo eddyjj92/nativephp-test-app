@@ -2,7 +2,20 @@
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { Head, Link, WhenVisible, router } from '@inertiajs/vue3';
 import { User, ChevronLeft, MapPin, Phone, Mail, IdCard, UserPlus, Pencil, Trash2 } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import Toast from '@/components/Toast.vue';
+import { useToast } from '@/composables/useToast';
+import { usePage } from '@inertiajs/vue3';
+
+const { success } = useToast();
+const page = usePage();
+
+onMounted(() => {
+    const flash = (page.props.flash as any);
+    if (flash?.success) {
+        success(flash.success);
+    }
+});
 
 interface Municipality {
     id: number;
@@ -69,10 +82,12 @@ const closeDeleteModal = () => {
 
 const confirmDelete = () => {
     if (beneficiaryToDelete.value) {
+        const name = beneficiaryToDelete.value.name;
         router.delete(`/beneficiaries/${beneficiaryToDelete.value.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 closeDeleteModal();
+                success(`${name} eliminado exitosamente`);
             },
         });
     }
@@ -81,6 +96,7 @@ const confirmDelete = () => {
 
 <template>
     <Head title="Mis Beneficiarios" />
+    <Toast />
 
     <MobileLayout active-nav="profile" :show-chat-button="false">
         <div class="flex flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white">

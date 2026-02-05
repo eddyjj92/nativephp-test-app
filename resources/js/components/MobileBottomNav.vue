@@ -19,6 +19,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['login-required']);
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
+const favoritesCount = computed(() => (page.props.favorites as any)?.count ?? 0);
 
 function itemClasses(id: NavId): string[] {
     return [
@@ -93,7 +94,7 @@ function handleProfileClick() {
             </div>
         </Link>
 
-        <Link :href="favorites().url" :class="itemClasses('saved')">
+        <Link :href="favorites().url" :class="['relative', ...itemClasses('saved')]">
             <svg
                 class="size-6"
                 fill="none"
@@ -108,6 +109,12 @@ function handleProfileClick() {
                 />
             </svg>
             <span>Favoritos</span>
+            <div
+                v-if="favoritesCount > 0"
+                class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[8px] font-bold text-white dark:border-slate-900"
+            >
+                {{ favoritesCount }}
+            </div>
         </Link>
 
         <Link v-if="user" :href="profile().url" :class="itemClasses('profile')">
