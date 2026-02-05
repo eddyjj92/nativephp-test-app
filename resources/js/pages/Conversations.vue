@@ -148,7 +148,7 @@ const conversations = ref<Conversation[]>([
                                 </p>
                                 <div
                                     v-if="chat.unreadCount > 0"
-                                    class="flex size-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white"
+                                    class="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
                                 >
                                     {{ chat.unreadCount }}
                                 </div>

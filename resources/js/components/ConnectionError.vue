@@ -51,7 +51,7 @@ function handleRetry() {
 
             <!-- Retry Button -->
             <button
-                class="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition-all hover:bg-blue-700 active:scale-95"
+                class="flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 active:scale-95"
                 @click="handleRetry"
             >
                 <svg

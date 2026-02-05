@@ -285,7 +285,7 @@ function addToCart(product: Product) {
 
                         <div class="mt-auto flex items-center justify-between">
                             <div class="flex flex-col">
-                                <span class="text-lg font-extrabold text-blue-600">
+                                <span class="text-lg font-extrabold text-primary">
                                     {{ formatPrice(getDiscountedPrice(product)) }}
                                 </span>
                                 <span
@@ -301,7 +301,7 @@ function addToCart(product: Product) {
                                     'flex size-8 items-center justify-center rounded-lg text-white transition-colors',
                                     product.stock === 0
                                         ? 'cursor-not-allowed bg-gray-300'
-                                        : 'bg-blue-600 hover:bg-blue-700',
+                                        : 'bg-primary hover:bg-primary/90',
                                 ]"
                                 @click="addToCart(product)"
                             >
@@ -330,9 +330,9 @@ function addToCart(product: Product) {
                     class="flex items-center justify-center py-4"
                 >
                     <div v-if="isLoading" class="flex items-center gap-1">
-                        <span class="size-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.3s]"></span>
-                        <span class="size-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.15s]"></span>
-                        <span class="size-2 animate-bounce rounded-full bg-blue-600"></span>
+                        <span class="size-2 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]"></span>
+                        <span class="size-2 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]"></span>
+                        <span class="size-2 animate-bounce rounded-full bg-primary"></span>
                     </div>
                 </div>
 

@@ -225,7 +225,7 @@ function addToCart() {
                     <Link
                         v-if="product.category"
                         :href="`/products/${product.category.slug}`"
-                        class="mb-2 inline-block text-xs font-bold uppercase tracking-wider text-blue-600"
+                        class="mb-2 inline-block text-xs font-bold uppercase tracking-wider text-primary"
                     >
                         {{ product.category.name }}
                     </Link>
@@ -234,7 +234,7 @@ function addToCart() {
                     <div class="mb-4 flex items-start justify-between gap-4">
                         <h2 class="text-2xl font-bold leading-tight">{{ product.name }}</h2>
                         <div class="shrink-0 text-right">
-                            <span class="block rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white">
+                            <span class="block rounded-full bg-primary px-4 py-2 text-sm font-bold text-white">
                                 {{ formatPrice(discountedPrice) }}
                             </span>
                             <span v-if="hasDiscount" class="mt-1 block text-sm text-gray-400 line-through">
@@ -259,7 +259,7 @@ function addToCart() {
                         </p>
                         <button
                             v-if="product.description.length > 150"
-                            class="mt-1 text-sm font-semibold text-blue-600"
+                            class="mt-1 text-sm font-semibold text-primary"
                             @click="showFullDescription = !showFullDescription"
                         >
                             {{ showFullDescription ? 'Ver menos' : 'Leer más' }}
@@ -382,7 +382,7 @@ function addToCart() {
                         :class="[
                             'flex flex-1 items-center justify-center gap-2 rounded-xl py-4 font-bold text-white transition-colors',
                             isAvailable
-                                ? 'bg-blue-600 shadow-lg shadow-blue-600/30 hover:bg-blue-700'
+                                ? 'bg-primary shadow-lg shadow-primary/30 hover:bg-primary/90'
                                 : 'cursor-not-allowed bg-gray-300',
                         ]"
                         @click="addToCart"

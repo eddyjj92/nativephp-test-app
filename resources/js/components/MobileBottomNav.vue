@@ -23,7 +23,7 @@ const user = computed(() => page.props.auth?.user);
 function itemClasses(id: NavId): string[] {
     return [
         'flex flex-col items-center gap-1 text-[10px] font-bold',
-        props.active === id ? 'text-blue-600' : 'text-gray-400',
+        props.active === id ? 'text-primary' : 'text-gray-400',
     ];
 }
 

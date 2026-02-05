@@ -68,7 +68,7 @@ const props = defineProps<{
 const getStatusConfig = (status: string) => {
     const configs: Record<string, { label: string; color: string; bgColor: string; icon: typeof CheckCircle }> = {
         PENDING: { label: 'Pendiente', color: 'text-yellow-600', bgColor: 'bg-yellow-50 dark:bg-yellow-950/30', icon: Clock },
-        PAID: { label: 'Pagado', color: 'text-blue-600', bgColor: 'bg-blue-50 dark:bg-blue-950/30', icon: CheckCircle },
+        PAID: { label: 'Pagado', color: 'text-primary', bgColor: 'bg-blue-50 dark:bg-blue-950/30', icon: CheckCircle },
         DISPATCHED: { label: 'Despachado', color: 'text-green-600', bgColor: 'bg-green-50 dark:bg-green-950/30', icon: Truck },
         DELIVERED: { label: 'Entregado', color: 'text-green-600', bgColor: 'bg-green-50 dark:bg-green-950/30', icon: CheckCircle },
         CANCELLED: { label: 'Cancelado', color: 'text-red-600', bgColor: 'bg-red-50 dark:bg-red-950/30', icon: XCircle },

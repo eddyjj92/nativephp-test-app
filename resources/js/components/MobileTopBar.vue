@@ -31,7 +31,7 @@ defineEmits(['open-location']);
                     @click="$emit('open-location')"
                 >
                     <svg
-                        class="size-5 text-blue-600"
+                        class="size-5 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -82,7 +82,7 @@ defineEmits(['open-location']);
                     placeholder="Buscar productos..."
                     class="flex-1 border-none bg-transparent text-sm font-medium placeholder-gray-400 focus:ring-0"
                 />
-                <div class="pr-4 text-blue-600">
+                <div class="pr-4 text-primary">
                     <svg
                         class="size-5"
                         fill="none"

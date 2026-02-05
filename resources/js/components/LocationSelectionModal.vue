@@ -85,7 +85,7 @@ function onCurrencyChange(event: Event) {
         @click.self="handleBackgroundClick"
     >
         <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
-            <div class="flex items-center justify-between bg-blue-600 px-6 py-4">
+            <div class="flex items-center justify-between bg-primary px-6 py-4">
                 <div>
                     <h2 class="text-lg font-bold text-white">Seleccionar Ubicación</h2>
                     <p class="text-xs text-blue-100">Para mostrarte los productos disponibles</p>
@@ -107,7 +107,7 @@ function onCurrencyChange(event: Event) {
                         <div class="relative">
                             <select
                                 v-model="form.province"
-                                class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                                class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                                 @change="form.municipality = ''"
                             >
                                 <option value="" disabled>Selecciona una provincia</option>
@@ -128,7 +128,7 @@ function onCurrencyChange(event: Event) {
                             <select
                                 v-model="form.municipality"
                                 :disabled="!form.province"
-                                class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:opacity-50 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                                class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50 dark:border-white/10 dark:bg-slate-800 dark:text-white"
                             >
                                 <option value="" disabled>Selecciona un municipio</option>
                                 <option v-for="muni in filteredMunicipalities" :key="muni.id" :value="muni.id">
@@ -147,7 +147,7 @@ function onCurrencyChange(event: Event) {
                         <div class="relative">
                             <select
                                 :value="selectedCurrency?.id"
-                                class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                                class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                                 @change="onCurrencyChange"
                             >
                                 <option v-for="currency in currencies" :key="currency.id" :value="currency.id">
@@ -164,7 +164,7 @@ function onCurrencyChange(event: Event) {
                     <button
                         type="submit"
                         :disabled="!form.province || !form.municipality || form.processing"
-                        class="mt-2 flex w-full items-center justify-center rounded-xl bg-blue-600 py-3.5 font-bold text-white shadow-lg shadow-blue-600/30 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
+                        class="mt-2 flex w-full items-center justify-center rounded-xl bg-primary py-3.5 font-bold text-white shadow-lg shadow-primary/30 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
                     >
                         <span v-if="form.processing">Guardando...</span>
                         <span v-else>Confirmar Ubicación</span>

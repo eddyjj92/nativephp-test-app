@@ -44,7 +44,7 @@ function toggleFaq(index: number) {
                 <!-- Header Section -->
                 <div class="flex flex-col items-center pb-6 text-center">
                     <div class="flex size-16 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20">
-                        <MessageCircleQuestion class="size-8 text-blue-600 dark:text-blue-400" />
+                        <MessageCircleQuestion class="size-8 text-primary dark:text-blue-400" />
                     </div>
                     <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
                         Encuentra respuestas a las dudas más comunes
@@ -113,7 +113,7 @@ function toggleFaq(index: number) {
                     </p>
                     <Link
                         href="/help/contact"
-                        class="mt-2 inline-block text-sm font-semibold text-blue-600 dark:text-blue-400"
+                        class="mt-2 inline-block text-sm font-semibold text-primary dark:text-blue-400"
                     >
                         Contáctanos →
                     </Link>

@@ -37,7 +37,7 @@ const helpItems: HelpItem[] = [
         icon: MessageCircleQuestion,
         href: '/help/faq',
         iconBgClass: 'bg-blue-50 dark:bg-blue-900/20',
-        iconColorClass: 'text-blue-600 dark:text-blue-400',
+        iconColorClass: 'text-primary dark:text-blue-400',
     },
     {
         id: 'contact',

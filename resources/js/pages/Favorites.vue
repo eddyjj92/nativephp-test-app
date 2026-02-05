@@ -107,7 +107,7 @@ function moveAllToCart() {
                 </div>
                 <button
                     v-if="favorites.length > 0"
-                    class="text-sm font-semibold text-blue-600"
+                    class="text-sm font-semibold text-primary"
                     @click="moveAllToCart"
                 >
                     Mover todo al carrito
@@ -150,7 +150,7 @@ function moveAllToCart() {
                 </p>
                 <Link
                     href="/products"
-                    class="rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white"
+                    class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white"
                 >
                     Explore Products
                 </Link>
@@ -178,7 +178,7 @@ function moveAllToCart() {
                             @click.prevent="removeFromFavorites(item.id)"
                         >
                             <svg
-                                class="size-4 fill-blue-600 text-blue-600"
+                                class="size-4 fill-blue-600 text-primary"
                                 fill="currentColor"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -216,13 +216,13 @@ function moveAllToCart() {
                         </Link>
 
                         <!-- Price -->
-                        <span class="mb-3 text-lg font-extrabold text-blue-600">
+                        <span class="mb-3 text-lg font-extrabold text-primary">
                             {{ formatPrice(item.price) }}
                         </span>
 
                         <!-- Add to Cart Button -->
                         <button
-                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2.5 text-sm font-bold text-white transition-colors hover:bg-blue-700"
+                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
                             @click="addToCart(item.id)"
                         >
                             <svg

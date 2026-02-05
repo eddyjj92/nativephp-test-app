@@ -54,12 +54,12 @@ const submit = () => {
         @click.self="$emit('close')"
     >
         <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
-            <div class="flex items-center justify-between bg-blue-600 px-6 py-4">
+            <div class="flex items-center justify-between bg-primary px-6 py-4">
                 <div>
                     <h2 class="text-lg font-bold text-white">Iniciar Sesión</h2>
-                    <p class="text-xs text-blue-100">Accede a tu cuenta de Compay Market</p>
+                    <p class="text-xs text-white/80">Accede a tu cuenta de Compay Market</p>
                 </div>
-                <button @click="$emit('close')" class="rounded-full bg-blue-500 p-1 text-white hover:bg-blue-400">
+                <button @click="$emit('close')" class="rounded-full bg-white/20 p-1 text-white hover:bg-white/30">
                     <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
@@ -72,7 +72,7 @@ const submit = () => {
                         v-model="form.email"
                         type="email"
                         required
-                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-white/10 dark:bg-slate-800 dark:text-white"
+                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                         placeholder="tu@email.com"
                     />
                     <div v-if="form.errors.email" class="text-xs text-red-500">{{ form.errors.email }}</div>
@@ -112,7 +112,7 @@ const submit = () => {
                     <input
                         type="checkbox"
                         v-model="rememberCredentials"
-                        class="size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-white/20 dark:bg-slate-800"
+                        class="size-4 rounded border-slate-300 text-primary focus:ring-primary dark:border-white/20 dark:bg-slate-800"
                     />
                     <span class="text-sm text-slate-600 dark:text-slate-400">Recordar usuario y contraseña</span>
                 </label>
@@ -121,7 +121,7 @@ const submit = () => {
                 <button
                     type="submit"
                     :disabled="form.processing"
-                    class="mt-2 flex w-full items-center justify-center rounded-xl bg-blue-600 py-3.5 font-bold text-white shadow-lg shadow-blue-600/30 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
+                    class="mt-2 flex w-full items-center justify-center rounded-xl bg-primary py-3.5 font-bold text-white shadow-lg shadow-primary/30 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
                 >
                     <span v-if="form.processing">Iniciando...</span>
                     <span v-else>Entrar</span>

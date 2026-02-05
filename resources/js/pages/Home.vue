@@ -174,7 +174,7 @@ function addToCart(product: Product) {
                         v-for="banner in props.banners"
                         :key="banner.id"
                         :href="getBannerLink(banner)"
-                        class="relative aspect-[19/20] min-w-[85%] snap-center overflow-hidden rounded-2xl bg-blue-600/10"
+                        class="relative aspect-[19/20] min-w-[85%] snap-center overflow-hidden rounded-2xl bg-primary/10"
                     >
                         <div
                             class="absolute inset-0 z-10 flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4"
@@ -184,7 +184,7 @@ function addToCart(product: Product) {
                                 :class="[
                                     'mb-2 w-fit rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider',
                                     banner.type === 'discount'
-                                        ? 'bg-blue-600 text-white'
+                                        ? 'bg-primary text-white'
                                         : 'bg-white text-black',
                                 ]"
                             >
@@ -224,7 +224,7 @@ function addToCart(product: Product) {
                     <h3 class="text-lg font-bold leading-tight tracking-[-0.015em]">
                         Productos Recomendados
                     </h3>
-                    <Link href="/products?recommended=1" class="text-sm font-medium text-blue-600">
+                    <Link href="/products?recommended=1" class="text-sm font-medium text-primary">
                         Ver todos
                     </Link>
                 </div>
@@ -292,7 +292,7 @@ function addToCart(product: Product) {
                                                         </Link>
                                                         <div class="mt-auto flex items-center justify-between">
                                                             <div class="flex flex-col">
-                                                                <span class="text-lg font-extrabold text-blue-600">
+                                                                <span class="text-lg font-extrabold text-primary">
                                                                     {{ formatPrice(getDiscountedPrice(product) ?? product.salePrice) }}
                                                                 </span>
                                                                 <span
@@ -303,7 +303,7 @@ function addToCart(product: Product) {
                                                                 </span>
                                                             </div>
                                                             <button
-                                                                class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
+                                                                class="flex size-8 items-center justify-center rounded-lg bg-primary text-white"
                                                                 @click="addToCart(product)"
                                                             >
                                                                 <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,7 +339,7 @@ function addToCart(product: Product) {
                                                 <h3 class="text-lg font-bold leading-tight tracking-[-0.015em]">
                                                     Nuevos Arribos
                                                 </h3>
-                                                <Link href="/products?new=1" class="text-sm font-medium text-blue-600">
+                                                <Link href="/products?new=1" class="text-sm font-medium text-primary">
                                                     Ver todos
                                                 </Link>
                                             </div>
@@ -387,7 +387,7 @@ function addToCart(product: Product) {
                                                                     />
                                                                 </svg>
                                                             </button>
-                                                            <span class="absolute left-2 top-2 rounded bg-green-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                                                            <span class="absolute left-2 top-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold text-white">
                                                                 Nuevo
                                                             </span>
                                                         </div>
@@ -401,7 +401,7 @@ function addToCart(product: Product) {
                                                         </Link>
                                                         <div class="mt-auto flex items-center justify-between">
                                                             <div class="flex flex-col">
-                                                                <span class="text-lg font-extrabold text-blue-600">
+                                                                <span class="text-lg font-extrabold text-primary">
                                                                     {{ formatPrice(getDiscountedPrice(product) ?? product.salePrice) }}
                                                                 </span>
                                                                 <span
@@ -412,7 +412,7 @@ function addToCart(product: Product) {
                                                                 </span>
                                                             </div>
                                                             <button
-                                                                class="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-white"
+                                                                class="flex size-8 items-center justify-center rounded-lg bg-primary text-white"
                                                                 @click="addToCart(product)"
                                                             >
                                                                 <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

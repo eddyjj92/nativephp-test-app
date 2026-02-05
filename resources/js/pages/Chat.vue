@@ -126,7 +126,7 @@ onMounted(() => {
                             class="max-w-[75%] rounded-2xl px-4 py-3 shadow-sm"
                             :class="[
                                 msg.isSender
-                                    ? 'bg-blue-600 text-white rounded-br-none'
+                                    ? 'bg-primary text-white rounded-br-none'
                                     : 'bg-white text-slate-900 dark:bg-slate-800/50 dark:text-white rounded-bl-none'
                             ]"
                         >
@@ -167,7 +167,7 @@ onMounted(() => {
 
                     <button
                         type="submit"
-                        class="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                        class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
                         :disabled="!newMessage.trim()"
                     >
                         <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

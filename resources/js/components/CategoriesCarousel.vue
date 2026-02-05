@@ -70,7 +70,7 @@ onUnmounted(() => {
         </h3>
         <Link
             href="/products"
-            class="text-xs font-bold uppercase tracking-wider text-blue-600"
+            class="text-xs font-bold uppercase tracking-wider text-primary"
         >
             See All
         </Link>
@@ -106,9 +106,9 @@ onUnmounted(() => {
             class="flex min-w-[70px] items-center justify-center"
         >
             <div class="flex items-center gap-1">
-                <span class="size-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.3s]"></span>
-                <span class="size-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.15s]"></span>
-                <span class="size-2 animate-bounce rounded-full bg-blue-600"></span>
+                <span class="size-2 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]"></span>
+                <span class="size-2 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]"></span>
+                <span class="size-2 animate-bounce rounded-full bg-primary"></span>
             </div>
         </div>
     </div>

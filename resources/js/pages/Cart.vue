@@ -95,7 +95,7 @@ function clearCart() {
                 </div>
                 <button
                     v-if="cartItems.length > 0"
-                    class="text-sm font-semibold text-blue-600"
+                    class="text-sm font-semibold text-primary"
                     @click="clearCart"
                 >
                     Limpiar Todo
@@ -131,7 +131,7 @@ function clearCart() {
                 </p>
                 <Link
                     href="/products"
-                    class="rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white"
+                    class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white"
                 >
                     Start Shopping
                 </Link>
@@ -210,7 +210,7 @@ function clearCart() {
                                     {{ item.quantity }}
                                 </span>
                                 <button
-                                    class="flex size-8 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700"
+                                    class="flex size-8 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary/90"
                                     @click="incrementQuantity(item.product.id)"
                                 >
                                     <svg
@@ -246,7 +246,7 @@ function clearCart() {
                 </div>
                 <div class="flex items-center justify-between pt-1">
                     <span class="text-lg font-bold">Total</span>
-                    <span class="text-2xl font-extrabold text-blue-600">
+                    <span class="text-2xl font-extrabold text-primary">
                         {{ formatPrice(total) }}
                     </span>
                 </div>
@@ -254,7 +254,7 @@ function clearCart() {
 
             <Link
                 href="/checkout"
-                class="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 font-bold text-white shadow-lg shadow-blue-600/30 transition-colors hover:bg-blue-700"
+                class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/30 transition-colors hover:bg-primary/90"
             >
                 Proceed to Checkout
                 <svg

@@ -72,7 +72,7 @@ const paymentMethod = ref('card');
                         <div class="flex items-start justify-between">
                             <div class="flex gap-3">
                                 <div
-                                    class="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/20"
+                                    class="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-primary dark:bg-blue-900/20"
                                 >
                                     <span class="material-symbols-outlined">location_on</span>
                                 </div>
@@ -84,7 +84,7 @@ const paymentMethod = ref('card');
                                     </p>
                                 </div>
                             </div>
-                            <button class="font-bold text-blue-600 text-sm">Edit</button>
+                            <button class="font-bold text-primary text-sm">Edit</button>
                         </div>
                     </div>
                 </section>
@@ -117,7 +117,7 @@ const paymentMethod = ref('card');
                             </div>
                             <div
                                 class="size-5 rounded-full border-2 flex items-center justify-center"
-                                :class="paymentMethod === 'card' ? 'border-blue-600 bg-blue-600' : 'border-slate-300 dark:border-slate-600'"
+                                :class="paymentMethod === 'card' ? 'border-blue-600 bg-primary' : 'border-slate-300 dark:border-slate-600'"
                             >
                                 <div v-if="paymentMethod === 'card'" class="size-2 rounded-full bg-white"></div>
                             </div>
@@ -145,7 +145,7 @@ const paymentMethod = ref('card');
                             </div>
                             <div
                                 class="size-5 rounded-full border-2 flex items-center justify-center"
-                                :class="paymentMethod === 'apple' ? 'border-blue-600 bg-blue-600' : 'border-slate-300 dark:border-slate-600'"
+                                :class="paymentMethod === 'apple' ? 'border-blue-600 bg-primary' : 'border-slate-300 dark:border-slate-600'"
                             >
                                 <div v-if="paymentMethod === 'apple'" class="size-2 rounded-full bg-white"></div>
                             </div>
@@ -177,7 +177,7 @@ const paymentMethod = ref('card');
                             class="border-t border-slate-100 pt-3 dark:border-white/5 flex justify-between items-center"
                         >
                             <span class="font-bold text-slate-900 dark:text-white">Total</span>
-                            <span class="text-xl font-extrabold text-blue-600">$17.39</span>
+                            <span class="text-xl font-extrabold text-primary">$17.39</span>
                         </div>
                     </div>
                 </section>
@@ -186,7 +186,7 @@ const paymentMethod = ref('card');
                 class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white px-4 pb-24 pt-4 dark:border-white/5 dark:bg-slate-900"
             >
                 <button
-                    class="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 font-bold text-white shadow-lg shadow-blue-600/30 transition-colors hover:bg-blue-700"
+                    class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/30 transition-colors hover:bg-primary/90"
                 >
                     Pay $17.39
                     <svg

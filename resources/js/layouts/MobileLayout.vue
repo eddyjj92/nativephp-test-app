@@ -65,7 +65,7 @@ const { isOffline, errorMessage, retry } = useConnectionError();
         <Link
             v-if="props.showChatButton"
             href="/conversations"
-            class="fixed right-[calc(var(--inset-right,0px)+1rem)] bottom-[calc(var(--inset-bottom,0px)+4.5rem)] z-50 flex size-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition-transform hover:scale-105"
+            class="fixed right-[calc(var(--inset-right,0px)+1rem)] bottom-[calc(var(--inset-bottom,0px)+4.5rem)] z-50 flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105"
         >
             <svg
                 class="size-6"
