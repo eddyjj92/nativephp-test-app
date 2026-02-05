@@ -5,7 +5,7 @@ import CategoriesCarousel from '@/components/CategoriesCarousel.vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { add } from '@/routes/cart';
+import { useCart } from '@/composables/useCart';
 import type { Category, Product, Banner } from '@/types';
 
 const props = defineProps<{
@@ -192,14 +192,7 @@ function hasDiscount(product: Product): boolean {
     return !!product && !!product.activeDiscounts && product.activeDiscounts.length > 0;
 }
 
-function addToCart(product: Product) {
-    router.post(add().url, {
-        product_id: product.id,
-        quantity: 1,
-    }, {
-        preserveScroll: true,
-    });
-}
+const { addToCart } = useCart();
 </script>
 
 <template>

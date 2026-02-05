@@ -12,7 +12,6 @@ type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
 
 type Props = {
     activeNav?: NavId;
-    cartCount?: number;
     showTopBar?: boolean;
     showChatButton?: boolean;
     showBottomBar?: boolean;
@@ -25,11 +24,9 @@ const showLocationModal = computed(
     () =>
         (page.props.showLocationModal as boolean) || manualLocationModal.value,
 );
-const computedCartCount = computed(() => (page.props.cart as any)?.count || 0);
 
 const props = withDefaults(defineProps<Props>(), {
     activeNav: 'home',
-    cartCount: 0,
     showTopBar: true,
     showChatButton: true,
     showBottomBar: true,
@@ -85,7 +82,6 @@ const { isOffline, errorMessage, retry } = useConnectionError();
         <MobileBottomNav
             v-if="props.showBottomBar"
             :active="props.activeNav"
-            :cart-count="computedCartCount"
             @login-required="loginModalOpen = true"
         />
 

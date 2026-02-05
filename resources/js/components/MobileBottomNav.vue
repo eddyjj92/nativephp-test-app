@@ -8,17 +8,16 @@ type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
 
 type Props = {
     active?: NavId;
-    cartCount?: number;
 };
 
 const props = withDefaults(defineProps<Props>(), {
     active: 'home',
-    cartCount: 0,
 });
 
 const emit = defineEmits(['login-required']);
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
+const cartCount = computed(() => (page.props.cart as any)?.count ?? 0);
 const favoritesCount = computed(() => (page.props.favorites as any)?.count ?? 0);
 
 function itemClasses(id: NavId): string[] {
@@ -87,10 +86,10 @@ function handleProfileClick() {
             </svg>
             <span>Carrito</span>
             <div
-                v-if="props.cartCount > 0"
+                v-if="cartCount > 0"
                 class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[8px] font-bold text-white dark:border-slate-900"
             >
-                {{ props.cartCount }}
+                {{ cartCount }}
             </div>
         </Link>
 
