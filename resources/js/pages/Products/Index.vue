@@ -4,7 +4,7 @@ import { ref, watch, onUnmounted, computed } from 'vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { add } from '@/routes/cart';
+import { useCart } from '@/composables/useCart';
 import type { Product } from '@/types';
 
 type FilterOption = {
@@ -124,14 +124,7 @@ function hasDiscount(product: Product): boolean {
     return product.activeDiscounts && product.activeDiscounts.length > 0;
 }
 
-function addToCart(product: Product) {
-    router.post(add().url, {
-        product_id: product.id,
-        quantity: 1,
-    }, {
-        preserveScroll: true,
-    });
-}
+const { addToCart } = useCart();
 
 // Favoritos desde el backend
 const favoriteIds = computed(() => {

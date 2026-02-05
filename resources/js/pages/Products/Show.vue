@@ -3,7 +3,7 @@ import { Link, usePage, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { add } from '@/routes/cart';
+import { useCart } from '@/composables/useCart';
 import type { Product } from '@/types';
 
 const props = defineProps<{
@@ -149,15 +149,11 @@ function toggleFavorite() {
     }
 }
 
+const { addToCart: addToCartOptimistic } = useCart();
+
 function addToCart() {
     if (!isAvailable.value) return;
-    
-    router.post(add().url, {
-        product_id: props.product.id,
-        quantity: quantity.value,
-    }, {
-        preserveScroll: true,
-    });
+    addToCartOptimistic(props.product, quantity.value);
 }
 </script>
 
