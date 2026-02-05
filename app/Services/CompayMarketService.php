@@ -406,6 +406,18 @@ class CompayMarketService
     }
 
     /**
+     * Obtiene los beneficiarios de un cliente (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  array  $params  Parámetros de filtrado (order_by, page, per_page, province_id).
+     * @return array
+     */
+    public function getBeneficiaries(array $params = []): array
+    {
+        return $this->http()->get('/beneficiaries', $params)->json();
+    }
+
+    /**
      * Limpia el caché de un endpoint específico.
      *
      * @param  string  $endpoint  El endpoint de la API.

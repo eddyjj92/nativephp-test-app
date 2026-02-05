@@ -90,4 +90,46 @@ class CompayAuthController extends Controller
             ]);
         }
     }
+
+    public function beneficiaries(Request $request, CompayMarketService $service)
+    {
+        $user = $request->session()->get('compay_user');
+        $token = $request->session()->get('compay_token');
+
+        if (! $user || ! $token) {
+            return redirect()->route('home');
+        }
+
+        $params = $request->only(['order_by', 'page', 'per_page', 'province_id']);
+
+        try {
+            $response = $service->setToken($token)->getBeneficiaries($params);
+
+            $beneficiaries = $response['beneficiaries'] ?? [];
+
+            // Build local next page URL for pagination
+            $nextPageUrl = null;
+            if (! empty($beneficiaries['next_page_url'])) {
+                $nextPage = $beneficiaries['current_page'] + 1;
+                $nextPageUrl = route('beneficiaries', ['page' => $nextPage]);
+            }
+
+            return \Inertia\Inertia::render('Beneficiaries', [
+                'beneficiaries' => \Inertia\Inertia::merge($beneficiaries['data'] ?? []),
+                'beneficiariesNextPageUrl' => $nextPageUrl,
+                'currentPage' => $beneficiaries['current_page'] ?? 1,
+                'lastPage' => $beneficiaries['last_page'] ?? 1,
+                'total' => $beneficiaries['total'] ?? 0,
+            ]);
+        } catch (\Exception $e) {
+            return \Inertia\Inertia::render('Beneficiaries', [
+                'beneficiaries' => [],
+                'beneficiariesNextPageUrl' => null,
+                'currentPage' => 1,
+                'lastPage' => 1,
+                'total' => 0,
+                'error' => 'Error al cargar los beneficiarios.',
+            ]);
+        }
+    }
 }
