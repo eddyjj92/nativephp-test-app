@@ -99,6 +99,14 @@ const shippingAmount = computed(() => {
     return Number(selectedDeliveryType.value?.price ?? 0);
 });
 
+const shippingLabel = computed(() => {
+    if (!selectedDeliveryType.value) {
+        return 'Tipo de envío';
+    }
+
+    return `Tipo de envío (${selectedDeliveryType.value.name})`;
+});
+
 const totalAmount = computed(() => {
     return discountedSubtotal.value + taxAmount + shippingAmount.value;
 });
@@ -526,7 +534,7 @@ const chooseDeliveryType = (deliveryTypeId: number) => {
                         >
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500 dark:text-slate-400"
-                                    >Subtotal</span
+                                    >Subtotal del carrito</span
                                 >
                                 <span class="flex items-center gap-2">
                                     <span
@@ -544,7 +552,7 @@ const chooseDeliveryType = (deliveryTypeId: number) => {
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500 dark:text-slate-400"
-                                    >Shipping</span
+                                    >{{ shippingLabel }}</span
                                 >
                                 <span
                                     class="font-medium text-slate-900 dark:text-white"
@@ -553,7 +561,7 @@ const chooseDeliveryType = (deliveryTypeId: number) => {
                             </div>
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500 dark:text-slate-400"
-                                    >Tax</span
+                                    >Costo de Transportacion</span
                                 >
                                 <span
                                     class="font-medium text-slate-900 dark:text-white"
