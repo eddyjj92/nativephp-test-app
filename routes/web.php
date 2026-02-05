@@ -38,7 +38,9 @@ Route::get('/checkout', function (Request $request, CompayMarketService $service
 
             try {
                 $response = $service->setToken($token)->getBeneficiaries([
-                    'per_page' => 50,
+                    'order_by' => 'desc',
+                    'page' => 1,
+                    'per_page' => 100,
                 ]);
 
                 return $response['beneficiaries']['data'] ?? [];
