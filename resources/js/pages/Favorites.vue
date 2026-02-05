@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { Head, Link, usePage, router } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
+import { useCart } from '@/composables/useCart';
+import { useFavorites } from '@/composables/useFavorites';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { remove, clear } from '@/routes/favorites';
-import { add as addToCartRoute } from '@/routes/cart';
 
 const { handleImageError } = useImageRefresh();
+const { addToCart: addToCartOptimistic } = useCart();
+const { removeFromFavorites, clearFavorites, favoritesCount } = useFavorites();
+
 const page = usePage();
 const favoritesData = computed(() => (page.props.favorites as any) || { items: [], count: 0 });
 const favoriteItems = computed(() => favoritesData.value.items);
 
-const itemCount = computed(() => favoritesData.value.count);
+const itemCount = computed(() => favoritesCount.value);
 
 function formatPrice(price: number): string {
     const currency = page.props.selectedCurrency as any;
@@ -39,29 +42,8 @@ function hasDiscount(product: any): boolean {
     return product.activeDiscounts && product.activeDiscounts.length > 0;
 }
 
-function removeFromFavorites(productId: number) {
-    router.post(remove(productId).url, {
-        _method: 'DELETE',
-    }, {
-        preserveScroll: true
-    });
-}
-
-function addToCart(productId: number) {
-    router.post(addToCartRoute().url, {
-        product_id: productId,
-        quantity: 1,
-    }, {
-        preserveScroll: true
-    });
-}
-
-function clearFavorites() {
-    router.post(clear().url, {
-        _method: 'DELETE',
-    }, {
-        preserveScroll: true
-    });
+function addToCart(product: any) {
+    addToCartOptimistic(product, 1);
 }
 </script>
 
@@ -224,7 +206,7 @@ function clearFavorites() {
                         <!-- Add to Cart Button -->
                         <button
                             class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-bold text-white dark:text-black transition-colors hover:bg-primary/90"
-                            @click="addToCart(item.product.id)"
+                            @click="addToCart(item.product)"
                         >
                             <svg
                                 class="size-4"

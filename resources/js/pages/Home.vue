@@ -4,8 +4,9 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import CategoriesCarousel from '@/components/CategoriesCarousel.vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
-import MobileLayout from '@/layouts/MobileLayout.vue';
 import { useCart } from '@/composables/useCart';
+import { useFavorites } from '@/composables/useFavorites';
+import MobileLayout from '@/layouts/MobileLayout.vue';
 import type { Category, Product, Banner } from '@/types';
 
 const props = defineProps<{
@@ -17,6 +18,9 @@ const props = defineProps<{
 }>();
 
 const { handleImageError } = useImageRefresh();
+const { addToCart } = useCart();
+const { isFavorite, toggleFavorite: toggleFavoriteOptimistic } = useFavorites();
+
 const page = usePage();
 const locationMissing = computed(() => !!page.props.showLocationModal);
 
@@ -98,19 +102,9 @@ onUnmounted(() => {
     stopAutoplay();
 });
 
-// Favoritos desde el backend
-const favoriteIds = computed(() => {
-    const favorites = page.props.favorites as any;
-    return new Set(favorites?.ids?.map((id: number | string) => Number(id)) ?? []);
-});
-
 // Estado de animación por producto
 const animatingFavorites = ref<Set<number>>(new Set());
 const confettiProducts = ref<Map<number, Array<{ id: number; x: number; y: number; rotation: number; scale: number; delay: number }>>>(new Map());
-
-function isFavorite(productId: number): boolean {
-    return favoriteIds.value.has(productId);
-}
 
 function isAnimating(productId: number): boolean {
     return animatingFavorites.value.has(productId);
@@ -139,16 +133,9 @@ function toggleFavorite(productId: number, event: Event) {
     event.preventDefault();
     event.stopPropagation();
 
-    const willBeFavorite = !isFavorite(productId);
+    const willBeFavorite = toggleFavoriteOptimistic(productId);
 
     if (willBeFavorite) {
-        // Agregar a favoritos
-        router.post('/favorites', {
-            product_id: productId,
-        }, {
-            preserveScroll: true,
-        });
-
         // Animación
         animatingFavorites.value.add(productId);
         generateConfetti(productId);
@@ -160,11 +147,6 @@ function toggleFavorite(productId: number, event: Event) {
         setTimeout(() => {
             confettiProducts.value.delete(productId);
         }, 1000);
-    } else {
-        // Quitar de favoritos
-        router.delete(`/favorites/${productId}`, {
-            preserveScroll: true,
-        });
     }
 }
 
@@ -192,7 +174,6 @@ function hasDiscount(product: Product): boolean {
     return !!product && !!product.activeDiscounts && product.activeDiscounts.length > 0;
 }
 
-const { addToCart } = useCart();
 </script>
 
 <template>

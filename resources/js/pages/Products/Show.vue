@@ -4,6 +4,7 @@ import { ref, computed } from 'vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { useCart } from '@/composables/useCart';
+import { useFavorites } from '@/composables/useFavorites';
 import type { Product } from '@/types';
 
 const props = defineProps<{
@@ -94,17 +95,14 @@ function decrementQuantity() {
     }
 }
 
-// Favoritos desde el backend
-const favoriteIds = computed(() => {
-    const favorites = page.props.favorites as any;
-    return new Set(favorites?.ids?.map((id: number | string) => Number(id)) ?? []);
-});
+const { addToCart: addToCartOptimistic } = useCart();
+const { isFavorite: isFavoriteOptimistic, toggleFavorite: toggleFavoriteOptimistic } = useFavorites();
 
 const isAnimating = ref(false);
 const confettiParticles = ref<Array<{ id: number; x: number; y: number; rotation: number; scale: number; delay: number }>>([]);
 
 function isFavorite(): boolean {
-    return favoriteIds.value.has(props.product.id);
+    return isFavoriteOptimistic(props.product.id);
 }
 
 function generateConfetti() {
@@ -123,15 +121,9 @@ function generateConfetti() {
 }
 
 function toggleFavorite() {
-    const willBeFavorite = !isFavorite();
+    const willBeFavorite = toggleFavoriteOptimistic(props.product.id);
 
     if (willBeFavorite) {
-        router.post('/favorites', {
-            product_id: props.product.id,
-        }, {
-            preserveScroll: true,
-        });
-
         isAnimating.value = true;
         generateConfetti();
 
@@ -142,14 +134,8 @@ function toggleFavorite() {
         setTimeout(() => {
             confettiParticles.value = [];
         }, 1000);
-    } else {
-        router.delete(`/favorites/${props.product.id}`, {
-            preserveScroll: true,
-        });
     }
 }
-
-const { addToCart: addToCartOptimistic } = useCart();
 
 function addToCart() {
     if (!isAvailable.value) return;

@@ -5,6 +5,7 @@ import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { useCart } from '@/composables/useCart';
+import { useFavorites } from '@/composables/useFavorites';
 import type { Product } from '@/types';
 
 type FilterOption = {
@@ -125,20 +126,11 @@ function hasDiscount(product: Product): boolean {
 }
 
 const { addToCart } = useCart();
-
-// Favoritos desde el backend
-const favoriteIds = computed(() => {
-    const favorites = page.props.favorites as any;
-    return new Set(favorites?.ids?.map((id: number | string) => Number(id)) ?? []);
-});
+const { isFavorite, toggleFavorite: toggleFavoriteOptimistic } = useFavorites();
 
 // Estado de animación por producto
 const animatingFavorites = ref<Set<number>>(new Set());
 const confettiProducts = ref<Map<number, Array<{ id: number; x: number; y: number; rotation: number; scale: number; delay: number }>>>(new Map());
-
-function isFavorite(productId: number): boolean {
-    return favoriteIds.value.has(productId);
-}
 
 function isAnimating(productId: number): boolean {
     return animatingFavorites.value.has(productId);
@@ -167,15 +159,9 @@ function toggleFavorite(productId: number, event: Event) {
     event.preventDefault();
     event.stopPropagation();
 
-    const willBeFavorite = !isFavorite(productId);
+    const willBeFavorite = toggleFavoriteOptimistic(productId);
 
     if (willBeFavorite) {
-        router.post('/favorites', {
-            product_id: productId,
-        }, {
-            preserveScroll: true,
-        });
-
         animatingFavorites.value.add(productId);
         generateConfetti(productId);
 
@@ -186,10 +172,6 @@ function toggleFavorite(productId: number, event: Event) {
         setTimeout(() => {
             confettiProducts.value.delete(productId);
         }, 1000);
-    } else {
-        router.delete(`/favorites/${productId}`, {
-            preserveScroll: true,
-        });
     }
 }
 </script>
