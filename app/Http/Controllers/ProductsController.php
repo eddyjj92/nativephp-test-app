@@ -48,7 +48,8 @@ class ProductsController extends Controller
         $currency = session('selected_currency');
         $provinceId = $province?->id;
 
-        $page = request()->integer('page', 1);
+        $page = $request->integer('page', 1);
+        $categoryId = $request->route('categoryId') ?? $request->query('category_id');
 
         $params = [
             'page' => $page,
@@ -59,35 +60,47 @@ class ProductsController extends Controller
             $params['currency'] = $currency->isoCode;
         }
 
-        $params['category_id'] = null;
-        if ($request->query('category_id')) {
-            $params['category_id'] = $request->query('category_id');
-        }
+        $params['category_id'] = $categoryId;
 
         if ($request->query('search')) {
             $params['search'] = $request->query('search');
         }
 
+        return Inertia::render('Products/Index', [
+            'categoryId' => $params['category_id'],
+            'listing' => Inertia::defer(fn () => $this->buildListing($params)),
+        ]);
+    }
+
+    /**
+     * @param  array{page: int, province_id: int|null, currency?: string, category_id: mixed, search?: string}  $params
+     * @return array{products: array, productsNextPageUrl: string|null, currentPage: int, lastPage: int, total: int}
+     */
+    protected function buildListing(array $params): array
+    {
         $productsResponse = $this->compayMarketService->getProducts($params, cache: true);
 
-        // Build local next page URL
         $nextPageUrl = null;
         if (! empty($productsResponse['next_page_url'])) {
             $nextPage = $productsResponse['current_page'] + 1;
+
             $routeParams = ['page' => $nextPage];
+            if (! empty($params['search'])) {
+                $routeParams['search'] = $params['search'];
+            }
+
             $nextPageUrl = $params['category_id']
                 ? route('products.category', ['categoryId' => $params['category_id'], ...$routeParams])
                 : route('products.index', $routeParams);
         }
 
-        return Inertia::render('Products/Index', [
-            'products' => Inertia::merge($productsResponse['data']),
+        return [
+            'products' => $productsResponse['data'],
             'productsNextPageUrl' => $nextPageUrl,
             'currentPage' => $productsResponse['current_page'],
             'lastPage' => $productsResponse['last_page'],
             'total' => $productsResponse['total'],
-            'categoryId' => $params['category_id'],
-        ]);
+        ];
     }
 
     public function show(int $id): Response

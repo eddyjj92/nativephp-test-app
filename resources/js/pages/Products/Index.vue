@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Deferred, Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, watch, onUnmounted, computed } from 'vue';
 import ProductSkeleton from '@/components/ProductSkeleton.vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
@@ -15,13 +15,40 @@ type FilterOption = {
 };
 
 const props = defineProps<{
-    products: Product[];
-    productsNextPageUrl?: string | null;
-    currentPage: number;
-    lastPage: number;
-    total: number;
+    listing?: {
+        products: Product[];
+        productsNextPageUrl?: string | null;
+        currentPage: number;
+        lastPage: number;
+        total: number;
+    };
     categoryId?: number | null;
 }>();
+
+const products = ref<Product[]>([]);
+const productsNextPageUrl = ref<string | null>(null);
+const total = ref(0);
+const hasLoadedInitialListing = ref(false);
+
+watch(
+    () => props.listing,
+    (listing) => {
+        if (! listing) {
+            return;
+        }
+
+        if (listing.currentPage > 1 && products.value.length > 0) {
+            products.value = [...products.value, ...listing.products];
+        } else {
+            products.value = [...listing.products];
+        }
+
+        productsNextPageUrl.value = listing.productsNextPageUrl ?? null;
+        total.value = listing.total;
+        hasLoadedInitialListing.value = true;
+    },
+    { immediate: true }
+);
 
 const categoryTitle = computed(() => {
     return 'Productos';
@@ -40,17 +67,19 @@ const triggerRef = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
 
 function loadMore() {
-    if (!props.productsNextPageUrl || isLoading.value) return;
+    if (! productsNextPageUrl.value || isLoading.value) {
+        return;
+    }
 
     isLoading.value = true;
 
     router.get(
-        props.productsNextPageUrl,
+        productsNextPageUrl.value,
         {},
         {
             preserveState: true,
             preserveScroll: true,
-            only: ['products', 'productsNextPageUrl', 'currentPage'],
+            only: ['listing'],
             onFinish: () => {
                 isLoading.value = false;
             },
@@ -201,7 +230,7 @@ function toggleFavorite(productId: number, event: Event) {
                             </svg>
                         </Link>
                         <h1 class="text-lg font-bold">{{ categoryTitle }}</h1>
-                        <span class="text-sm text-gray-500">({{ total }})</span>
+                        <span class="text-sm text-gray-500">({{ hasLoadedInitialListing ? total : '...' }})</span>
                     </div>
                     <button class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10">
                         <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,22 +286,29 @@ function toggleFavorite(productId: number, event: Event) {
 
             <!-- Main Content -->
             <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+100px)]">
-                <!-- Empty State -->
-                <div v-if="products.length === 0 && !isLoading" class="flex flex-col items-center justify-center py-16">
-                    <svg class="mb-4 size-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1.5"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                        />
-                    </svg>
-                    <p class="text-lg font-medium text-gray-500">No hay productos disponibles</p>
-                    <p class="text-sm text-gray-400">Intenta con otra categoría</p>
-                </div>
+                <Deferred data="listing">
+                    <template #fallback>
+                        <div class="grid grid-cols-2 gap-4 py-4">
+                            <ProductSkeleton v-for="n in 6" :key="`deferred-skeleton-${n}`" />
+                        </div>
+                    </template>
 
-                <!-- Products Grid -->
-                <div v-else class="grid grid-cols-2 gap-4 py-4">
+                    <!-- Empty State -->
+                    <div v-if="products.length === 0 && !isLoading" class="flex flex-col items-center justify-center py-16">
+                        <svg class="mb-4 size-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.5"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                            />
+                        </svg>
+                        <p class="text-lg font-medium text-gray-500">No hay productos disponibles</p>
+                        <p class="text-sm text-gray-400">Intenta con otra categoría</p>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div v-else class="grid grid-cols-2 gap-4 py-4">
                     <div
                         v-for="product in products"
                         :key="product.id"
@@ -408,28 +444,29 @@ function toggleFavorite(productId: number, event: Event) {
                     <template v-if="isLoading">
                         <ProductSkeleton v-for="n in 4" :key="`skeleton-${n}`" />
                     </template>
-                </div>
-
-                <!-- Infinite Scroll Trigger -->
-                <div
-                    v-if="productsNextPageUrl"
-                    ref="triggerRef"
-                    class="flex items-center justify-center py-4"
-                >
-                    <div v-if="isLoading" class="flex items-center gap-1">
-                        <span class="size-2 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]"></span>
-                        <span class="size-2 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]"></span>
-                        <span class="size-2 animate-bounce rounded-full bg-primary"></span>
                     </div>
-                </div>
 
-                <!-- End of List -->
-                <div
-                    v-else-if="products.length > 0"
-                    class="flex items-center justify-center py-4 text-sm text-gray-400"
-                >
-                    Has llegado al final
-                </div>
+                    <!-- Infinite Scroll Trigger -->
+                    <div
+                        v-if="productsNextPageUrl"
+                        ref="triggerRef"
+                        class="flex items-center justify-center py-4"
+                    >
+                        <div v-if="isLoading" class="flex items-center gap-1">
+                            <span class="size-2 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]"></span>
+                            <span class="size-2 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]"></span>
+                            <span class="size-2 animate-bounce rounded-full bg-primary"></span>
+                        </div>
+                    </div>
+
+                    <!-- End of List -->
+                    <div
+                        v-else-if="products.length > 0"
+                        class="flex items-center justify-center py-4 text-sm text-gray-400"
+                    >
+                        Has llegado al final
+                    </div>
+                </Deferred>
             </main>
         </div>
     </MobileLayout>
