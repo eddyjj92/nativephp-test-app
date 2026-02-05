@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { Head, Link, WhenVisible, router } from '@inertiajs/vue3';
-import { User, ChevronLeft, MapPin, Phone, Mail, IdCard } from 'lucide-vue-next';
+import { User, ChevronLeft, MapPin, Phone, Mail, IdCard, UserPlus, Pencil } from 'lucide-vue-next';
 
 interface Municipality {
     id: number;
@@ -69,11 +69,15 @@ const formatPhone = (phone: string) => {
                         >
                             <ChevronLeft class="size-6 text-slate-900 dark:text-white" />
                         </Link>
-                        <h1 class="text-lg font-bold">Mis Beneficiarios</h1>
+                        <h1 class="text-lg font-bold">Mis Beneficiarios ({{ total }})</h1>
                     </div>
-                    <span class="text-sm text-slate-500 dark:text-slate-400">
-                        {{ total }} {{ total === 1 ? 'beneficiario' : 'beneficiarios' }}
-                    </span>
+                    <Link
+                        href="/beneficiaries/create"
+                        class="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-sm font-semibold text-white dark:text-black shadow-sm transition-colors hover:bg-primary/90"
+                    >
+                        <UserPlus class="size-4" />
+                        <span>Nuevo</span>
+                    </Link>
                 </div>
             </header>
 
@@ -122,6 +126,12 @@ const formatPhone = (phone: string) => {
                                         {{ beneficiary.municipality.name }}, {{ beneficiary.municipality.province.name }}
                                     </p>
                                 </div>
+                                <Link
+                                    :href="`/beneficiaries/${beneficiary.id}/edit`"
+                                    class="flex items-center justify-center size-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-colors"
+                                >
+                                    <Pencil class="size-4" />
+                                </Link>
                             </div>
                         </div>
 

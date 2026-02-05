@@ -418,6 +418,43 @@ class CompayMarketService
     }
 
     /**
+     * Crea un nuevo beneficiario (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  array  $data  Datos del beneficiario (name, identity_number, email, phone, address, municipality_id).
+     * @return array
+     */
+    public function createBeneficiary(array $data): array
+    {
+        return $this->http()->post('/beneficiaries', $data)->json();
+    }
+
+    /**
+     * Actualiza un beneficiario existente (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  int  $id  ID del beneficiario.
+     * @param  array  $data  Datos del beneficiario (name, identity_number, email, phone, address, municipality_id).
+     * @return array
+     */
+    public function updateBeneficiary(int $id, array $data): array
+    {
+        return $this->http()->put("/beneficiaries/{$id}", $data)->json();
+    }
+
+    /**
+     * Obtiene un beneficiario específico (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  int  $id  ID del beneficiario.
+     * @return array
+     */
+    public function getBeneficiary(int $id): array
+    {
+        return $this->http()->get("/beneficiaries/{$id}")->json();
+    }
+
+    /**
      * Limpia el caché de un endpoint específico.
      *
      * @param  string  $endpoint  El endpoint de la API.

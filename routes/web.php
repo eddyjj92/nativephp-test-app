@@ -60,6 +60,10 @@ Route::post('/profile/info/update', [\App\Http\Controllers\CompayAuthController:
 
 Route::get('/orders', [\App\Http\Controllers\CompayAuthController::class, 'orders'])->name('orders');
 Route::get('/beneficiaries', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaries'])->name('beneficiaries');
+Route::get('/beneficiaries/create', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaryCreate'])->name('beneficiaries.create');
+Route::post('/beneficiaries', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaryStore'])->name('beneficiaries.store');
+Route::get('/beneficiaries/{id}/edit', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaryEdit'])->name('beneficiaries.edit');
+Route::put('/beneficiaries/{id}', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaryUpdate'])->name('beneficiaries.update');
 
 Route::group(['prefix' => 'help'], function () {
     Route::get('/', function () {

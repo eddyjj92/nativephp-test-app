@@ -132,4 +132,111 @@ class CompayAuthController extends Controller
             ]);
         }
     }
+
+    public function beneficiaryCreate(Request $request, CompayMarketService $service)
+    {
+        $user = $request->session()->get('compay_user');
+        $token = $request->session()->get('compay_token');
+
+        if (! $user || ! $token) {
+            return redirect()->route('home');
+        }
+
+        // Get provinces for the municipality selector
+        $provinces = $service->getProvinces('active', cache: true);
+
+        return \Inertia\Inertia::render('BeneficiaryCreate', [
+            'provinces' => $provinces,
+        ]);
+    }
+
+    public function beneficiaryStore(Request $request, CompayMarketService $service)
+    {
+        $user = $request->session()->get('compay_user');
+        $token = $request->session()->get('compay_token');
+
+        if (! $user || ! $token) {
+            return redirect()->route('home');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'identity_number' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+            'municipality_id' => 'required|integer',
+        ]);
+
+        try {
+            $response = $service->setToken($token)->createBeneficiary($validated);
+
+            if (isset($response['beneficiary'])) {
+                return redirect()->route('beneficiaries')->with('success', 'Beneficiario creado exitosamente.');
+            }
+
+            return back()->withErrors(['error' => $response['message'] ?? 'Error al crear el beneficiario.']);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al crear el beneficiario.']);
+        }
+    }
+
+    public function beneficiaryEdit(Request $request, int $id, CompayMarketService $service)
+    {
+        $user = $request->session()->get('compay_user');
+        $token = $request->session()->get('compay_token');
+
+        if (! $user || ! $token) {
+            return redirect()->route('home');
+        }
+
+        try {
+            $response = $service->setToken($token)->getBeneficiary($id);
+            $beneficiary = $response['beneficiary'] ?? null;
+
+            if (! $beneficiary) {
+                return redirect()->route('beneficiaries')->withErrors(['error' => 'Beneficiario no encontrado.']);
+            }
+
+            $provinces = $service->getProvinces('active', cache: true);
+
+            return \Inertia\Inertia::render('BeneficiaryEdit', [
+                'beneficiary' => $beneficiary,
+                'provinces' => $provinces,
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('beneficiaries')->withErrors(['error' => 'Error al cargar el beneficiario.']);
+        }
+    }
+
+    public function beneficiaryUpdate(Request $request, int $id, CompayMarketService $service)
+    {
+        $user = $request->session()->get('compay_user');
+        $token = $request->session()->get('compay_token');
+
+        if (! $user || ! $token) {
+            return redirect()->route('home');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'identity_number' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+            'municipality_id' => 'required|integer',
+        ]);
+
+        try {
+            $response = $service->setToken($token)->updateBeneficiary($id, $validated);
+
+            if (isset($response['beneficiary'])) {
+                return redirect()->route('beneficiaries')->with('success', 'Beneficiario actualizado exitosamente.');
+            }
+
+            return back()->withErrors(['error' => $response['message'] ?? 'Error al actualizar el beneficiario.']);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al actualizar el beneficiario.']);
+        }
+    }
 }
