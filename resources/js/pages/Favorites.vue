@@ -19,6 +19,26 @@ function formatPrice(price: number): string {
     return `${symbol}${price.toFixed(2)}`;
 }
 
+function getDiscountedPrice(product: any): number {
+    if (!product.activeDiscounts || product.activeDiscounts.length === 0) {
+        return product.salePrice;
+    }
+
+    let price = product.salePrice;
+    for (const discount of product.activeDiscounts) {
+        if (discount.type === 'percentage') {
+            price = price * (1 - discount.value / 100);
+        } else {
+            price = price - discount.value;
+        }
+    }
+    return Math.max(0, price);
+}
+
+function hasDiscount(product: any): boolean {
+    return product.activeDiscounts && product.activeDiscounts.length > 0;
+}
+
 function removeFromFavorites(productId: number) {
     router.post(remove(productId).url, {
         _method: 'DELETE',
@@ -189,9 +209,17 @@ function clearFavorites() {
                         </Link>
 
                         <!-- Price -->
-                        <span class="mb-3 text-lg font-extrabold text-primary">
-                            {{ formatPrice(item.product.discountedPrice || item.product.price) }}
-                        </span>
+                        <div class="mb-3 flex items-baseline gap-2">
+                            <span class="text-lg font-extrabold text-primary">
+                                {{ formatPrice(getDiscountedPrice(item.product)) }}
+                            </span>
+                            <span
+                                v-if="hasDiscount(item.product)"
+                                class="text-sm text-gray-400 line-through"
+                            >
+                                {{ formatPrice(item.product.salePrice) }}
+                            </span>
+                        </div>
 
                         <!-- Add to Cart Button -->
                         <button

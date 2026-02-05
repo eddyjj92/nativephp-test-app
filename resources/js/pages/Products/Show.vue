@@ -11,8 +11,8 @@ const props = defineProps<{
 }>();
 
 const { handleImageError } = useImageRefresh();
+const page = usePage();
 const quantity = ref(1);
-const isFavorite = ref(false);
 const showFullDescription = ref(false);
 const imageLoading = ref(true);
 
@@ -94,8 +94,59 @@ function decrementQuantity() {
     }
 }
 
+// Favoritos desde el backend
+const favoriteIds = computed(() => {
+    const favorites = page.props.favorites as any;
+    return new Set(favorites?.ids?.map((id: number | string) => Number(id)) ?? []);
+});
+
+const isAnimating = ref(false);
+const confettiParticles = ref<Array<{ id: number; x: number; y: number; rotation: number; scale: number; delay: number }>>([]);
+
+function isFavorite(): boolean {
+    return favoriteIds.value.has(props.product.id);
+}
+
+function generateConfetti() {
+    const particles = [];
+    for (let i = 0; i < 12; i++) {
+        particles.push({
+            id: i,
+            x: (Math.random() - 0.5) * 80,
+            y: (Math.random() - 0.5) * 80,
+            rotation: Math.random() * 360,
+            scale: 0.5 + Math.random() * 0.5,
+            delay: Math.random() * 0.1,
+        });
+    }
+    confettiParticles.value = particles;
+}
+
 function toggleFavorite() {
-    isFavorite.value = !isFavorite.value;
+    const willBeFavorite = !isFavorite();
+
+    if (willBeFavorite) {
+        router.post('/favorites', {
+            product_id: props.product.id,
+        }, {
+            preserveScroll: true,
+        });
+
+        isAnimating.value = true;
+        generateConfetti();
+
+        setTimeout(() => {
+            isAnimating.value = false;
+        }, 600);
+
+        setTimeout(() => {
+            confettiParticles.value = [];
+        }, 1000);
+    } else {
+        router.delete(`/favorites/${props.product.id}`, {
+            preserveScroll: true,
+        });
+    }
 }
 
 function addToCart() {
@@ -353,19 +404,37 @@ function addToCart() {
                 <div class="flex items-center gap-3">
                     <button
                         :class="[
-                            'flex size-14 items-center justify-center rounded-xl border transition-colors',
-                            isFavorite
+                            'relative flex size-14 items-center justify-center rounded-xl border transition-all',
+                            isFavorite()
                                 ? 'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20'
                                 : 'border-gray-200 bg-white dark:border-white/10 dark:bg-slate-800',
+                            isAnimating ? 'animate-heartbeat' : '',
                         ]"
                         @click="toggleFavorite"
                     >
+                        <!-- Confetti -->
+                        <div v-if="confettiParticles.length > 0" class="pointer-events-none absolute inset-0 overflow-visible">
+                            <span
+                                v-for="particle in confettiParticles"
+                                :key="particle.id"
+                                class="absolute left-1/2 top-1/2 size-2 animate-confetti-burst rounded-full"
+                                :style="{
+                                    '--confetti-x': `${particle.x}px`,
+                                    '--confetti-y': `${particle.y}px`,
+                                    '--confetti-rotation': `${particle.rotation}deg`,
+                                    '--confetti-scale': particle.scale,
+                                    '--confetti-delay': `${particle.delay}s`,
+                                    backgroundColor: ['#ef4444', '#dc2626', '#f87171', '#fca5a5', '#ff6b6b', '#ee5a5a'][particle.id % 6],
+                                }"
+                            />
+                        </div>
                         <svg
                             :class="[
-                                'size-6',
-                                isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-400',
+                                'size-6 transition-all duration-200',
+                                isFavorite() ? 'fill-red-500 text-red-500' : 'fill-transparent text-gray-600 dark:text-gray-400',
+                                isAnimating ? 'scale-125' : '',
                             ]"
-                            fill="none"
+                            fill="currentColor"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
@@ -402,3 +471,37 @@ function addToCart() {
         </div>
     </MobileLayout>
 </template>
+
+<style scoped>
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.3); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.2); }
+    60% { transform: scale(1); }
+}
+
+@keyframes confetti-burst {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) rotate(0deg) scale(0);
+        opacity: 1;
+    }
+    20% {
+        transform: translate(-50%, -50%) translate(calc(var(--confetti-x) * 0.3), calc(var(--confetti-y) * 0.3)) rotate(calc(var(--confetti-rotation) * 0.3)) scale(var(--confetti-scale));
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(var(--confetti-x), var(--confetti-y)) rotate(var(--confetti-rotation)) scale(0);
+        opacity: 0;
+    }
+}
+
+.animate-heartbeat {
+    animation: heartbeat 0.6s ease-in-out;
+}
+
+.animate-confetti-burst {
+    animation: confetti-burst 0.8s ease-out forwards;
+    animation-delay: var(--confetti-delay);
+}
+</style>

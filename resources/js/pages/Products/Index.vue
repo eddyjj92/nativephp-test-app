@@ -132,6 +132,73 @@ function addToCart(product: Product) {
         preserveScroll: true,
     });
 }
+
+// Favoritos desde el backend
+const favoriteIds = computed(() => {
+    const favorites = page.props.favorites as any;
+    return new Set(favorites?.ids?.map((id: number | string) => Number(id)) ?? []);
+});
+
+// Estado de animación por producto
+const animatingFavorites = ref<Set<number>>(new Set());
+const confettiProducts = ref<Map<number, Array<{ id: number; x: number; y: number; rotation: number; scale: number; delay: number }>>>(new Map());
+
+function isFavorite(productId: number): boolean {
+    return favoriteIds.value.has(productId);
+}
+
+function isAnimating(productId: number): boolean {
+    return animatingFavorites.value.has(productId);
+}
+
+function getConfetti(productId: number) {
+    return confettiProducts.value.get(productId) ?? [];
+}
+
+function generateConfetti(productId: number) {
+    const particles = [];
+    for (let i = 0; i < 12; i++) {
+        particles.push({
+            id: i,
+            x: (Math.random() - 0.5) * 80,
+            y: (Math.random() - 0.5) * 80,
+            rotation: Math.random() * 360,
+            scale: 0.5 + Math.random() * 0.5,
+            delay: Math.random() * 0.1,
+        });
+    }
+    confettiProducts.value.set(productId, particles);
+}
+
+function toggleFavorite(productId: number, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const willBeFavorite = !isFavorite(productId);
+
+    if (willBeFavorite) {
+        router.post('/favorites', {
+            product_id: productId,
+        }, {
+            preserveScroll: true,
+        });
+
+        animatingFavorites.value.add(productId);
+        generateConfetti(productId);
+
+        setTimeout(() => {
+            animatingFavorites.value.delete(productId);
+        }, 600);
+
+        setTimeout(() => {
+            confettiProducts.value.delete(productId);
+        }, 1000);
+    } else {
+        router.delete(`/favorites/${productId}`, {
+            preserveScroll: true,
+        });
+    }
+}
 </script>
 
 <template>
@@ -248,6 +315,51 @@ function addToCart(product: Product) {
                                 />
                             </Link>
 
+                            <!-- Favorite Button -->
+                            <button
+                                :class="[
+                                    'absolute right-2 top-2 z-10 flex size-8 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur transition-transform',
+                                    isAnimating(product.id) ? 'animate-heartbeat' : '',
+                                ]"
+                                @click="toggleFavorite(product.id, $event)"
+                            >
+                                <!-- Confetti -->
+                                <div v-if="getConfetti(product.id).length > 0" class="pointer-events-none absolute inset-0 overflow-visible">
+                                    <span
+                                        v-for="particle in getConfetti(product.id)"
+                                        :key="particle.id"
+                                        class="absolute left-1/2 top-1/2 size-2 animate-confetti-burst rounded-full"
+                                        :style="{
+                                            '--confetti-x': `${particle.x}px`,
+                                            '--confetti-y': `${particle.y}px`,
+                                            '--confetti-rotation': `${particle.rotation}deg`,
+                                            '--confetti-scale': particle.scale,
+                                            '--confetti-delay': `${particle.delay}s`,
+                                            backgroundColor: ['#ef4444', '#dc2626', '#f87171', '#fca5a5', '#ff6b6b', '#ee5a5a'][particle.id % 6],
+                                        }"
+                                    />
+                                </div>
+                                <svg
+                                    :class="[
+                                        'size-5 transition-all duration-200',
+                                        isFavorite(product.id)
+                                            ? 'fill-red-500 text-red-500'
+                                            : 'fill-transparent text-gray-600',
+                                        isAnimating(product.id) ? 'scale-125' : '',
+                                    ]"
+                                    fill="currentColor"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                    />
+                                </svg>
+                            </button>
+
                             <!-- Discount Badge -->
                             <div
                                 v-if="hasDiscount(product)"
@@ -355,5 +467,37 @@ function addToCart(product: Product) {
 .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.3); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.2); }
+    60% { transform: scale(1); }
+}
+
+@keyframes confetti-burst {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) rotate(0deg) scale(0);
+        opacity: 1;
+    }
+    20% {
+        transform: translate(-50%, -50%) translate(calc(var(--confetti-x) * 0.3), calc(var(--confetti-y) * 0.3)) rotate(calc(var(--confetti-rotation) * 0.3)) scale(var(--confetti-scale));
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(var(--confetti-x), var(--confetti-y)) rotate(var(--confetti-rotation)) scale(0);
+        opacity: 0;
+    }
+}
+
+.animate-heartbeat {
+    animation: heartbeat 0.6s ease-in-out;
+}
+
+.animate-confetti-burst {
+    animation: confetti-burst 0.8s ease-out forwards;
+    animation-delay: var(--confetti-delay);
 }
 </style>
