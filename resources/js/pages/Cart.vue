@@ -2,11 +2,13 @@
 import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
+import { useCart } from '@/composables/useCart';
 import LoginModal from '@/components/LoginModal.vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { update, remove, clear } from '@/routes/cart';
 
 const { handleImageError } = useImageRefresh();
+const { isProcessing, incrementQuantity, decrementQuantity, removeFromCart, clearCart } = useCart();
+
 const page = usePage();
 const cart = computed(() => (page.props.cart as any) || { items: [], count: 0, total: 0 });
 const cartItems = computed(() => cart.value.items);
@@ -24,42 +26,6 @@ function formatPrice(price: number): string {
     const currency = page.props.selectedCurrency as any;
     const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
     return `${symbol}${price.toFixed(2)}`;
-}
-
-function incrementQuantity(itemId: number) {
-    const item = cartItems.value.find((i: any) => i.product.id === itemId);
-    if (item) {
-        router.post(update(itemId).url, {
-            _method: 'PUT',
-            quantity: item.quantity + 1,
-        }, { preserveScroll: true });
-    }
-}
-
-function decrementQuantity(itemId: number) {
-    const item = cartItems.value.find((i: any) => i.product.id === itemId);
-    if (item && item.quantity > 1) {
-        router.post(update(itemId).url, {
-            _method: 'PUT',
-            quantity: item.quantity - 1,
-        }, { preserveScroll: true });
-    }
-}
-
-function removeItem(itemId: number) {
-    router.post(remove(itemId).url, {
-        _method: 'DELETE',
-    }, {
-        preserveScroll: true
-    });
-}
-
-function clearCart() {
-    router.post(clear().url, {
-        _method: 'DELETE',
-    }, {
-        preserveScroll: true
-    });
 }
 
 function goToCheckout() {
@@ -173,7 +139,7 @@ function goToCheckout() {
                             <h3 class="font-bold leading-tight">{{ item.product.name }}</h3>
                             <button
                                 class="p-1 text-gray-400 transition-colors hover:text-red-500"
-                                @click="removeItem(item.product.id)"
+                                @click="removeFromCart(item.product.id)"
                             >
                                 <svg
                                     class="size-5"
@@ -265,22 +231,38 @@ function goToCheckout() {
 
             <button
                 @click="goToCheckout"
-                class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/30 transition-colors hover:bg-primary/90"
+                :disabled="isProcessing"
+                :class="[
+                    'flex w-full items-center justify-center gap-2 rounded-xl py-4 font-bold text-white shadow-lg transition-colors',
+                    isProcessing
+                        ? 'cursor-not-allowed bg-primary/70'
+                        : 'bg-primary shadow-primary/30 hover:bg-primary/90',
+                ]"
             >
-                Proceed to Checkout
-                <svg
-                    class="size-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    />
-                </svg>
+                <template v-if="isProcessing">
+                    <span>Procesando</span>
+                    <span class="flex gap-0.5">
+                        <span class="inline-block size-1.5 animate-bounce rounded-full bg-white" style="animation-delay: 0ms"></span>
+                        <span class="inline-block size-1.5 animate-bounce rounded-full bg-white" style="animation-delay: 150ms"></span>
+                        <span class="inline-block size-1.5 animate-bounce rounded-full bg-white" style="animation-delay: 300ms"></span>
+                    </span>
+                </template>
+                <template v-else>
+                    Proceder al checkout
+                    <svg
+                        class="size-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        />
+                    </svg>
+                </template>
             </button>
         </div>
 
