@@ -17,6 +17,12 @@ class CompayAuthController extends Controller
         try {
             $response = $service->login($validated['email'], $validated['password']);
 
+            if (! $response->user->isCustomer()) {
+                return back()->withErrors([
+                    'email' => 'Esta cuenta no tiene acceso a la aplicación. Solo los clientes pueden iniciar sesión.',
+                ]);
+            }
+
             $request->session()->put('compay_token', $response->token);
             $request->session()->put('compay_user', $response->user);
 
