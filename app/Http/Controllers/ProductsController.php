@@ -14,6 +14,34 @@ class ProductsController extends Controller
         protected CompayMarketService $compayMarketService
     ) {}
 
+    public function search(Request $request): JsonResponse
+    {
+        $query = $request->query('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json(['products' => []]);
+        }
+
+        $province = session('selected_province');
+        $currency = session('selected_currency');
+
+        $params = [
+            'search' => $query,
+            'per_page' => 10,
+            'province_id' => $province?->id,
+        ];
+
+        if ($currency) {
+            $params['currency'] = $currency->isoCode;
+        }
+
+        $productsResponse = $this->compayMarketService->getProducts($params, cache: true);
+
+        return response()->json([
+            'products' => $productsResponse['data'],
+        ]);
+    }
+
     public function index(Request $request): Response
     {
         $province = session('selected_province');
@@ -34,6 +62,10 @@ class ProductsController extends Controller
         $params['category_id'] = null;
         if ($request->query('category_id')) {
             $params['category_id'] = $request->query('category_id');
+        }
+
+        if ($request->query('search')) {
+            $params['search'] = $request->query('search');
         }
 
         $productsResponse = $this->compayMarketService->getProducts($params, cache: true);

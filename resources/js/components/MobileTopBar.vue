@@ -13,7 +13,7 @@ const provinceName = computed(() => {
     return location.value?.province?.name || 'Ubicación';
 });
 
-defineEmits(['open-location']);
+defineEmits(['open-location', 'open-search']);
 </script>
 
 <template>
@@ -59,8 +59,9 @@ defineEmits(['open-location']);
         </div>
 
         <div class="px-4 pb-2">
-            <div
+            <button
                 class="flex h-12 w-full items-center rounded-xl border border-gray-100 bg-white shadow-sm dark:border-white/5 dark:bg-slate-800/50"
+                @click="$emit('open-search')"
             >
                 <div class="pl-4 text-gray-400">
                     <svg
@@ -77,11 +78,9 @@ defineEmits(['open-location']);
                         />
                     </svg>
                 </div>
-                <input
-                    type="text"
-                    placeholder="Buscar productos..."
-                    class="flex-1 border-none bg-transparent text-sm font-medium placeholder-gray-400 focus:ring-0"
-                />
+                <span class="flex-1 text-left text-sm font-medium text-gray-400">
+                    Buscar productos...
+                </span>
                 <div class="pr-4 text-primary">
                     <svg
                         class="size-5"
@@ -97,7 +96,7 @@ defineEmits(['open-location']);
                         />
                     </svg>
                 </div>
-            </div>
+            </button>
         </div>
     </header>
 </template>

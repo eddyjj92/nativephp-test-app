@@ -6,6 +6,7 @@ import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
 import LoginModal from '@/components/LoginModal.vue';
 import MobileBottomNav from '@/components/MobileBottomNav.vue';
 import MobileTopBar from '@/components/MobileTopBar.vue';
+import SearchModal from '@/components/SearchModal.vue';
 import { useConnectionError } from '@/composables/useConnectionError';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
@@ -20,6 +21,7 @@ type Props = {
 const page = usePage();
 const manualLocationModal = ref(false);
 const loginModalOpen = ref(false);
+const searchModalOpen = ref(false);
 const showLocationModal = computed(
     () =>
         (page.props.showLocationModal as boolean) || manualLocationModal.value,
@@ -53,6 +55,7 @@ const { isOffline, errorMessage, retry } = useConnectionError();
         <MobileTopBar
             v-if="props.showTopBar"
             @open-location="manualLocationModal = true"
+            @open-search="searchModalOpen = true"
         />
         <div class="mobile-layout-content">
             <slot />
@@ -93,6 +96,11 @@ const { isOffline, errorMessage, retry } = useConnectionError();
         <LoginModal
             v-if="loginModalOpen"
             @close="loginModalOpen = false"
+        />
+
+        <SearchModal
+            v-if="searchModalOpen"
+            @close="searchModalOpen = false"
         />
 
         <!-- Connection Error Overlay -->
