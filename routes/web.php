@@ -6,6 +6,8 @@ use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ProductsController;
+use App\Services\CompayMarketService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -25,8 +27,26 @@ Route::group(['prefix' => 'cart'], function () {
     Route::delete('/', [CartController::class, 'clear'])->name('cart.clear');
 });
 
-Route::get('/checkout', function () {
-    return Inertia::render('Checkout');
+Route::get('/checkout', function (Request $request, CompayMarketService $service) {
+    $token = $request->session()->get('compay_token');
+
+    return Inertia::render('Checkout', [
+        'beneficiaries' => Inertia::defer(function () use ($token, $service) {
+            if (! $token) {
+                return [];
+            }
+
+            try {
+                $response = $service->setToken($token)->getBeneficiaries([
+                    'per_page' => 50,
+                ]);
+
+                return $response['beneficiaries']['data'] ?? [];
+            } catch (\Throwable $e) {
+                return [];
+            }
+        }),
+    ]);
 })->name('checkout');
 
 Route::get('/conversations', function () {
@@ -109,7 +129,7 @@ Route::post('/profile/update', [\App\Http\Controllers\CompayAuthController::clas
 Route::get('/native/preview', function () {
     $path = request('path');
 
-    if (!$path || !\Illuminate\Support\Facades\File::exists($path)) {
+    if (! $path || ! \Illuminate\Support\Facades\File::exists($path)) {
         return response('error', 404);
     }
 
