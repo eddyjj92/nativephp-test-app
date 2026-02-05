@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, usePage, router } from '@inertiajs/vue3';
-import {  computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useImageRefresh } from '@/composables/useImageRefresh';
+import LoginModal from '@/components/LoginModal.vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { update, remove, clear } from '@/routes/cart';
 
@@ -9,6 +10,9 @@ const { handleImageError } = useImageRefresh();
 const page = usePage();
 const cart = computed(() => (page.props.cart as any) || { items: [], count: 0, total: 0 });
 const cartItems = computed(() => cart.value.items);
+
+const showLoginModal = ref(false);
+const isAuthenticated = computed(() => !!(page.props.auth as any)?.user);
 
 const subtotal = computed(() => cart.value.total);
 
@@ -58,6 +62,13 @@ function clearCart() {
     });
 }
 
+function goToCheckout() {
+    if (isAuthenticated.value) {
+        router.visit('/checkout');
+    } else {
+        showLoginModal.value = true;
+    }
+}
 </script>
 
 <template>
@@ -252,8 +263,8 @@ function clearCart() {
                 </div>
             </div>
 
-            <Link
-                href="/checkout"
+            <button
+                @click="goToCheckout"
                 class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/30 transition-colors hover:bg-primary/90"
             >
                 Proceed to Checkout
@@ -270,9 +281,16 @@ function clearCart() {
                         d="M14 5l7 7m0 0l-7 7m7-7H3"
                     />
                 </svg>
-            </Link>
+            </button>
         </div>
 
         </div>
+
+        <!-- Login Modal -->
+        <LoginModal
+            v-if="showLoginModal"
+            redirect-to="/checkout"
+            @close="showLoginModal = false"
+        />
     </MobileLayout>
 </template>

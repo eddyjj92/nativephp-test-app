@@ -2,6 +2,12 @@
 import { useForm, router } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 
+const props = withDefaults(defineProps<{
+    redirectTo?: string;
+}>(), {
+    redirectTo: '/profile',
+});
+
 const emit = defineEmits(['close']);
 
 const showPassword = ref(false);
@@ -41,7 +47,7 @@ const submit = () => {
     form.post('/login', {
         preserveScroll: true,
         onSuccess: () => {
-            router.visit('/profile')
+            router.visit(props.redirectTo);
             emit('close');
         },
     });
