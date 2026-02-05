@@ -2,8 +2,13 @@ import { router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { add, remove, clear } from '@/routes/favorites';
 
+interface FavoriteItem {
+    product: any;
+}
+
 interface FavoritesProps {
     ids: number[];
+    items: FavoriteItem[];
     count: number;
 }
 
@@ -70,13 +75,20 @@ export function useFavorites() {
         const favorites = getFavorites();
         
         const previousIds = [...(favorites.ids || [])];
+        const previousItems = [...(favorites.items || [])];
         const previousCount = favorites.count;
 
-        const index = favorites.ids?.indexOf(productId);
-        if (index !== undefined && index > -1) {
-            favorites.ids.splice(index, 1);
-            favorites.count = Math.max(0, (favorites.count || 0) - 1);
+        const idIndex = favorites.ids?.indexOf(productId);
+        if (idIndex !== undefined && idIndex > -1) {
+            favorites.ids.splice(idIndex, 1);
         }
+
+        const itemIndex = favorites.items?.findIndex((item: FavoriteItem) => item.product?.id === productId);
+        if (itemIndex !== undefined && itemIndex > -1) {
+            favorites.items.splice(itemIndex, 1);
+        }
+
+        favorites.count = Math.max(0, (favorites.count || 0) - 1);
 
         startRequest();
         router.delete(`/favorites/${productId}`, {
@@ -86,6 +98,7 @@ export function useFavorites() {
             onFinish: endRequest,
             onError: () => {
                 favorites.ids = previousIds;
+                favorites.items = previousItems;
                 favorites.count = previousCount;
             },
         });
@@ -105,9 +118,11 @@ export function useFavorites() {
         const favorites = getFavorites();
 
         const previousIds = [...(favorites.ids || [])];
+        const previousItems = [...(favorites.items || [])];
         const previousCount = favorites.count;
 
         favorites.ids = [];
+        favorites.items = [];
         favorites.count = 0;
 
         startRequest();
@@ -118,6 +133,7 @@ export function useFavorites() {
             onFinish: endRequest,
             onError: () => {
                 favorites.ids = previousIds;
+                favorites.items = previousItems;
                 favorites.count = previousCount;
             },
         });
