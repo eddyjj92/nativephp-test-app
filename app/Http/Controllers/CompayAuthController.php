@@ -65,4 +65,29 @@ class CompayAuthController extends Controller
 
         return redirect()->route('home');
     }
+
+    public function orders(Request $request, CompayMarketService $service)
+    {
+        $user = $request->session()->get('compay_user');
+        $token = $request->session()->get('compay_token');
+
+        if (! $user || ! $token) {
+            return redirect()->route('home');
+        }
+
+        $params = $request->only(['beneficiary_id', 'delivery_type_id', 'order_by', 'page', 'per_page', 'province_id', 'status']);
+
+        try {
+            $response = $service->setToken($token)->getOrders($params);
+
+            return \Inertia\Inertia::render('Orders', [
+                'orders' => $response['orders'] ?? [],
+            ]);
+        } catch (\Exception $e) {
+            return \Inertia\Inertia::render('Orders', [
+                'orders' => [],
+                'error' => 'Error al cargar los pedidos.',
+            ]);
+        }
+    }
 }

@@ -230,7 +230,8 @@ function logout() {
                 </div>
                 <!-- TextGrid (Quick Actions) -->
                 <div class="grid grid-cols-2 gap-3 p-4">
-                    <div
+                    <Link
+                        href="/orders"
                         class="flex flex-1 gap-3 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-800/50 p-4 flex-col cursor-pointer transition-all active:scale-95 shadow-sm"
                     >
                         <div class="text-primary" data-icon="ShoppingBag">
@@ -241,10 +242,10 @@ function logout() {
                                 Mis Ordenes
                             </h2>
                             <p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-normal">
-                                3 Ordenes Pagadas
+                                Ver historial
                             </p>
                         </div>
-                    </div>
+                    </Link>
                     <div
                         class="flex flex-1 gap-3 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-800/50 p-4 flex-col cursor-pointer transition-all active:scale-95 shadow-sm"
                     >

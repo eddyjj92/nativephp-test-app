@@ -394,6 +394,18 @@ class CompayMarketService
     }
 
     /**
+     * Obtiene las órdenes de un cliente (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  array  $params  Parámetros de filtrado (beneficiary_id, delivery_type_id, order_by, page, per_page, province_id, status).
+     * @return array
+     */
+    public function getOrders(array $params = []): array
+    {
+        return $this->http()->get('/orders', $params)->json();
+    }
+
+    /**
      * Limpia el caché de un endpoint específico.
      *
      * @param  string  $endpoint  El endpoint de la API.
