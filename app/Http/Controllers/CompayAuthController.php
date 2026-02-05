@@ -239,4 +239,22 @@ class CompayAuthController extends Controller
             return back()->withErrors(['error' => 'Error al actualizar el beneficiario.']);
         }
     }
+
+    public function beneficiaryDestroy(Request $request, int $id, CompayMarketService $service)
+    {
+        $user = $request->session()->get('compay_user');
+        $token = $request->session()->get('compay_token');
+
+        if (! $user || ! $token) {
+            return redirect()->route('home');
+        }
+
+        try {
+            $service->setToken($token)->deleteBeneficiary($id);
+
+            return redirect()->route('beneficiaries')->with('success', 'Beneficiario eliminado exitosamente.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al eliminar el beneficiario.']);
+        }
+    }
 }

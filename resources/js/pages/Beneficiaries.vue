@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { Head, Link, WhenVisible, router } from '@inertiajs/vue3';
-import { User, ChevronLeft, MapPin, Phone, Mail, IdCard, UserPlus, Pencil } from 'lucide-vue-next';
+import { User, ChevronLeft, MapPin, Phone, Mail, IdCard, UserPlus, Pencil, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Municipality {
     id: number;
@@ -51,6 +52,30 @@ const formatPhone = (phone: string) => {
         return `+${phone.slice(0, 2)} ${phone.slice(2)}`;
     }
     return phone;
+};
+
+const showDeleteModal = ref(false);
+const beneficiaryToDelete = ref<Beneficiary | null>(null);
+
+const openDeleteModal = (beneficiary: Beneficiary) => {
+    beneficiaryToDelete.value = beneficiary;
+    showDeleteModal.value = true;
+};
+
+const closeDeleteModal = () => {
+    showDeleteModal.value = false;
+    beneficiaryToDelete.value = null;
+};
+
+const confirmDelete = () => {
+    if (beneficiaryToDelete.value) {
+        router.delete(`/beneficiaries/${beneficiaryToDelete.value.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                closeDeleteModal();
+            },
+        });
+    }
 };
 </script>
 
@@ -126,12 +151,20 @@ const formatPhone = (phone: string) => {
                                         {{ beneficiary.municipality.name }}, {{ beneficiary.municipality.province.name }}
                                     </p>
                                 </div>
-                                <Link
-                                    :href="`/beneficiaries/${beneficiary.id}/edit`"
-                                    class="flex items-center justify-center size-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-colors"
-                                >
-                                    <Pencil class="size-4" />
-                                </Link>
+                                <div class="flex items-center gap-2">
+                                    <Link
+                                        :href="`/beneficiaries/${beneficiary.id}/edit`"
+                                        class="flex items-center justify-center size-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-colors"
+                                    >
+                                        <Pencil class="size-4" />
+                                    </Link>
+                                    <button
+                                        @click="openDeleteModal(beneficiary)"
+                                        class="flex items-center justify-center size-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-950/30 transition-colors"
+                                    >
+                                        <Trash2 class="size-4" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -215,6 +248,45 @@ const formatPhone = (phone: string) => {
                     </div>
                 </div>
             </main>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div
+            v-if="showDeleteModal"
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+            @click.self="closeDeleteModal"
+        >
+            <div class="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
+                <div class="p-6 text-center">
+                    <div class="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-950/30">
+                        <Trash2 class="size-8 text-red-500" />
+                    </div>
+                    <h2 class="mb-2 text-lg font-bold text-slate-900 dark:text-white">Eliminar Beneficiario</h2>
+                    <p class="mb-2 text-sm text-slate-500 dark:text-slate-400">
+                        ¿Estás seguro de que deseas eliminar a
+                    </p>
+                    <p class="mb-4 text-base font-semibold text-slate-900 dark:text-white">
+                        {{ beneficiaryToDelete?.name }}?
+                    </p>
+                    <p class="mb-6 text-xs text-slate-400 dark:text-slate-500">
+                        Esta acción no se puede deshacer.
+                    </p>
+                    <div class="flex gap-3">
+                        <button
+                            @click="closeDeleteModal"
+                            class="flex-1 rounded-xl border border-slate-200 bg-white py-3 font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            @click="confirmDelete"
+                            class="flex-1 rounded-xl bg-red-500 py-3 font-semibold text-white transition-colors hover:bg-red-600"
+                        >
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </MobileLayout>
 </template>

@@ -455,6 +455,18 @@ class CompayMarketService
     }
 
     /**
+     * Elimina un beneficiario (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  int  $id  ID del beneficiario.
+     * @return array
+     */
+    public function deleteBeneficiary(int $id): array
+    {
+        return $this->http()->delete("/beneficiaries/{$id}")->json();
+    }
+
+    /**
      * Limpia el caché de un endpoint específico.
      *
      * @param  string  $endpoint  El endpoint de la API.

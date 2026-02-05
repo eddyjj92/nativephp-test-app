@@ -64,6 +64,7 @@ Route::get('/beneficiaries/create', [\App\Http\Controllers\CompayAuthController:
 Route::post('/beneficiaries', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaryStore'])->name('beneficiaries.store');
 Route::get('/beneficiaries/{id}/edit', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaryEdit'])->name('beneficiaries.edit');
 Route::put('/beneficiaries/{id}', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaryUpdate'])->name('beneficiaries.update');
+Route::delete('/beneficiaries/{id}', [\App\Http\Controllers\CompayAuthController::class, 'beneficiaryDestroy'])->name('beneficiaries.destroy');
 
 Route::group(['prefix' => 'help'], function () {
     Route::get('/', function () {
