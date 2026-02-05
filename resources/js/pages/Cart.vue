@@ -16,16 +16,40 @@ const cartItems = computed(() => cart.value.items || []);
 const showLoginModal = ref(false);
 const isAuthenticated = computed(() => !!(page.props.auth as any)?.user);
 
-const subtotal = computed(() => cart.value.total);
-
 const total = computed(() => {
     return cart.value.total;
+});
+
+const originalCartSubtotal = computed(() => {
+    return cartItems.value.reduce((sum: number, item: any) => {
+        return sum + (item.product.salePrice * item.quantity);
+    }, 0);
+});
+
+const cartHasDiscount = computed(() => {
+    return originalCartSubtotal.value > total.value;
 });
 
 function formatPrice(price: number): string {
     const currency = page.props.selectedCurrency as any;
     const symbol = currency?.isoCode === 'EUR' ? '€' : '$';
     return `${symbol}${price.toFixed(2)}`;
+}
+
+function getDiscountPercentage(product: any): number | null {
+    if (!product?.activeDiscounts || product.activeDiscounts.length === 0) {
+        return null;
+    }
+
+    const percentageDiscount = product.activeDiscounts.find(
+        (discount: any) => discount.type === 'percentage' && discount.value > 0,
+    );
+
+    return percentageDiscount ? percentageDiscount.value : null;
+}
+
+function hasActiveDiscount(product: any): boolean {
+    return !!product?.activeDiscounts?.length;
 }
 
 function goToCheckout() {
@@ -145,7 +169,7 @@ function goToCheckout() {
                 >
                     <!-- Product Image -->
                     <div
-                        class="size-24 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-slate-700/50"
+                        class="size-20 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-slate-700/50"
                     >
                         <img
                             :src="item.product.image"
@@ -158,7 +182,15 @@ function goToCheckout() {
                     <!-- Product Details -->
                     <div class="flex flex-1 flex-col">
                         <div class="mb-1 flex items-start justify-between">
-                            <h3 class="font-bold leading-tight">{{ item.product.name }}</h3>
+                            <h3 class="font-bold leading-tight">
+                                {{ item.product.name }}
+                                <span
+                                    v-if="getDiscountPercentage(item.product) !== null"
+                                    class="text-secondary"
+                                >
+                                    (descuento {{ getDiscountPercentage(item.product) }}%)
+                                </span>
+                            </h3>
                             <button
                                 class="p-1 text-gray-400 transition-colors hover:text-red-500"
                                 @click="removeFromCart(item.product.id)"
@@ -181,9 +213,36 @@ function goToCheckout() {
                         <p class="mb-2 text-xs text-gray-400">{{ item.product.description }}</p>
 
                         <div class="mt-auto flex items-center justify-between">
-                            <span class="text-lg font-extrabold">
-                                {{ formatPrice(item.price) }}
-                            </span>
+                            <div>
+                                <div class="flex items-baseline gap-2">
+                                    <span
+                                        v-if="hasActiveDiscount(item.product)"
+                                        class="text-sm text-gray-400 line-through"
+                                    >
+                                        {{ formatPrice(item.product.salePrice) }}
+                                    </span>
+                                    <span
+                                        class="text-lg font-extrabold"
+                                        :class="hasActiveDiscount(item.product) ? 'text-secondary' : ''"
+                                    >
+                                        {{ hasActiveDiscount(item.product) ? `(${formatPrice(item.price)})` : formatPrice(item.price) }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    <span>Subtotal: </span>
+                                    <span
+                                        v-if="hasActiveDiscount(item.product)"
+                                        class="line-through"
+                                    >
+                                        {{ formatPrice(item.product.salePrice * item.quantity) }}
+                                    </span>
+                                    <span
+                                        :class="hasActiveDiscount(item.product) ? 'text-secondary' : ''"
+                                    >
+                                        {{ hasActiveDiscount(item.product) ? `(${formatPrice(item.price * item.quantity)})` : formatPrice(item.price * item.quantity) }}
+                                    </span>
+                                </p>
+                            </div>
 
                             <!-- Quantity Selector -->
                             <div class="flex items-center gap-1">
@@ -240,15 +299,22 @@ function goToCheckout() {
             class="inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white px-4 pb-4 pt-4 dark:border-white/5 dark:bg-slate-900"
         >
             <div class="mb-4 space-y-2">
-                <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-500">Subtotal</span>
-                    <span class="font-semibold">{{ formatPrice(subtotal) }}</span>
-                </div>
                 <div class="flex items-center justify-between pt-1">
-                    <span class="text-lg font-bold">Total</span>
-                    <span class="text-2xl font-extrabold text-primary">
-                        {{ formatPrice(total) }}
-                    </span>
+                    <span class="text-lg font-bold uppercase">Subtotal del carrito</span>
+                    <div class="flex items-baseline gap-2">
+                        <span
+                            v-if="cartHasDiscount"
+                            class="text-sm text-gray-400 line-through"
+                        >
+                            {{ formatPrice(originalCartSubtotal) }}
+                        </span>
+                        <span
+                            class="text-2xl font-extrabold"
+                            :class="cartHasDiscount ? 'text-secondary' : 'text-primary'"
+                        >
+                            {{ cartHasDiscount ? `(${formatPrice(total)})` : formatPrice(total) }}
+                        </span>
+                    </div>
                 </div>
             </div>
 
