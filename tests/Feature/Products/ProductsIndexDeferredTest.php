@@ -10,6 +10,58 @@ class ProductsIndexDeferredTest extends TestCase
 {
     public function test_products_listing_is_deferred_and_can_be_loaded(): void
     {
+        $this->fakeSharedRequests();
+
+        $response = $this->get(route('products.index'));
+
+        $response->assertOk();
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Products/Index')
+            ->where('categoryId', null)
+            ->where('cartCount', 0)
+            ->where('favoritesCount', 0)
+            ->missing('listing')
+            ->loadDeferredProps(fn (Assert $deferredPage) => $deferredPage
+                ->has('listing.products', 1)
+                ->where('listing.currentPage', 1)
+                ->where('listing.lastPage', 1)
+                ->where('listing.total', 1)
+                ->where('listing.products.0.id', 127)
+            )
+        );
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/products'));
+    }
+
+    public function test_shared_cart_and_favorites_counts_are_available_before_deferred_props(): void
+    {
+        $this->fakeSharedRequests();
+
+        $response = $this->withSession([
+            'cart' => [
+                127 => ['quantity' => 2],
+                200 => ['quantity' => 1],
+            ],
+            'favorites' => [
+                127 => true,
+                200 => true,
+                300 => true,
+            ],
+        ])->get(route('products.index'));
+
+        $response->assertOk();
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Products/Index')
+            ->where('cartCount', 3)
+            ->where('favoritesCount', 3)
+            ->missing('listing')
+        );
+    }
+
+    protected function fakeSharedRequests(): void
+    {
         Http::fake([
             '*/currencies' => Http::response([
                 'currencies' => [
@@ -71,24 +123,5 @@ class ProductsIndexDeferredTest extends TestCase
                 ],
             ], 200),
         ]);
-
-        $response = $this->get(route('products.index'));
-
-        $response->assertOk();
-
-        $response->assertInertia(fn (Assert $page) => $page
-            ->component('Products/Index')
-            ->where('categoryId', null)
-            ->missing('listing')
-            ->loadDeferredProps(fn (Assert $deferredPage) => $deferredPage
-                ->has('listing.products', 1)
-                ->where('listing.currentPage', 1)
-                ->where('listing.lastPage', 1)
-                ->where('listing.total', 1)
-                ->where('listing.products.0.id', 127)
-            )
-        );
-
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/products'));
     }
 }
