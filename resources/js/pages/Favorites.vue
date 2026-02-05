@@ -15,6 +15,15 @@ const favoritesData = computed(() => (page.props.favorites as any) || { items: [
 const favoriteItems = computed(() => favoritesData.value.items || []);
 
 const itemCount = computed(() => favoritesData.value.count ?? 0);
+const favoritesSkeletonCount = computed(() => {
+    const count = Number(page.props.favoritesCount ?? itemCount.value ?? favoritesCount.value ?? 0);
+
+    if (Number.isFinite(count) && count > 0) {
+        return Math.min(count, 6);
+    }
+
+    return 0;
+});
 
 function formatPrice(price: number): string {
     const currency = page.props.selectedCurrency as any;
@@ -94,12 +103,18 @@ function addToCart(product: any) {
             <Deferred data="favorites">
                 <template #fallback>
                     <!-- Skeleton Loading -->
-                    <div class="px-4 py-4">
+                    <div
+                        v-if="favoritesSkeletonCount > 0"
+                        class="px-4 py-4"
+                    >
                         <div class="h-4 w-48 animate-pulse rounded bg-gray-200 dark:bg-slate-700" />
                     </div>
-                    <div class="flex flex-col gap-4 px-4">
+                    <div
+                        v-if="favoritesSkeletonCount > 0"
+                        class="flex flex-col gap-4 px-4"
+                    >
                         <div
-                            v-for="i in 2"
+                            v-for="i in favoritesSkeletonCount"
                             :key="i"
                             class="flex gap-4 rounded-2xl border border-gray-100 bg-white p-4 dark:border-white/5 dark:bg-slate-800/50"
                         >

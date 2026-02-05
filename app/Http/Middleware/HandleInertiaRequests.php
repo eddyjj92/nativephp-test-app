@@ -48,6 +48,20 @@ class HandleInertiaRequests extends Middleware
         }
 
         $province = $request->session()->get('selected_province');
+        $cartSession = $request->session()->get('cart', []);
+        $favoritesSession = $request->session()->get('favorites', []);
+
+        $cartCount = collect($cartSession)->sum(function (mixed $item): int {
+            if (is_array($item) && isset($item['quantity'])) {
+                return (int) $item['quantity'];
+            }
+
+            if (is_numeric($item)) {
+                return (int) $item;
+            }
+
+            return 1;
+        });
 
         return [
             ...parent::share($request),
@@ -66,8 +80,9 @@ class HandleInertiaRequests extends Middleware
             ],
             'currencies' => $currencies,
             'selectedCurrency' => $selectedCurrency,
-            'cart' => Inertia::defer(function () use ($request, $selectedCurrency, $province) {
-                $cartSession = $request->session()->get('cart', []);
+            'cartCount' => $cartCount,
+            'favoritesCount' => count($favoritesSession),
+            'cart' => Inertia::defer(function () use ($cartSession, $selectedCurrency, $province, $cartCount) {
                 $cartItems = [];
 
                 foreach ($cartSession as $id => $item) {
@@ -89,12 +104,11 @@ class HandleInertiaRequests extends Middleware
 
                 return [
                     'items' => $cartItems,
-                    'count' => collect($cartItems)->sum('quantity'),
+                    'count' => $cartCount,
                     'total' => collect($cartItems)->sum(fn ($item) => $item['price'] * $item['quantity']),
                 ];
             }),
-            'favorites' => Inertia::defer(function () use ($request, $selectedCurrency, $province) {
-                $favoritesSession = $request->session()->get('favorites', []);
+            'favorites' => Inertia::defer(function () use ($favoritesSession, $selectedCurrency, $province) {
                 $favoriteItems = [];
 
                 foreach ($favoritesSession as $id => $item) {
@@ -114,7 +128,7 @@ class HandleInertiaRequests extends Middleware
 
                 return [
                     'items' => $favoriteItems,
-                    'count' => count($favoriteItems),
+                    'count' => count($favoritesSession),
                     'ids' => array_keys($favoritesSession),
                 ];
             }),

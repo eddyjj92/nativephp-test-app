@@ -20,6 +20,16 @@ const total = computed(() => {
     return cart.value.total;
 });
 
+const cartSkeletonCount = computed(() => {
+    const count = Number(page.props.cartCount ?? cart.value.count ?? 0);
+
+    if (Number.isFinite(count) && count > 0) {
+        return Math.min(count, 6);
+    }
+
+    return 0;
+});
+
 const originalCartSubtotal = computed(() => {
     return cartItems.value.reduce((sum: number, item: any) => {
         return sum + (item.product.salePrice * item.quantity);
@@ -109,9 +119,12 @@ function goToCheckout() {
             <Deferred data="cart">
                 <template #fallback>
                     <!-- Skeleton Loading -->
-                    <div class="divide-y divide-gray-100 dark:divide-white/5">
+                    <div
+                        v-if="cartSkeletonCount > 0"
+                        class="divide-y divide-gray-100 dark:divide-white/5"
+                    >
                         <div
-                            v-for="i in 2"
+                            v-for="i in cartSkeletonCount"
                             :key="i"
                             class="flex gap-4 bg-white px-4 py-4 dark:bg-slate-800/30"
                         >
