@@ -27,6 +27,7 @@ const page = usePage();
 const user = computed(() => (page.props.auth as any)?.user ?? null);
 
 const showEditModal = ref(false);
+const showLogoutModal = ref(false);
 
 const form = useForm({
     avatar: null as File | string | null,
@@ -155,7 +156,7 @@ function getInitials(name: string = '') {
 }
 
 // Logout usando Fortify (POST /logout)
-function logout() {
+function confirmLogout() {
     router.post('/logout');
 }
 </script>
@@ -319,7 +320,7 @@ function logout() {
                     </Link>
                     <div
                         class="flex items-center gap-4 bg-white dark:bg-slate-800/30 px-4 min-h-[64px] justify-between cursor-pointer active:bg-slate-100 dark:active:bg-slate-800"
-                        @click="logout"
+                        @click="showLogoutModal = true"
                     >
                         <div class="flex items-center gap-4">
                             <div class="text-red-500 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 shrink-0 size-10">
@@ -403,6 +404,39 @@ function logout() {
                                 <span v-else class="dark:text-black">Guardar Cambios</span>
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Confirmar Logout -->
+        <div
+            v-if="showLogoutModal"
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+            @click.self="showLogoutModal = false"
+        >
+            <div class="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-slate-900">
+                <div class="p-6 text-center">
+                    <div class="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-950/30">
+                        <LogOut class="size-8 text-red-500" />
+                    </div>
+                    <h2 class="mb-2 text-lg font-bold text-slate-900 dark:text-white">Cerrar Sesión</h2>
+                    <p class="mb-6 text-sm text-slate-500 dark:text-slate-400">
+                        ¿Estás seguro de que deseas cerrar sesión?
+                    </p>
+                    <div class="flex gap-3">
+                        <button
+                            @click="showLogoutModal = false"
+                            class="flex-1 rounded-xl border border-slate-200 bg-white py-3 font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            @click="confirmLogout"
+                            class="flex-1 rounded-xl bg-red-500 py-3 font-semibold text-white transition-colors hover:bg-red-600"
+                        >
+                            Cerrar Sesión
+                        </button>
                     </div>
                 </div>
             </div>
