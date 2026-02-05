@@ -52,6 +52,30 @@ Route::get('/profile/edit', function () {
 
 Route::post('/profile/info/update', [\App\Http\Controllers\CompayAuthController::class, 'updateProfile'])->name('profile.info.update');
 
+Route::group(['prefix' => 'help'], function () {
+    Route::get('/', function () {
+        return Inertia::render('help/Index');
+    })->name('help');
+    Route::get('/faq', function () {
+        return Inertia::render('help/Faq');
+    })->name('help.faq');
+    Route::get('/contact', function () {
+        return Inertia::render('help/Contact');
+    })->name('help.contact');
+    Route::get('/terms', function () {
+        return Inertia::render('help/Terms');
+    })->name('help.terms');
+    Route::get('/privacy', function () {
+        return Inertia::render('help/Privacy');
+    })->name('help.privacy');
+    Route::get('/cookies', function () {
+        return Inertia::render('help/Cookies');
+    })->name('help.cookies');
+    Route::get('/legal', function () {
+        return Inertia::render('help/Legal');
+    })->name('help.legal');
+});
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

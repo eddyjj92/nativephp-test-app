@@ -300,7 +300,8 @@ function logout() {
                             <ChevronRight class="size-6 text-slate-400" />
                         </div>
                     </Link>
-                    <div
+                    <Link
+                        href="/help"
                         class="flex items-center gap-4 bg-white dark:bg-slate-800/30 px-4 min-h-[64px] justify-between cursor-pointer active:bg-slate-100 dark:active:bg-slate-800 border-b border-slate-50 dark:border-white/5"
                     >
                         <div class="flex items-center gap-4">
@@ -314,7 +315,7 @@ function logout() {
                         <div class="shrink-0">
                             <ChevronRight class="size-6 text-slate-400" />
                         </div>
-                    </div>
+                    </Link>
                     <div
                         class="flex items-center gap-4 bg-white dark:bg-slate-800/30 px-4 min-h-[64px] justify-between cursor-pointer active:bg-slate-100 dark:active:bg-slate-800"
                         @click="logout"

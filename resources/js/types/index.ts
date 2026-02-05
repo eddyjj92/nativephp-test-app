@@ -4,6 +4,11 @@ export * from './ui';
 
 import type { Auth } from './auth';
 
+export interface FrequentlyAskedQuestion {
+    question: string;
+    answer: string;
+}
+
 export type Settings = {
     site_name: string;
     site_active: boolean;
@@ -19,7 +24,7 @@ export type Settings = {
     privacy_policies: string;
     cookies_policies: string;
     legal_notice: string;
-    frequently_questions: any[];
+    frequently_questions: FrequentlyAskedQuestion[];
 };
 
 export interface Banner {
