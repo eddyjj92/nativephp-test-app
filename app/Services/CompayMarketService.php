@@ -393,6 +393,28 @@ class CompayMarketService
     }
 
     /**
+     * Crea una orden asociada al pago hosteado en Revolut.
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  array<int, array{id:int,quantity:int}>  $cart
+     */
+    public function createHostedCheckoutOrder(
+        string $currency,
+        int $beneficiaryId,
+        int $deliveryTypeId,
+        string $notes,
+        array $cart,
+    ): array {
+        return $this->http()->post('/orders', [
+            'currency' => $currency,
+            'beneficiary_id' => $beneficiaryId,
+            'delivery_type_id' => $deliveryTypeId,
+            'notes' => $notes,
+            'cart' => $cart,
+        ])->json();
+    }
+
+    /**
      * Actualiza los datos del usuario (Endpoint Autenticado).
      * Requiere haber llamado a setToken() previamente.
      *

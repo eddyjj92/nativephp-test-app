@@ -5,6 +5,7 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductsController;
 use App\Services\CompayMarketService;
 use Illuminate\Http\Request;
@@ -128,6 +129,7 @@ Route::post('/currency', [CurrencyController::class, 'store'])->name('currency.s
 Route::post('/login', [\App\Http\Controllers\CompayAuthController::class, 'login'])->name('login.store');
 Route::post('/logout', [\App\Http\Controllers\CompayAuthController::class, 'logout'])->name('logout');
 Route::post('/profile/update', [\App\Http\Controllers\CompayAuthController::class, 'updateProfile'])->name('profile.update.api');
+Route::post('/orders/checkout', [OrderController::class, 'store'])->name('orders.checkout');
 
 Route::get('/native/preview', function () {
     $path = request('path');

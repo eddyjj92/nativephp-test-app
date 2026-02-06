@@ -2,6 +2,7 @@
 import { Deferred, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import { browser } from '#nativephp';
+import axios from 'axios';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import type { AppPageProps } from '@/types';
 
@@ -58,6 +59,8 @@ const selectedDeliveryTypeId = ref<number | null>(null);
 const transportationAmount = ref(0);
 const transportationWeightRange = ref('');
 const transportationLoading = ref(false);
+const checkoutError = ref<string | null>(null);
+const checkoutProcessing = ref(false);
 
 const beneficiariesList = computed(() => props.beneficiaries ?? []);
 const hasBeneficiaries = computed(() => beneficiariesList.value.length > 0);
@@ -87,6 +90,14 @@ const cart = computed(() => {
 });
 
 const cartItems = computed(() => cart.value.items ?? []);
+const selectedCurrencyCode = computed(() => {
+    const selectedCurrency = page.props.selectedCurrency as
+        | { isoCode?: string }
+        | null
+        | undefined;
+
+    return selectedCurrency?.isoCode ?? 'USD';
+});
 
 const discountedSubtotal = computed(() => {
     return Number(cart.value.total ?? 0);
@@ -170,13 +181,45 @@ const chooseDeliveryType = (deliveryTypeId: number) => {
     showDeliveryTypeModal.value = false;
 };
 
-const goToGoogleFromCheckoutPay = async () => {
-    const googleUrl = 'https://www.google.com';
+const submitCheckoutOrder = async () => {
+    checkoutError.value = null;
+
+    if (!selectedBeneficiaryId.value) {
+        checkoutError.value = 'Debes seleccionar un beneficiario.';
+        return;
+    }
+
+    if (!selectedDeliveryTypeId.value) {
+        checkoutError.value = 'Debes seleccionar un tipo de envío.';
+        return;
+    }
+
+    checkoutProcessing.value = true;
 
     try {
-        await browser.open(googleUrl);
-    } catch {
-        window.location.href = googleUrl;
+        const { data } = await axios.post('/orders/checkout', {
+            currency: selectedCurrencyCode.value,
+            beneficiary_id: selectedBeneficiaryId.value,
+            delivery_type_id: selectedDeliveryTypeId.value,
+            notes: '',
+        });
+
+        const redirectUrl = data?.redirect_url;
+        if (!redirectUrl) {
+            throw new Error('Missing redirect_url');
+        }
+
+        try {
+            await browser.open(redirectUrl);
+        } catch {
+            window.location.href = redirectUrl;
+        }
+    } catch (error: any) {
+        checkoutError.value =
+            error?.response?.data?.message ??
+            'No se pudo crear la orden. Inténtalo de nuevo.';
+    } finally {
+        checkoutProcessing.value = false;
     }
 };
 
@@ -697,12 +740,28 @@ watch(
                     </Deferred>
                 </section>
                 <div class="mt-4 pb-4">
+                    <p
+                        v-if="checkoutError"
+                        class="mb-2 text-sm font-medium text-red-600 dark:text-red-400"
+                    >
+                        {{ checkoutError }}
+                    </p>
                     <button
                         type="button"
+                        :disabled="checkoutProcessing || !selectedBeneficiaryId"
                         class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/30 transition-colors hover:bg-primary/90"
-                        @click="goToGoogleFromCheckoutPay"
+                        :class="
+                            checkoutProcessing || !selectedBeneficiaryId
+                                ? 'cursor-not-allowed opacity-70'
+                                : ''
+                        "
+                        @click="submitCheckoutOrder"
                     >
-                        Pay {{ formatPrice(totalAmount) }}
+                        {{
+                            checkoutProcessing
+                                ? 'Procesando pago...'
+                                : `Pagar ${formatPrice(totalAmount)}`
+                        }}
                         <svg
                             class="size-5"
                             fill="none"
