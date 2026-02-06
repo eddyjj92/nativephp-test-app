@@ -11,7 +11,7 @@ import type { Category, Product, Banner } from '@/types';
 
 const props = defineProps<{
     banners?: Banner[];
-    categories: Category[];
+    categories?: Category[];
     categoriesNextPageUrl?: string | null;
     recommendedProducts?: Product[];
     newArrivals?: Product[];
@@ -243,10 +243,25 @@ function hasDiscount(product: Product): boolean {
             </Deferred>
 
             <!-- Categories -->
-            <CategoriesCarousel
-                :categories="categories"
-                :next-page-url="categoriesNextPageUrl"
-            />
+            <Deferred :data="['categories', 'categoriesNextPageUrl']">
+                <template #fallback>
+                    <div class="mb-2 mt-2 flex items-center justify-between px-4">
+                        <div class="h-6 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+                        <div class="h-4 w-14 animate-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+                    </div>
+                    <div class="hide-scrollbar mb-4 flex gap-4 overflow-x-auto px-4 py-2">
+                        <div v-for="n in 5" :key="n" class="flex min-w-[70px] flex-col items-center gap-2">
+                            <div class="size-16 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                            <div class="h-2 w-12 animate-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+                        </div>
+                    </div>
+                </template>
+
+                <CategoriesCarousel
+                    :categories="props.categories ?? []"
+                    :next-page-url="props.categoriesNextPageUrl"
+                />
+            </Deferred>
 
             <!-- Recommended Products -->
             <section class="mt-6">
