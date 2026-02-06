@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import { browser } from '#nativephp';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import type { AppPageProps } from '@/types';
 
@@ -167,6 +168,16 @@ const chooseBeneficiary = (beneficiaryId: number) => {
 const chooseDeliveryType = (deliveryTypeId: number) => {
     selectedDeliveryTypeId.value = deliveryTypeId;
     showDeliveryTypeModal.value = false;
+};
+
+const goToGoogleFromCheckoutPay = async () => {
+    const googleUrl = 'https://www.google.com';
+
+    try {
+        await browser.open(googleUrl);
+    } catch {
+        window.location.href = googleUrl;
+    }
 };
 
 const fetchTransportationCost = async () => {
@@ -597,7 +608,7 @@ watch(
                     <h2
                         class="mb-3 text-sm font-bold tracking-wider text-slate-500 uppercase dark:text-slate-400"
                     >
-                        Summary
+                        Resumen
                     </h2>
                     <Deferred data="cart">
                         <template #fallback>
@@ -687,7 +698,9 @@ watch(
                 </section>
                 <div class="mt-4 pb-4">
                     <button
+                        type="button"
                         class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/30 transition-colors hover:bg-primary/90"
+                        @click="goToGoogleFromCheckoutPay"
                     >
                         Pay {{ formatPrice(totalAmount) }}
                         <svg
