@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Checkout\TransportationCostRequest;
 use App\Services\CompayMarketService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -81,5 +83,31 @@ class CartController extends Controller
         session()->forget('cart');
 
         return back();
+    }
+
+    /**
+     * Obtiene el costo de transportación para el checkout.
+     */
+    public function transportationCost(TransportationCostRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+        $token = $request->session()->get('compay_token');
+
+        if ($token) {
+            $this->compayMarketService->setToken($token);
+        }
+
+        $response = $this->compayMarketService->getTransportationPriceForWeight(
+            costRingId: (int) $validated['cost_ring_id'],
+            weightKg: (float) $validated['weight_kg'],
+            totalCost: array_key_exists('total_cost', $validated) ? (float) $validated['total_cost'] : null
+        );
+
+        return response()->json([
+            'price' => (string) ($response['price'] ?? '0'),
+            'price_with_discount' => (string) ($response['price_with_discount'] ?? '0'),
+            'weight_range' => (string) ($response['weight_range'] ?? ''),
+            'has_discount' => (bool) ($response['has_discount'] ?? false),
+        ]);
     }
 }

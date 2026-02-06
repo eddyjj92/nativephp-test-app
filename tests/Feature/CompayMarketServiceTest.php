@@ -162,7 +162,7 @@ class CompayMarketServiceTest extends TestCase
 
         Http::assertSent(function ($request) {
             return str_contains($request->url(), '/products/127') &&
-                   $request->query()['currency'] === 'EUR';
+                   $request->data()['currency'] === 'EUR';
         });
     }
 
@@ -207,8 +207,37 @@ class CompayMarketServiceTest extends TestCase
 
         Http::assertSent(function ($request) {
             return str_contains($request->url(), '/products') &&
-                   $request->query()['currency'] === 'USD' &&
-                   $request->query()['province_id'] == '1';
+                   $request->data()['currency'] === 'USD' &&
+                   $request->data()['province_id'] == '1';
+        });
+    }
+
+    public function test_get_transportation_price_for_weight_passes_required_parameters(): void
+    {
+        Http::fake([
+            '*/transportation_costs/get_price_for_weight*' => Http::response([
+                'price' => '3.50',
+                'price_with_discount' => '3.00',
+                'weight_range' => '1-3kg',
+                'has_discount' => true,
+            ], 200),
+        ]);
+
+        $service = new CompayMarketService;
+        $response = $service->getTransportationPriceForWeight(2, 2.5, 120.30);
+
+        $this->assertSame('3.50', $response['price']);
+        $this->assertSame('3.00', $response['price_with_discount']);
+        $this->assertSame('1-3kg', $response['weight_range']);
+        $this->assertTrue($response['has_discount']);
+
+        Http::assertSent(function ($request) {
+            $data = $request->data();
+
+            return str_contains($request->url(), '/transportation_costs/get_price_for_weight') &&
+                (int) $data['cost_ring_id'] === 2 &&
+                (float) $data['weight_kg'] === 2.5 &&
+                (float) $data['total_cost'] === 120.3;
         });
     }
 }

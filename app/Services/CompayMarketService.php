@@ -416,7 +416,7 @@ class CompayMarketService
                         $content = base64_decode($parts[1]);
                         $request->attach('avatar', $content, 'avatar.jpg');
                     }
-                } 
+                }
                 // Caso 2: Ruta absoluta del sistema (NativePHP sin procesar en JS)
                 elseif (file_exists($avatar)) {
                     $request->attach('avatar', file_get_contents($avatar), basename($avatar));
@@ -434,7 +434,6 @@ class CompayMarketService
      * Requiere haber llamado a setToken() previamente.
      *
      * @param  array  $params  Parámetros de filtrado (beneficiary_id, delivery_type_id, order_by, page, per_page, province_id, status).
-     * @return array
      */
     public function getOrders(array $params = []): array
     {
@@ -446,7 +445,6 @@ class CompayMarketService
      * Requiere haber llamado a setToken() previamente.
      *
      * @param  array  $params  Parámetros de filtrado (order_by, page, per_page, province_id).
-     * @return array
      */
     public function getBeneficiaries(array $params = []): array
     {
@@ -454,11 +452,26 @@ class CompayMarketService
     }
 
     /**
+     * Obtiene el precio de transportación por anillo de costo y peso.
+     *
+     * @throws ConnectionException
+     */
+    public function getTransportationPriceForWeight(int $costRingId, float $weightKg, ?float $totalCost = null): array
+    {
+        $params = [
+            'cost_ring_id' => $costRingId,
+            'weight_kg' => $weightKg,
+            'total_cost' => $totalCost,
+        ];
+
+        return $this->http()->get('/transportation_costs/get_price_for_weight', $params)->json();
+    }
+
+    /**
      * Crea un nuevo beneficiario (Endpoint Autenticado).
      * Requiere haber llamado a setToken() previamente.
      *
      * @param  array  $data  Datos del beneficiario (name, identity_number, email, phone, address, municipality_id).
-     * @return array
      */
     public function createBeneficiary(array $data): array
     {
@@ -471,7 +484,6 @@ class CompayMarketService
      *
      * @param  int  $id  ID del beneficiario.
      * @param  array  $data  Datos del beneficiario (name, identity_number, email, phone, address, municipality_id).
-     * @return array
      */
     public function updateBeneficiary(int $id, array $data): array
     {
@@ -483,7 +495,6 @@ class CompayMarketService
      * Requiere haber llamado a setToken() previamente.
      *
      * @param  int  $id  ID del beneficiario.
-     * @return array
      */
     public function getBeneficiary(int $id): array
     {
@@ -495,7 +506,6 @@ class CompayMarketService
      * Requiere haber llamado a setToken() previamente.
      *
      * @param  int  $id  ID del beneficiario.
-     * @return array
      */
     public function deleteBeneficiary(int $id): array
     {

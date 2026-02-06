@@ -25,6 +25,7 @@ Route::group(['prefix' => 'cart'], function () {
     Route::put('/{productId}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/{productId}', [CartController::class, 'destroy'])->name('cart.remove');
     Route::delete('/', [CartController::class, 'clear'])->name('cart.clear');
+    Route::get('/transportation-cost', [CartController::class, 'transportationCost'])->name('cart.transportation-cost');
 });
 
 Route::get('/checkout', function (Request $request, CompayMarketService $service) {

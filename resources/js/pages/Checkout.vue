@@ -22,6 +22,11 @@ interface Beneficiary {
     address: string;
     municipality: {
         name: string;
+        cost_ring_id?: number | null;
+        costRingId?: number | null;
+        cost_ring?: {
+            id?: number | null;
+        } | null;
         province: {
             name: string;
         };
@@ -32,6 +37,9 @@ interface Beneficiary {
 interface CartItem {
     product: {
         salePrice: number;
+        weight: number;
+        freeShipping?: boolean;
+        free_shipping?: boolean;
     };
     quantity: number;
     price: number;
@@ -46,6 +54,9 @@ const showBeneficiaryModal = ref(false);
 const showDeliveryTypeModal = ref(false);
 const selectedBeneficiaryId = ref<number | null>(null);
 const selectedDeliveryTypeId = ref<number | null>(null);
+const transportationAmount = ref(0);
+const transportationWeightRange = ref('');
+const transportationLoading = ref(false);
 
 const beneficiariesList = computed(() => props.beneficiaries ?? []);
 const hasBeneficiaries = computed(() => beneficiariesList.value.length > 0);
@@ -65,8 +76,6 @@ const selectedDeliveryType = computed(() => {
         (deliveryType) => deliveryType.id === selectedDeliveryTypeId.value,
     );
 });
-
-const taxAmount = 1.2;
 
 const cart = computed(() => {
     return (
@@ -99,6 +108,26 @@ const shippingAmount = computed(() => {
     return Number(selectedDeliveryType.value?.price ?? 0);
 });
 
+const orderTotalWeightKg = computed(() => {
+    return cartItems.value.reduce((sum, item) => {
+        return sum + Number(item.product.weight ?? 0) * Number(item.quantity ?? 0);
+    }, 0);
+});
+
+const totalWeightKg = computed(() => {
+    return cartItems.value.reduce((sum, item) => {
+        const hasFreeShipping =
+            Boolean(item.product.freeShipping) ||
+            Boolean(item.product.free_shipping);
+
+        if (hasFreeShipping) {
+            return sum;
+        }
+
+        return sum + Number(item.product.weight ?? 0) * Number(item.quantity ?? 0);
+    }, 0);
+});
+
 const shippingLabel = computed(() => {
     if (!selectedDeliveryType.value) {
         return 'Tipo de envío';
@@ -108,11 +137,15 @@ const shippingLabel = computed(() => {
 });
 
 const totalAmount = computed(() => {
-    return discountedSubtotal.value + taxAmount + shippingAmount.value;
+    return discountedSubtotal.value + shippingAmount.value + transportationAmount.value;
 });
 
 const formatPrice = (value: number): string => {
     return `$${value.toFixed(2)}`;
+};
+
+const formatWeightKg = (value: number): string => {
+    return Number(value.toFixed(3)).toString();
 };
 
 watch(
@@ -135,6 +168,62 @@ const chooseDeliveryType = (deliveryTypeId: number) => {
     selectedDeliveryTypeId.value = deliveryTypeId;
     showDeliveryTypeModal.value = false;
 };
+
+const fetchTransportationCost = async () => {
+    const costRingId =
+        selectedBeneficiary.value?.municipality.cost_ring_id ??
+        selectedBeneficiary.value?.municipality.costRingId ??
+        selectedBeneficiary.value?.municipality.cost_ring?.id;
+    if (!costRingId || totalWeightKg.value <= 0) {
+        transportationAmount.value = 0;
+        transportationWeightRange.value = '';
+        return;
+    }
+
+    transportationLoading.value = true;
+
+    try {
+        const params = new URLSearchParams({
+            cost_ring_id: String(costRingId),
+            weight_kg: totalWeightKg.value.toFixed(3),
+            total_cost: discountedSubtotal.value.toFixed(2),
+        });
+
+        const response = await fetch(`/cart/transportation-cost?${params.toString()}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch transportation cost.');
+        }
+
+        const data = (await response.json()) as {
+            price: string;
+            price_with_discount: string;
+            weight_range: string;
+            has_discount: boolean;
+        };
+
+        const selectedPrice = data.has_discount ? data.price_with_discount : data.price;
+        transportationAmount.value = Number.parseFloat(selectedPrice ?? '0') || 0;
+        transportationWeightRange.value = data.weight_range ?? '';
+    } catch {
+        transportationAmount.value = 0;
+        transportationWeightRange.value = '';
+    } finally {
+        transportationLoading.value = false;
+    }
+};
+
+watch(
+    [selectedBeneficiary, totalWeightKg, discountedSubtotal],
+    () => {
+        void fetchTransportationCost();
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
@@ -534,7 +623,10 @@ const chooseDeliveryType = (deliveryTypeId: number) => {
                         >
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500 dark:text-slate-400"
-                                    >Subtotal del carrito</span
+                                    >Subtotal del carrito ({{
+                                        formatWeightKg(orderTotalWeightKg)
+                                    }}
+                                    kg)</span
                                 >
                                 <span class="flex items-center gap-2">
                                     <span
@@ -565,8 +657,18 @@ const chooseDeliveryType = (deliveryTypeId: number) => {
                                 >
                                 <span
                                     class="font-medium text-slate-900 dark:text-white"
-                                    >{{ formatPrice(taxAmount) }}</span
+                                    >{{
+                                        transportationLoading
+                                            ? 'Calculando...'
+                                            : formatPrice(transportationAmount)
+                                    }}</span
                                 >
+                            </div>
+                            <div
+                                v-if="transportationWeightRange"
+                                class="-mt-1 text-xs text-slate-500 dark:text-slate-400"
+                            >
+                                Rango de peso: {{ transportationWeightRange }}
                             </div>
                             <div
                                 class="flex items-center justify-between border-t border-slate-100 pt-3 dark:border-white/5"
