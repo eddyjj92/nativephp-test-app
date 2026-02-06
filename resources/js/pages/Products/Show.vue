@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { Link, usePage, router } from '@inertiajs/vue3';
+import { Deferred, Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { useImageRefresh } from '@/composables/useImageRefresh';
-import MobileLayout from '@/layouts/MobileLayout.vue';
 import { useCart } from '@/composables/useCart';
 import { useFavorites } from '@/composables/useFavorites';
+import { useImageRefresh } from '@/composables/useImageRefresh';
+import MobileLayout from '@/layouts/MobileLayout.vue';
 import type { Product } from '@/types';
 
 const props = defineProps<{
-    product: Product;
+    product?: Product | null;
 }>();
 
 const { handleImageError } = useImageRefresh();
-const page = usePage();
 const quantity = ref(1);
 const showFullDescription = ref(false);
 const imageLoading = ref(true);
@@ -23,14 +22,20 @@ function onImageLoad() {
 
 function onImageError(event: Event) {
     imageLoading.value = false;
-    handleImageError(props.product.id, event);
+    if (props.product) {
+        handleImageError(props.product.id, event);
+    }
 }
 
 const hasDiscount = computed(() => {
-    return props.product.activeDiscounts && props.product.activeDiscounts.length > 0;
+    return !!props.product?.activeDiscounts?.length;
 });
 
 const discountedPrice = computed(() => {
+    if (!props.product) {
+        return 0;
+    }
+
     if (!hasDiscount.value) {
         return props.product.salePrice;
     }
@@ -49,7 +54,7 @@ const discountedPrice = computed(() => {
 });
 
 const discountBadge = computed(() => {
-    if (!hasDiscount.value) return null;
+    if (!hasDiscount.value || !props.product?.activeDiscounts?.[0]) return null;
     const discount = props.product.activeDiscounts[0];
     const page = usePage();
     const currency = page.props.selectedCurrency as any;
@@ -58,12 +63,20 @@ const discountBadge = computed(() => {
 });
 
 const isAvailable = computed(() => {
+    if (!props.product) {
+        return false;
+    }
+
     // If stock is null (not provided by API), assume available if status is ENABLED
     // If stock is provided, check that it's greater than 0
     return props.product.status === 'ENABLED' && (props.product.stock === null || props.product.stock > 0);
 });
 
 const stockStatus = computed(() => {
+    if (!props.product) {
+        return { text: 'Sin disponibilidad', class: 'text-red-600' };
+    }
+
     if (props.product.stock === null) {
         return { text: 'Disponible', class: 'text-green-600' };
     }
@@ -84,7 +97,7 @@ function formatPrice(price: number): string {
 }
 
 function incrementQuantity() {
-    if (quantity.value < props.product.stock) {
+    if (props.product && props.product.stock !== null && quantity.value < props.product.stock) {
         quantity.value++;
     }
 }
@@ -102,6 +115,10 @@ const isAnimating = ref(false);
 const confettiParticles = ref<Array<{ id: number; x: number; y: number; rotation: number; scale: number; delay: number }>>([]);
 
 function isFavorite(): boolean {
+    if (!props.product) {
+        return false;
+    }
+
     return isFavoriteOptimistic(props.product.id);
 }
 
@@ -121,6 +138,10 @@ function generateConfetti() {
 }
 
 function toggleFavorite() {
+    if (!props.product) {
+        return;
+    }
+
     const willBeFavorite = toggleFavoriteOptimistic(props.product.id);
 
     if (willBeFavorite) {
@@ -138,18 +159,41 @@ function toggleFavorite() {
 }
 
 function addToCart() {
-    if (!isAvailable.value) return;
+    if (!isAvailable.value || !props.product) return;
     addToCartOptimistic(props.product, quantity.value);
 }
 </script>
 
 <template>
     <MobileLayout active-nav="catalog">
-        <div
-            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
-        >
+        <Deferred data="product">
+            <template #fallback>
+                <div class="flex flex-col bg-slate-50 dark:bg-slate-900">
+                    <header class="fixed top-[calc(var(--inset-top,0px)+100px)] right-0 left-0 z-40 bg-slate-50 pt-3 pb-2 dark:bg-slate-900">
+                        <div class="flex items-center gap-3 px-4">
+                            <div class="size-10 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                            <div class="h-6 w-44 animate-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+                        </div>
+                    </header>
+                    <main class="flex-1 pb-40">
+                        <div class="aspect-square w-full animate-pulse bg-slate-200 dark:bg-slate-700"></div>
+                        <div class="space-y-4 px-4 py-6">
+                            <div class="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+                            <div class="h-7 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+                            <div class="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+                            <div class="h-24 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                            <div class="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+                        </div>
+                    </main>
+                </div>
+            </template>
+
+            <div
+                v-if="product"
+                class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+            >
             <!-- Header -->
-            <header class="sticky top-0 z-50 bg-slate-50 py-4 dark:bg-slate-900">
+            <header class="fixed top-[calc(var(--inset-top,0px)+100px)] right-0 left-0 z-40 bg-slate-50 pt-3 pb-2 dark:bg-slate-900">
                 <div class="flex items-center justify-between px-4">
                     <div class="flex items-center gap-3">
                         <Link
@@ -181,7 +225,7 @@ function addToCart() {
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 pb-40">
+            <main class="flex-1 px-4 pt-[calc(var(--inset-top,0px)+30px)]">
                 <!-- Product Image -->
                 <div class="relative aspect-square w-full bg-white dark:bg-slate-800">
                     <!-- Skeleton loader -->
@@ -253,7 +297,7 @@ function addToCart() {
                 </div>
 
                 <!-- Product Info -->
-                <div class="px-4 py-6">
+                <div class="px-4 py-4">
                     <!-- Category -->
                     <Link
                         v-if="product.category"
@@ -325,8 +369,8 @@ function addToCart() {
                     </div>
 
                     <!-- Quantity -->
-                    <div v-if="isAvailable" class="mb-6">
-                        <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Cantidad</h3>
+                    <div v-if="isAvailable" class="mb-2">
+                        <h3 class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Cantidad</h3>
                         <div class="flex items-center justify-between">
                             <span :class="['text-sm font-medium', stockStatus.class]">
                                 {{ stockStatus.text }}
@@ -381,7 +425,7 @@ function addToCart() {
 
             <!-- Bottom Action Bar -->
             <div
-                class="fixed inset-x-0 bottom-[calc(var(--inset-bottom,0px)+3.8rem)] z-40 border-t border-gray-100 bg-white px-4 pb-4 pt-4 dark:border-white/5 dark:bg-slate-900"
+                class="inset-x-0 bottom-[calc(var(--inset-bottom,0px)+3.8rem)] z-40 border-t border-gray-100 bg-white px-4 pb-4 pt-4 dark:border-white/5 dark:bg-slate-900"
             >
                 <div class="flex items-center gap-3">
                     <button
@@ -450,7 +494,23 @@ function addToCart() {
                     </button>
                 </div>
             </div>
-        </div>
+            </div>
+            <div
+                v-else
+                class="flex flex-col items-center justify-center bg-slate-50 px-6 text-center dark:bg-slate-900"
+            >
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Producto no encontrado</h2>
+                <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                    No pudimos cargar los detalles de este producto.
+                </p>
+                <Link
+                    href="/products"
+                    class="mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white"
+                >
+                    Volver al catálogo
+                </Link>
+            </div>
+        </Deferred>
     </MobileLayout>
 </template>
 

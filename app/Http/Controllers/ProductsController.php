@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Services\CompayMarketService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -108,19 +110,24 @@ class ProductsController extends Controller
         $currency = session('selected_currency');
         $province = session('selected_province');
 
-        $product = $this->compayMarketService->getProduct(
-            id: (string) $id,
-            currency: $currency?->isoCode,
-            provinceSlug: $province?->slug,
-            cache: true
-        );
-
-        if (! $product) {
-            abort(404, 'Producto no encontrado');
-        }
-
         return Inertia::render('Products/Show', [
-            'product' => $product,
+            'product' => Inertia::defer(function () use ($id, $currency, $province) {
+                try {
+                    return $this->compayMarketService->getProduct(
+                        id: (string) $id,
+                        currency: $currency?->isoCode,
+                        provinceSlug: $province?->slug,
+                        cache: true
+                    );
+                } catch (ConnectionException $e) {
+                    Log::warning('Failed to fetch product from API.', [
+                        'product_id' => $id,
+                        'message' => $e->getMessage(),
+                    ]);
+
+                    return null;
+                }
+            }),
         ]);
     }
 
