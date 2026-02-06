@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MobileLayout from '@/layouts/MobileLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { Package, ChevronDown, ChevronLeft, Clock, CheckCircle, XCircle, Truck, AlertCircle } from 'lucide-vue-next';
+import { Package, ChevronDown, ChevronLeft, Clock, CheckCircle, XCircle, Truck, AlertCircle, Info } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface CartItem {
@@ -44,6 +44,7 @@ interface Order {
     shipping_cost: string;
     currency: string;
     status: string;
+    redirect_url?: string | null;
     created_at: string;
     beneficiary: Beneficiary;
     delivery_type: DeliveryType;
@@ -67,10 +68,12 @@ const props = defineProps<{
 
 const getStatusConfig = (status: string) => {
     const configs: Record<string, { label: string; color: string; bgColor: string; icon: typeof CheckCircle }> = {
+        CREATED: { label: 'Creada', color: 'text-primary', bgColor: 'bg-primary/10 dark:bg-primary/20', icon: Info },
         PENDING: { label: 'Pendiente', color: 'text-yellow-600', bgColor: 'bg-yellow-50 dark:bg-yellow-950/30', icon: Clock },
         PAID: { label: 'Pagado', color: 'text-primary', bgColor: 'bg-blue-50 dark:bg-blue-950/30', icon: CheckCircle },
-        DISPATCHED: { label: 'Despachado', color: 'text-green-600', bgColor: 'bg-green-50 dark:bg-green-950/30', icon: Truck },
-        DELIVERED: { label: 'Entregado', color: 'text-green-600', bgColor: 'bg-green-50 dark:bg-green-950/30', icon: CheckCircle },
+        COMPLETED: { label: 'Completado', color: 'text-green-600', bgColor: 'bg-green-50 dark:bg-green-950/30', icon: CheckCircle },
+        DISPATCHED: { label: 'Despachado', color: 'text-blue-600', bgColor: 'bg-blue-50 dark:bg-blue-950/30', icon: Truck },
+        DELIVERED: { label: 'Entregado', color: 'text-blue-600', bgColor: 'bg-blue-50 dark:bg-blue-950/30', icon: CheckCircle },
         CANCELLED: { label: 'Cancelado', color: 'text-red-600', bgColor: 'bg-red-50 dark:bg-red-950/30', icon: XCircle },
         EXPIRED: { label: 'Expirado', color: 'text-slate-500', bgColor: 'bg-slate-100 dark:bg-slate-800', icon: AlertCircle },
     };
@@ -188,6 +191,18 @@ const isExpanded = (orderId: number) => expandedOrders.value.has(orderId);
                             <div class="text-xs text-slate-500 dark:text-slate-400">
                                 <p class="font-medium text-slate-700 dark:text-slate-300">{{ order.beneficiary.name }}</p>
                                 <p>{{ order.beneficiary.municipality.name }}, {{ order.beneficiary.municipality.province.name }}</p>
+                            </div>
+                            <div
+                                v-if="order.status === 'CREATED' && order.redirect_url"
+                                class="mt-2 rounded-lg border border-primary/20 bg-primary/5 p-2.5"
+                            >
+                                <p class="text-xs font-medium text-primary">Pendiente a pago</p>
+                                <a
+                                    :href="order.redirect_url"
+                                    class="text-xs text-primary underline underline-offset-2"
+                                >
+                                    {{ order.redirect_url }}
+                                </a>
                             </div>
                         </div>
 

@@ -39,6 +39,13 @@ const topBarHeight = computed(() =>
 );
 
 const { isOffline, errorMessage, retry } = useConnectionError();
+
+const connectionException = computed(
+    () => page.props.connection_exception as boolean,
+);
+const showConnectionError = computed(
+    () => isOffline.value || connectionException.value,
+);
 </script>
 
 <template>
@@ -105,7 +112,7 @@ const { isOffline, errorMessage, retry } = useConnectionError();
 
         <!-- Connection Error Overlay -->
         <ConnectionError
-            v-if="isOffline"
+            v-if="showConnectionError"
             :message="errorMessage ?? undefined"
             @retry="retry"
         />

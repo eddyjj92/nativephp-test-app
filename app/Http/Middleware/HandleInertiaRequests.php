@@ -3,7 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Services\CompayMarketService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Middleware;
 
@@ -39,7 +41,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $currencies = $this->compayMarketService->getCurrencies(cache: true);
+        try {
+            $currencies = $this->compayMarketService->getCurrencies(cache: true);
+        } catch (ConnectionException $e) {
+            Log::warning('Failed to fetch categories from API.', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return [
+                'connection_exception' => true,
+            ];
+        }
         $selectedCurrency = $request->session()->get('selected_currency');
 
         if (! $selectedCurrency && count($currencies) > 0) {

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\CompayMarketService;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,8 +30,17 @@ class HomeController extends Controller
             $categoryParams['currency'] = $currency->isoCode;
         }
 
-        $categoriesResponse = $this->compayMarketService->getCategories($categoryParams, cache: true);
-        $categories = $categoriesResponse['categories'] ?? [];
+        $connectionException = false;
+        try {
+            $categoriesResponse = $this->compayMarketService->getCategories($categoryParams, cache: true);
+            $categories = $categoriesResponse['categories'] ?? [];
+        } catch (ConnectionException $e) {
+            Log::warning('Failed to fetch categories from API.', [
+                'message' => $e->getMessage(),
+            ]);
+
+            $connectionException = true;
+        }
 
         // Build local next page URL instead of using the external API URL
         $nextPageUrl = null;
@@ -39,6 +50,8 @@ class HomeController extends Controller
         }
 
         return Inertia::render('Home', [
+            'connection_exception' => $connectionException,
+
             // Banners are deferred - loaded after initial render
             'banners' => Inertia::defer(fn () => $this->compayMarketService->getBanners('active', cache: true)),
 
