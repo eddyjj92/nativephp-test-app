@@ -87,7 +87,7 @@ function handleProfileClick() {
             <span>Carrito</span>
             <div
                 v-if="cartCount > 0"
-                class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[8px] font-bold text-white dark:border-slate-900"
+                class="badge-shine absolute -right-1 -top-1 flex size-4 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gradient-to-r from-red-500 via-red-400 to-red-500 text-[8px] font-bold text-white shadow-lg shadow-red-500/30 dark:border-slate-900"
             >
                 {{ cartCount }}
             </div>
@@ -110,7 +110,7 @@ function handleProfileClick() {
             <span>Favoritos</span>
             <div
                 v-if="favoritesCount > 0"
-                class="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[8px] font-bold text-white dark:border-slate-900"
+                class="badge-shine absolute -right-1 -top-1 flex size-4 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gradient-to-r from-red-500 via-red-400 to-red-500 text-[8px] font-bold text-white shadow-lg shadow-red-500/30 dark:border-slate-900"
             >
                 {{ favoritesCount }}
             </div>
@@ -150,3 +150,27 @@ function handleProfileClick() {
         </div>
     </nav>
 </template>
+
+<style scoped>
+.badge-shine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        120deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.5) 50%,
+        transparent 70%
+    );
+    animation: shine 2s ease-in-out infinite;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+</style>
