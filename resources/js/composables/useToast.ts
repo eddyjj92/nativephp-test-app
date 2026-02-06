@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 export interface Toast {
@@ -9,6 +10,11 @@ export interface Toast {
 
 const toasts = ref<Toast[]>([]);
 let toastId = 0;
+
+// Clear toasts on every Inertia navigation so they don't reappear on back/forward
+router.on('navigate', () => {
+    toasts.value = [];
+});
 
 export function useToast() {
     const addToast = (message: string, type: Toast['type'] = 'info', duration = 4000) => {

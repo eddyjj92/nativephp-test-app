@@ -5,7 +5,9 @@ import { ref } from 'vue';
 
 const { toasts, removeToast } = useToast();
 
-const swipeState = ref<{ [key: number]: { startX: number; currentX: number; swiping: boolean } }>({});
+const swipeState = ref<{
+    [key: number]: { startX: number; currentX: number; swiping: boolean };
+}>({});
 
 const onTouchStart = (id: number, event: TouchEvent) => {
     swipeState.value[id] = {
@@ -45,10 +47,14 @@ const getSwipeOpacity = (id: number) => {
 
 const getIcon = (type: string) => {
     switch (type) {
-        case 'success': return CheckCircle;
-        case 'error': return XCircle;
-        case 'warning': return AlertTriangle;
-        default: return Info;
+        case 'success':
+            return CheckCircle;
+        case 'error':
+            return XCircle;
+        case 'warning':
+            return AlertTriangle;
+        default:
+            return Info;
     }
 };
 
@@ -67,17 +73,23 @@ const getStyles = (type: string) => {
 
 const getIconColor = (type: string) => {
     switch (type) {
-        case 'success': return 'text-green-500';
-        case 'error': return 'text-red-500';
-        case 'warning': return 'text-yellow-500';
-        default: return 'text-blue-500';
+        case 'success':
+            return 'text-green-500';
+        case 'error':
+            return 'text-red-500';
+        case 'warning':
+            return 'text-yellow-500';
+        default:
+            return 'text-blue-500';
     }
 };
 </script>
 
 <template>
     <Teleport to="body">
-        <div class="fixed top-[calc(var(--inset-top,0px)+120px)] left-0 right-0 z-[200] flex flex-col items-center gap-2 px-4 pointer-events-none">
+        <div
+            class="pointer-events-none fixed top-[calc(var(--inset-top,0px)+12px)] right-0 left-0 z-[200] flex flex-col items-center gap-2 px-4"
+        >
             <TransitionGroup
                 enter-active-class="transition-all duration-300 ease-out"
                 enter-from-class="opacity-0 -translate-y-4 scale-95"
@@ -90,13 +102,17 @@ const getIconColor = (type: string) => {
                     v-for="toast in toasts"
                     :key="toast.id"
                     :class="[
-                        'pointer-events-auto flex items-center gap-3 w-full max-w-sm rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing touch-pan-y',
-                        getStyles(toast.type)
+                        'pointer-events-auto flex w-full max-w-sm cursor-grab touch-pan-y items-center gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm active:cursor-grabbing',
+                        getStyles(toast.type),
                     ]"
                     :style="{
-                        transform: getSwipeTransform(toast.id),
-                        opacity: getSwipeOpacity(toast.id),
-                        transition: swipeState[toast.id]?.swiping ? 'none' : 'transform 0.2s ease-out, opacity 0.2s ease-out'
+                        transform: getSwipeTransform(toast.id) || undefined,
+                        opacity: swipeState[toast.id] ? getSwipeOpacity(toast.id) : undefined,
+                        transition: swipeState[toast.id]
+                            ? swipeState[toast.id].swiping
+                                ? 'none'
+                                : 'transform 0.2s ease-out, opacity 0.2s ease-out'
+                            : undefined,
                     }"
                     @touchstart="onTouchStart(toast.id, $event)"
                     @touchmove="onTouchMove(toast.id, $event)"
@@ -106,10 +122,12 @@ const getIconColor = (type: string) => {
                         :is="getIcon(toast.type)"
                         :class="['size-5 shrink-0', getIconColor(toast.type)]"
                     />
-                    <p class="flex-1 text-sm font-medium">{{ toast.message }}</p>
+                    <p class="flex-1 text-sm font-medium">
+                        {{ toast.message }}
+                    </p>
                     <button
                         @click="removeToast(toast.id)"
-                        class="shrink-0 rounded-full p-1 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                        class="shrink-0 rounded-full p-1 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                     >
                         <X class="size-4" />
                     </button>

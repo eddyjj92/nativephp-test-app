@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ChevronLeft, User, IdCard, Phone, Mail, MapPin, Building } from 'lucide-vue-next';
-import { ref, computed, watch, onMounted } from 'vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import {
+    ChevronLeft,
+    User,
+    IdCard,
+    Phone,
+    Mail,
+    MapPin,
+    Building,
+} from 'lucide-vue-next';
+import { ref, computed, watch } from 'vue';
 
 interface Municipality {
     id: number;
@@ -50,12 +58,17 @@ const form = useForm({
     address: props.beneficiary.address,
     municipality_id: props.beneficiary.municipality_id,
 });
+const isSubmitting = ref(false);
 
-const selectedProvinceId = ref<number | null>(props.beneficiary.municipality?.province_id || null);
+const selectedProvinceId = ref<number | null>(
+    props.beneficiary.municipality?.province_id || null,
+);
 
 const municipalities = computed(() => {
     if (!selectedProvinceId.value) return [];
-    const province = props.provinces.find(p => p.id === selectedProvinceId.value);
+    const province = props.provinces.find(
+        (p) => p.id === selectedProvinceId.value,
+    );
     return province?.municipalities ?? [];
 });
 
@@ -66,9 +79,27 @@ watch(selectedProvinceId, (newVal, oldVal) => {
 });
 
 const submit = () => {
-    form.put(`/beneficiaries/${props.beneficiary.id}`, {
-        preserveScroll: true,
-    });
+    form.clearErrors();
+
+    router.post(
+        `/beneficiaries/${props.beneficiary.id}`,
+        {
+            ...form.data(),
+            _method: 'put',
+        },
+        {
+            preserveScroll: true,
+            onStart: () => {
+                isSubmitting.value = true;
+            },
+            onError: (errors) => {
+                form.setError(errors);
+            },
+            onFinish: () => {
+                isSubmitting.value = false;
+            },
+        },
+    );
 };
 </script>
 
@@ -76,16 +107,22 @@ const submit = () => {
     <Head title="Editar Beneficiario" />
 
     <MobileLayout active-nav="profile" :show-chat-button="false">
-        <div class="flex flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white">
+        <div
+            class="flex flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+        >
             <!-- TopAppBar -->
-            <header class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900">
+            <header
+                class="fixed top-[calc(var(--inset-top,0px)+100px)] right-0 left-0 z-40 bg-slate-50 pt-3 pb-2 dark:bg-slate-900"
+            >
                 <div class="mb-3 flex items-center justify-between px-4">
                     <div class="flex items-center gap-3">
                         <Link
                             href="/beneficiaries"
                             class="rounded-full p-2 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
                         >
-                            <ChevronLeft class="size-6 text-slate-900 dark:text-white" />
+                            <ChevronLeft
+                                class="size-6 text-slate-900 dark:text-white"
+                            />
                         </Link>
                         <h1 class="text-lg font-bold">Editar Beneficiario</h1>
                     </div>
@@ -93,11 +130,15 @@ const submit = () => {
             </header>
 
             <!-- Content Area -->
-            <main class="flex-1 px-4 pb-24 pt-[calc(var(--inset-top,0px)+60px)]">
+            <main
+                class="flex-1 px-4 pt-[calc(var(--inset-top,0px)+60px)] pb-24"
+            >
                 <form @submit.prevent="submit" class="space-y-4">
                     <!-- Name -->
                     <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <label
+                            class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                        >
                             <User class="size-4" />
                             Nombre completo *
                         </label>
@@ -108,12 +149,16 @@ const submit = () => {
                             placeholder="Nombre del beneficiario"
                             class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                         />
-                        <p v-if="form.errors.name" class="text-xs text-red-500">{{ form.errors.name }}</p>
+                        <p v-if="form.errors.name" class="text-xs text-red-500">
+                            {{ form.errors.name }}
+                        </p>
                     </div>
 
                     <!-- Identity Number -->
                     <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <label
+                            class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                        >
                             <IdCard class="size-4" />
                             Carnet de Identidad *
                         </label>
@@ -125,12 +170,19 @@ const submit = () => {
                             maxlength="11"
                             class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                         />
-                        <p v-if="form.errors.identity_number" class="text-xs text-red-500">{{ form.errors.identity_number }}</p>
+                        <p
+                            v-if="form.errors.identity_number"
+                            class="text-xs text-red-500"
+                        >
+                            {{ form.errors.identity_number }}
+                        </p>
                     </div>
 
                     <!-- Phone -->
                     <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <label
+                            class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                        >
                             <Phone class="size-4" />
                             Teléfono *
                         </label>
@@ -141,12 +193,19 @@ const submit = () => {
                             placeholder="Ej: 53123456"
                             class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                         />
-                        <p v-if="form.errors.phone" class="text-xs text-red-500">{{ form.errors.phone }}</p>
+                        <p
+                            v-if="form.errors.phone"
+                            class="text-xs text-red-500"
+                        >
+                            {{ form.errors.phone }}
+                        </p>
                     </div>
 
                     <!-- Email (optional) -->
                     <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <label
+                            class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                        >
                             <Mail class="size-4" />
                             Correo electrónico (opcional)
                         </label>
@@ -156,12 +215,19 @@ const submit = () => {
                             placeholder="correo@ejemplo.com"
                             class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                         />
-                        <p v-if="form.errors.email" class="text-xs text-red-500">{{ form.errors.email }}</p>
+                        <p
+                            v-if="form.errors.email"
+                            class="text-xs text-red-500"
+                        >
+                            {{ form.errors.email }}
+                        </p>
                     </div>
 
                     <!-- Province Selector -->
                     <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <label
+                            class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                        >
                             <Building class="size-4" />
                             Provincia *
                         </label>
@@ -170,8 +236,14 @@ const submit = () => {
                             required
                             class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                         >
-                            <option :value="null" disabled>Selecciona una provincia</option>
-                            <option v-for="province in provinces" :key="province.id" :value="province.id">
+                            <option :value="null" disabled>
+                                Selecciona una provincia
+                            </option>
+                            <option
+                                v-for="province in provinces"
+                                :key="province.id"
+                                :value="province.id"
+                            >
                                 {{ province.name }}
                             </option>
                         </select>
@@ -179,7 +251,9 @@ const submit = () => {
 
                     <!-- Municipality Selector -->
                     <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <label
+                            class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                        >
                             <MapPin class="size-4" />
                             Municipio *
                         </label>
@@ -190,18 +264,33 @@ const submit = () => {
                             class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50 dark:border-white/10 dark:bg-slate-800 dark:text-white"
                         >
                             <option :value="null" disabled>
-                                {{ selectedProvinceId ? 'Selecciona un municipio' : 'Primero selecciona una provincia' }}
+                                {{
+                                    selectedProvinceId
+                                        ? 'Selecciona un municipio'
+                                        : 'Primero selecciona una provincia'
+                                }}
                             </option>
-                            <option v-for="municipality in municipalities" :key="municipality.id" :value="municipality.id">
+                            <option
+                                v-for="municipality in municipalities"
+                                :key="municipality.id"
+                                :value="municipality.id"
+                            >
                                 {{ municipality.name }}
                             </option>
                         </select>
-                        <p v-if="form.errors.municipality_id" class="text-xs text-red-500">{{ form.errors.municipality_id }}</p>
+                        <p
+                            v-if="form.errors.municipality_id"
+                            class="text-xs text-red-500"
+                        >
+                            {{ form.errors.municipality_id }}
+                        </p>
                     </div>
 
                     <!-- Address -->
                     <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <label
+                            class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                        >
                             <MapPin class="size-4" />
                             Dirección *
                         </label>
@@ -210,23 +299,33 @@ const submit = () => {
                             required
                             rows="3"
                             placeholder="Calle, número, entre calles, referencias..."
-                            class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white resize-none"
+                            class="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-slate-800 dark:text-white"
                         ></textarea>
-                        <p v-if="form.errors.address" class="text-xs text-red-500">{{ form.errors.address }}</p>
+                        <p
+                            v-if="form.errors.address"
+                            class="text-xs text-red-500"
+                        >
+                            {{ form.errors.address }}
+                        </p>
                     </div>
 
                     <!-- General Error -->
-                    <div v-if="form.errors.error" class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-4">
-                        <p class="text-red-600 dark:text-red-400 text-sm">{{ form.errors.error }}</p>
+                    <div
+                        v-if="form.errors.error"
+                        class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30"
+                    >
+                        <p class="text-sm text-red-600 dark:text-red-400">
+                            {{ form.errors.error }}
+                        </p>
                     </div>
 
                     <!-- Submit Button -->
                     <button
                         type="submit"
-                        :disabled="form.processing"
-                        class="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-bold text-white dark:text-black shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 disabled:opacity-50 disabled:shadow-none"
+                        :disabled="isSubmitting"
+                        class="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 disabled:opacity-50 disabled:shadow-none dark:text-black"
                     >
-                        <span v-if="form.processing">Guardando...</span>
+                        <span v-if="isSubmitting">Guardando...</span>
                         <span v-else>Actualizar Beneficiario</span>
                     </button>
                 </form>
