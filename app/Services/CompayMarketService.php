@@ -497,6 +497,18 @@ class CompayMarketService
     }
 
     /**
+     * Marca como leídos los mensajes de una conversación (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  string  $conversationId  ID de la conversación.
+     * @return array{success: bool, messages_marked: int}
+     */
+    public function markConversationAsRead(string $conversationId): array
+    {
+        return $this->http()->patch("/chat/conversations/{$conversationId}/read")->json();
+    }
+
+    /**
      * Envía un mensaje en una conversación existente (Endpoint Autenticado).
      * Requiere haber llamado a setToken() previamente.
      *

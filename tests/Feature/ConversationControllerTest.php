@@ -124,6 +124,10 @@ class ConversationControllerTest extends TestCase
             '*/settings' => Http::response([
                 'settings' => $this->fakeSettings(),
             ], 200),
+            '*/chat/conversations/14/read' => Http::response([
+                'success' => true,
+                'messages_marked' => 2,
+            ], 200),
             '*/chat/conversations/14' => Http::response([
                 'conversation' => [
                     'id' => 14,
@@ -167,6 +171,62 @@ class ConversationControllerTest extends TestCase
             ->has('messages.data', 2)
             ->where('messages.data.0.content', 'Hola, cómo estás?')
             ->where('messages.data.1.content', 'Bien, gracias!')
+        );
+
+        Http::assertSent(fn ($request) => $request->method() === 'PATCH'
+            && str_contains($request->url(), '/chat/conversations/14/read'));
+    }
+
+    public function test_chat_show_still_works_when_mark_as_read_fails(): void
+    {
+        Http::fake([
+            '*/currencies' => Http::response([
+                'currencies' => [
+                    [
+                        'id' => 1,
+                        'name' => 'Dólar',
+                        'iso_code' => 'USD',
+                        'is_default' => true,
+                        'conversion_value' => 1,
+                    ],
+                ],
+            ], 200),
+            '*/settings' => Http::response([
+                'settings' => $this->fakeSettings(),
+            ], 200),
+            '*/chat/conversations/14/read' => Http::response([], 500),
+            '*/chat/conversations/14' => Http::response([
+                'conversation' => [
+                    'id' => 14,
+                    'user_one_id' => 4,
+                    'user_two_id' => 385,
+                    'type' => 'private',
+                    'user_one' => ['id' => 4, 'name' => 'Pedro', 'avatar' => null],
+                    'user_two' => ['id' => 385, 'name' => 'Eddy', 'avatar' => null],
+                ],
+                'messages' => [
+                    'data' => [
+                        $this->fakeMessage(1, 14, 4, 'Hola'),
+                    ],
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => 10,
+                    'total' => 1,
+                    'next_page_url' => null,
+                ],
+            ], 200),
+        ]);
+
+        $response = $this->withSession([
+            'compay_token' => 'token-test',
+            'compay_user' => (object) ['id' => 385],
+        ])->get(route('chat.show', ['id' => 14]));
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Chat')
+            ->where('conversation.id', 14)
+            ->has('messages.data', 1)
         );
     }
 

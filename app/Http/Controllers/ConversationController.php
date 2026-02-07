@@ -53,9 +53,14 @@ class ConversationController extends Controller
         }
 
         try {
-            $response = $this->service
-                ->setToken($token)
-                ->getChatConversation($id);
+            $service = $this->service->setToken($token);
+            $response = $service->getChatConversation($id);
+
+            try {
+                $service->markConversationAsRead($id);
+            } catch (\Throwable) {
+                // Non-critical: don't block page load if marking fails
+            }
 
             return $this->renderNoCache($request, 'Chat', [
                 'conversation' => $response['conversation'] ?? null,
