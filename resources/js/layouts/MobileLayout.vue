@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import ConnectionError from '@/components/ConnectionError.vue';
 import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
 import LoginModal from '@/components/LoginModal.vue';
@@ -12,7 +12,12 @@ import {
     isPresenceJoined,
     joinPresence,
     leavePresence,
+    joinChatChannel,
+    leaveChatChannel,
+    onChatMessage,
+    offChatMessage,
     useConnectionStatus,
+    type ChatMessagePayload,
 } from '@/composables/useEcho';
 import type { AppPageProps } from '@/types';
 
@@ -73,8 +78,62 @@ const presenceConnected = computed(
         wsStatus.value === 'connected',
 );
 
+// Chat channel: separate from presence, delayed to avoid interference
+watch(
+    authUser,
+    (user) => {
+        if (user) {
+            setTimeout(() => joinChatChannel(user.id), 1500);
+        } else {
+            leaveChatChannel();
+        }
+    },
+    { immediate: true },
+);
+
+const wsUnreadExtra = ref(0);
+
+function playNotificationSound(): void {
+    try {
+        const ctx = new AudioContext();
+        const playTone = (freq: number, start: number, dur: number) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = freq;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.15, start);
+            gain.gain.exponentialRampToValueAtTime(0.01, start + dur);
+            osc.start(start);
+            osc.stop(start + dur);
+        };
+        playTone(880, ctx.currentTime, 0.12);
+        playTone(1100, ctx.currentTime + 0.12, 0.15);
+    } catch {
+        // Silent if audio not available
+    }
+}
+
+function handleIncomingMessage(payload: ChatMessagePayload): void {
+    if (payload.message.sender_id === authUser.value?.id) {
+        return;
+    }
+
+    wsUnreadExtra.value++;
+    playNotificationSound();
+}
+
+onChatMessage(handleIncomingMessage);
+
+onUnmounted(() => {
+    offChatMessage(handleIncomingMessage);
+});
+
 const unreadMessagesCount = computed(
-    () => (page.props.unreadMessagesCount as number) ?? 0,
+    () =>
+        ((page.props.unreadMessagesCount as number) ?? 0) +
+        wsUnreadExtra.value,
 );
 
 const connectionException = computed(

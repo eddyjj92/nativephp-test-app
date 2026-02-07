@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { useOnlineUsers } from '@/composables/useEcho';
+import {
+    useOnlineUsers,
+    onChatMessage,
+    offChatMessage,
+    type ChatMessagePayload,
+} from '@/composables/useEcho';
 
 type ConversationUser = {
     id: number;
@@ -123,8 +128,18 @@ function getConversationUser(
     return conversation.user_one ?? conversation.user_two;
 }
 
+// Mutable copy for real-time WebSocket updates
+const localConversations = ref<ApiConversation[]>([...props.conversations]);
+
+watch(
+    () => props.conversations,
+    (newConvs) => {
+        localConversations.value = [...newConvs];
+    },
+);
+
 const conversations = computed<ViewConversation[]>(() => {
-    return props.conversations.map((conversation) => {
+    return localConversations.value.map((conversation) => {
         const displayUser = getConversationUser(conversation);
         const displayName = displayUser?.name ?? 'Conversación';
 
@@ -139,6 +154,36 @@ const conversations = computed<ViewConversation[]>(() => {
             otherUserId: displayUser?.id ?? 0,
         };
     });
+});
+
+function handleChatMessage(payload: ChatMessagePayload): void {
+    const msg = payload.message;
+
+    if (msg.sender_id === authUserId.value) {
+        return;
+    }
+
+    const idx = localConversations.value.findIndex(
+        (c) => c.id === msg.conversation_id,
+    );
+
+    if (idx >= 0) {
+        const conv = { ...localConversations.value[idx] };
+        conv.unread_count = (conv.unread_count ?? 0) + 1;
+        conv.last_message = { content: msg.content };
+        conv.last_message_at = msg.created_at;
+
+        const updated = [...localConversations.value];
+        updated.splice(idx, 1);
+        updated.unshift(conv);
+        localConversations.value = updated;
+    }
+}
+
+onChatMessage(handleChatMessage);
+
+onUnmounted(() => {
+    offChatMessage(handleChatMessage);
 });
 </script>
 

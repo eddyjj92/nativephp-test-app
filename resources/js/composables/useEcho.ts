@@ -67,4 +67,72 @@ export function useOnlineUsers(): Ref<Set<number>> {
     return _onlineUserIds;
 }
 
+// ─── Private chat channel (isolated from presence) ──────────────────────
+
+export type ChatMessagePayload = {
+    message: {
+        id: number;
+        conversation_id: number;
+        sender_id: number;
+        content: string;
+        type: string;
+        file_path: string | null;
+        file_name: string | null;
+        created_at: string;
+        sender: {
+            id: number;
+            name: string;
+            avatar: string | null;
+        };
+    };
+};
+
+let _chatJoined = false;
+let _chatUserId: number | null = null;
+const _chatListeners: Set<(payload: ChatMessagePayload) => void> = new Set();
+
+export function joinChatChannel(userId: number): void {
+    if (_chatJoined && _chatUserId === userId) {
+        return;
+    }
+
+    if (_chatJoined) {
+        leaveChatChannel();
+    }
+
+    try {
+        echo()
+            .private(`chat.${userId}`)
+            .listen('.message.sent', (payload: ChatMessagePayload) => {
+                for (const cb of _chatListeners) {
+                    cb(payload);
+                }
+            });
+        _chatUserId = userId;
+        _chatJoined = true;
+    } catch {
+        // Don't let chat channel failure affect anything else
+    }
+}
+
+export function leaveChatChannel(): void {
+    if (_chatJoined && _chatUserId !== null) {
+        try {
+            echo().leave(`chat.${_chatUserId}`);
+        } catch {
+            // Silent cleanup
+        }
+        _chatJoined = false;
+        _chatUserId = null;
+    }
+}
+
+export function onChatMessage(cb: (payload: ChatMessagePayload) => void): void {
+    _chatListeners.add(cb);
+}
+
+export function offChatMessage(cb: (payload: ChatMessagePayload) => void): void {
+    _chatListeners.delete(cb);
+}
+
 export { echo, useConnectionStatus, useEcho, useEchoPublic, useEchoPresence, useEchoModel };
