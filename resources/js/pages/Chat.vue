@@ -3,7 +3,12 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue';
 import axios from 'axios';
 import MobileLayout from '@/layouts/MobileLayout.vue';
-import { useOnlineUsers } from '@/composables/useEcho';
+import {
+    useOnlineUsers,
+    onChatMessage,
+    offChatMessage,
+    type ChatMessagePayload,
+} from '@/composables/useEcho';
 
 type ConversationUser = {
     id: number;
@@ -301,7 +306,34 @@ onMounted(() => {
     }
 });
 
+function handleChatMessage(payload: ChatMessagePayload): void {
+    const msg = payload.message;
+
+    if (msg.conversation_id !== props.conversation?.id) {
+        return;
+    }
+
+    if (msg.sender_id === authUserId.value) {
+        return;
+    }
+
+    displayMessages.value.push({
+        id: msg.id,
+        text: msg.content,
+        isSender: false,
+        time: formatTime(msg.created_at),
+    });
+    scrollToBottom();
+
+    axios
+        .patch(`/conversations/${props.conversation.id}/read`)
+        .catch(() => {});
+}
+
+onChatMessage(handleChatMessage);
+
 onUnmounted(() => {
+    offChatMessage(handleChatMessage);
     observer?.disconnect();
     window.removeEventListener('resize', onWindowResize);
 });
