@@ -474,6 +474,17 @@ class CompayMarketService
     }
 
     /**
+     * Obtiene las conversaciones del chat (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  array  $params  Parámetros de filtrado o paginación (page, per_page).
+     */
+    public function getChatConversations(array $params = []): array
+    {
+        return $this->http()->get('/chat/conversations', $params)->json();
+    }
+
+    /**
      * Obtiene el precio de transportación por anillo de costo y peso.
      *
      * @throws ConnectionException

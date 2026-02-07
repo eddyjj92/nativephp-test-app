@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BroadcastingAuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\HomeController;
@@ -54,13 +55,8 @@ Route::get('/checkout', function (Request $request, CompayMarketService $service
     ]);
 })->name('checkout');
 
-Route::get('/conversations', function () {
-    return Inertia::render('Conversations');
-})->name('conversations');
-
-Route::get('/conversations/{id}', function (string $id) {
-    return Inertia::render('Chat', ['id' => $id]);
-})->name('chat.show');
+Route::get('/conversations', [ConversationController::class, 'index'])->name('conversations');
+Route::get('/conversations/{id}', [ConversationController::class, 'show'])->name('chat.show');
 
 Route::get('/product/{id}', [ProductsController::class, 'show'])->name('products.show');
 Route::post('/product/{id}/refresh', [ProductsController::class, 'refresh'])->name('products.refresh');

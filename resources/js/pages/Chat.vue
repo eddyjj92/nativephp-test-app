@@ -61,7 +61,7 @@ onMounted(() => {
     <!-- Disable default top bar to show custom chat header -->
     <MobileLayout active-nav="home" :show-top-bar="false" :show-chat-button="false" :show-bottom-bar="false">
         <div
-            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+            class="fixed top-[calc(var(--inset-top,0px)+0px)] right-0 left-0 z-40 bg-slate-50 pb-2 dark:bg-slate-900"
         >
             <!-- Chat Header -->
             <header
@@ -144,9 +144,9 @@ onMounted(() => {
 
             <!-- Input Area -->
             <div
-                class="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white px-4 pb-8 pt-2 dark:border-white/5 dark:bg-slate-900"
+                class="fixed inset-x-0 bottom-0 z-50 flex items-center justify-between border-t border-gray-100 bg-white/90 px-6 pb-[calc(var(--inset-bottom,0px)+0.5rem)] pl-[calc(var(--inset-left,0px)+1.5rem)] pr-[calc(var(--inset-right,0px)+1.5rem)] pt-2 backdrop-blur-md dark:border-white/5 dark:bg-slate-900/95"
             >
-                <form @submit.prevent="sendMessage" class="flex items-center gap-2">
+                <form @submit.prevent="sendMessage" class="flex w-full items-center gap-2">
                     <button
                         type="button"
                         class="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"

@@ -1,67 +1,157 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
 
-type Conversation = {
+type ConversationUser = {
     id: number;
     name: string;
-    avatar: string;
+    avatar: string | null;
+};
+
+type ApiConversation = {
+    id: number;
+    user_one_id: number;
+    user_two_id: number | null;
+    type: string;
+    last_message_at: string | null;
+    unread_count: number;
+    user_one: ConversationUser | null;
+    user_two: ConversationUser | null;
+    last_message: {
+        content: string | null;
+    } | null;
+};
+
+type ViewConversation = {
+    id: number;
+    name: string;
+    avatar: string | null;
+    initials: string;
     lastMessage: string;
     time: string;
     unreadCount: number;
-    isOnline: boolean;
 };
 
-const conversations = ref<Conversation[]>([
+const props = withDefaults(
+    defineProps<{
+        conversations?: ApiConversation[];
+        isStaff?: boolean;
+        error?: string;
+    }>(),
     {
-        id: 1,
-        name: 'Support Team',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDsLJNLbDaRdlWrk30bLVXGz2zMdwABe3pWlNpNb5MV0CKXj6qLqO4WCWYwBrNCJwAF2rAqY0s_4yJ6HZ8E9hJJQ0aYQm_Xq7eJpCwQY7JOmA',
-        lastMessage: 'Your order #1234 has been shipped!',
-        time: '2m ago',
-        unreadCount: 2,
-        isOnline: true,
+        conversations: () => [],
+        isStaff: false,
+        error: undefined,
     },
-    {
-        id: 2,
-        name: 'Alex Johnson',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBkdQgUIXRO2xmxQisdRa-xXNF5Xf60N8b147d5kkuAsHkR2B8sxIweopIOP4TQ-ZyafkU2CfP4ZqxpBxgSIVrL-hQXygWvNhurSpaxY1W29qELyh_NYKTClebstrSp-ZInNYMiAINV53-BKWqWJbK6YCaL1sphk566QGSEySsVrkdma9yrFh8Edcf_lzXyn431pIhFDUY8Wo7QHDbYZIIzeyKD0wibiAsBRfHXaOz5MwXWmY14QGmWO0YVxrtlKxPiUre2bKtYgks',
-        lastMessage: 'Thanks for the review!',
-        time: '1h ago',
-        unreadCount: 0,
-        isOnline: false,
-    },
-    {
-        id: 3,
-        name: 'Sarah Williams',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCx8jrIDsQet2gsCPjmllYeBU_c-nkpb_O0bu7E910IcOGwqTbGldHyC6AhFT2sHkACQ4x4cR2T9Mh1IInp8e5aBXI7jn6E0lyyHDGwVIHStqpDWJ9OOicbmpDhOEMZh_uxumz-MzCTqI2RFfHkOzH-UGFhnEpyKptYIrKFtQYFsTO5hFeXPhU3A3irp94FpYbrwyIpg7u9PKwp_yw7f-51g1cRVM88qLCJnpMb9-0zX67a9_dQKvGbsq9BEdT6CQ_OJ9QjGyd-3GQ',
-        lastMessage: 'Is this item still available in red?',
-        time: 'Yesterday',
-        unreadCount: 1,
-        isOnline: true,
-    },
-    {
-        id: 4,
-        name: 'Michael Brown',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCO4f9Y-jqkXBYxkKrIgQT2ozhzYGez20ZAncUOIIpa4vOjsTFuIiyrEwNPGutfh0j83ghqFinrhrmQnGRA5oZbFP9mjrC5ezTwXFcmjNukRjGMoFFf0So2n4RNdKKj1VOTroo-omFNbzEizT9CJpdt3AUErlwQ5fYyeELD2bROrjaXt4lKZhn0rGkXxwVkMXEN3GgmcWhdYvPDRTX1MY3xGH8ZOte8Kb1Xy19CFnoeQ3FRIWqQrIqv4iBCVKkQcW9kpTHQ6jXoEMw',
-        lastMessage: 'Can you deliver by Friday?',
-        time: 'Oct 24',
-        unreadCount: 0,
-        isOnline: false,
-    },
-]);
+);
+
+const page = usePage();
+
+const authUserId = computed<number | null>(() => {
+    const userId = (page.props.auth as { user?: { id?: number } } | undefined)
+        ?.user?.id;
+
+    return typeof userId === 'number' ? userId : null;
+});
+
+function formatTime(dateTime: string | null): string {
+    if (!dateTime) {
+        return '';
+    }
+
+    const date = new Date(dateTime);
+
+    if (Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+
+    if (isToday) {
+        return date.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    }
+
+    return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+    });
+}
+
+function getInitials(name: string): string {
+    const words = name.trim().split(' ').filter(Boolean);
+
+    return (
+        words
+            .slice(0, 2)
+            .map((word) => word[0]?.toUpperCase() ?? '')
+            .join('') || '?'
+    );
+}
+
+function getConversationUser(
+    conversation: ApiConversation,
+): ConversationUser | null {
+    if (conversation.type === 'support') {
+        if (props.isStaff) {
+            return conversation.user_one;
+        }
+
+        return {
+            id: 0,
+            name: 'Soporte',
+            avatar: null,
+        };
+    }
+
+    if (authUserId.value === conversation.user_one_id) {
+        return conversation.user_two;
+    }
+
+    if (authUserId.value === conversation.user_two_id) {
+        return conversation.user_one;
+    }
+
+    return conversation.user_one ?? conversation.user_two;
+}
+
+const conversations = computed<ViewConversation[]>(() => {
+    return props.conversations.map((conversation) => {
+        const displayUser = getConversationUser(conversation);
+        const displayName = displayUser?.name ?? 'Conversación';
+
+        return {
+            id: conversation.id,
+            name: displayName,
+            avatar: displayUser?.avatar ?? null,
+            initials: getInitials(displayName),
+            lastMessage: conversation.last_message?.content ?? 'Sin mensajes',
+            time: formatTime(conversation.last_message_at),
+            unreadCount: conversation.unread_count ?? 0,
+        };
+    });
+});
 </script>
 
 <template>
     <Head title="Messages" />
 
-    <MobileLayout active-nav="home" :show-chat-button="false" :show-bottom-bar="true">
+    <MobileLayout
+        active-nav="home"
+        :show-chat-button="false"
+        :show-bottom-bar="true"
+    >
         <div
             class="flex flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
             <!-- Header (Standardized) -->
-            <header class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900">
+            <header
+                class="fixed top-[calc(var(--inset-top,0px)+100px)] right-0 left-0 z-40 bg-slate-50 pt-3 pb-2 dark:bg-slate-900"
+            >
                 <div class="flex items-center justify-between px-4">
                     <div class="flex items-center gap-3">
                         <Link
@@ -107,7 +197,23 @@ const conversations = ref<Conversation[]>([
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+60px)]">
+            <main class="flex-1 px-4 pt-[calc(var(--inset-top,0px)+60px)] pb-4">
+                <div
+                    v-if="props.error"
+                    class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30"
+                >
+                    <p class="text-sm text-red-600 dark:text-red-400">
+                        {{ props.error }}
+                    </p>
+                </div>
+
+                <div
+                    v-if="conversations.length === 0"
+                    class="mb-4 rounded-2xl bg-white p-6 text-center text-sm text-slate-500 shadow-sm dark:bg-slate-800/50 dark:text-slate-400"
+                >
+                    No tienes conversaciones por el momento.
+                </div>
+
                 <div class="flex flex-col gap-2">
                     <Link
                         v-for="chat in conversations"
@@ -118,29 +224,45 @@ const conversations = ref<Conversation[]>([
                         <!-- Avatar -->
                         <div class="relative shrink-0">
                             <div
-                                class="size-12 rounded-full bg-slate-200 bg-cover bg-center"
-                                :style="{ backgroundImage: `url('${chat.avatar}')` }"
-                            ></div>
-                            <div
-                                v-if="chat.isOnline"
-                                class="absolute bottom-0 right-0 size-3 rounded-full border-2 border-white bg-green-500 dark:border-slate-800"
-                            ></div>
+                                class="flex size-12 items-center justify-center rounded-full bg-slate-200 bg-cover bg-center text-sm font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                                :style="
+                                    chat.avatar
+                                        ? {
+                                              backgroundImage: `url('${chat.avatar}')`,
+                                          }
+                                        : undefined
+                                "
+                            >
+                                <span v-if="!chat.avatar">{{
+                                    chat.initials
+                                }}</span>
+                            </div>
                         </div>
 
                         <!-- Info -->
                         <div class="flex min-w-0 flex-1 flex-col gap-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="truncate text-sm font-bold text-slate-900 dark:text-white">
+                                <h3
+                                    class="truncate text-sm font-bold text-slate-900 dark:text-white"
+                                >
                                     {{ chat.name }}
                                 </h3>
-                                <span class="text-xs font-medium text-slate-400">
+                                <span
+                                    class="text-xs font-medium text-slate-400"
+                                >
                                     {{ chat.time }}
                                 </span>
                             </div>
-                            <div class="flex items-center justify-between gap-2">
+                            <div
+                                class="flex items-center justify-between gap-2"
+                            >
                                 <p
                                     class="truncate text-sm"
-                                    :class="chat.unreadCount > 0 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'"
+                                    :class="
+                                        chat.unreadCount > 0
+                                            ? 'font-semibold text-slate-900 dark:text-white'
+                                            : 'text-slate-500 dark:text-slate-400'
+                                    "
                                 >
                                     {{ chat.lastMessage }}
                                 </p>
