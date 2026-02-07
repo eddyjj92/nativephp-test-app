@@ -148,11 +148,27 @@ function mapMessage(msg: ApiMessage): ViewMessage {
 const displayMessages = ref<ViewMessage[]>([]);
 const messagesContainer = ref<HTMLElement | null>(null);
 const scrollSentinel = ref<HTMLElement | null>(null);
+const messageInput = ref<HTMLInputElement | null>(null);
 const newMessage = ref('');
 const sending = ref(false);
 const loadingMore = ref(false);
 const nextPage = ref<number | null>(null);
+const keyboardOpen = ref(false);
 let observer: IntersectionObserver | null = null;
+let baseHeight = 0;
+
+function onWindowResize(): void {
+    if (window.innerHeight > baseHeight) {
+        baseHeight = window.innerHeight;
+    }
+
+    keyboardOpen.value = window.innerHeight < baseHeight - 100;
+}
+
+const containerStyle = computed(() => ({
+    paddingTop: 'var(--inset-top, 0px)',
+    paddingBottom: keyboardOpen.value ? '0px' : 'var(--inset-bottom, 0px)',
+}));
 
 function scrollToBottom(): void {
     nextTick(() => {
@@ -228,6 +244,7 @@ async function sendMessage(): Promise<void> {
     const text = newMessage.value.trim();
     newMessage.value = '';
     sending.value = true;
+    messageInput.value?.focus();
 
     const tempMessage: ViewMessage = {
         id: Date.now(),
@@ -258,6 +275,9 @@ async function sendMessage(): Promise<void> {
 }
 
 onMounted(() => {
+    baseHeight = window.innerHeight;
+    window.addEventListener('resize', onWindowResize);
+
     const paginated = props.messages;
 
     if (paginated?.data) {
@@ -277,6 +297,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     observer?.disconnect();
+    window.removeEventListener('resize', onWindowResize);
 });
 </script>
 
@@ -290,7 +311,8 @@ onUnmounted(() => {
         :show-bottom-bar="false"
     >
         <div
-            class="fixed inset-0 z-40 flex flex-col bg-slate-50 pt-[var(--inset-top,0px)] dark:bg-slate-900"
+            class="fixed inset-0 z-40 flex flex-col bg-slate-50 dark:bg-slate-900"
+            :style="containerStyle"
         >
             <!-- Chat Header -->
             <header
@@ -437,7 +459,7 @@ onUnmounted(() => {
 
             <!-- Input Area -->
             <div
-                class="shrink-0 border-t border-gray-100 bg-white/90 px-6 pb-[calc(var(--inset-bottom,0px)+0.5rem)] pl-[calc(var(--inset-left,0px)+1.5rem)] pr-[calc(var(--inset-right,0px)+1.5rem)] pt-2 backdrop-blur-md dark:border-white/5 dark:bg-slate-900/95"
+                class="shrink-0 border-t border-gray-100 bg-white/90 px-6 pb-2 pl-[calc(var(--inset-left,0px)+1.5rem)] pr-[calc(var(--inset-right,0px)+1.5rem)] pt-2 backdrop-blur-md dark:border-white/5 dark:bg-slate-900/95"
             >
                 <form
                     class="flex w-full items-center gap-2"
@@ -466,6 +488,7 @@ onUnmounted(() => {
                         class="flex-1 rounded-full bg-slate-100 px-4 py-3 dark:bg-slate-800"
                     >
                         <input
+                            ref="messageInput"
                             v-model="newMessage"
                             type="text"
                             placeholder="Escribe un mensaje..."
@@ -477,6 +500,7 @@ onUnmounted(() => {
                         type="submit"
                         class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
                         :disabled="!newMessage.trim() || sending"
+                        @mousedown.prevent
                     >
                         <svg
                             class="size-5"
