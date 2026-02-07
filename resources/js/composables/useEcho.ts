@@ -27,4 +27,25 @@ export function setupEcho(): void {
     echo();
 }
 
+// Module-level presence state — survives component mount/unmount cycles
+let _presenceJoined = false;
+
+export function joinPresence(): void {
+    if (!_presenceJoined) {
+        echo().join('online.users');
+        _presenceJoined = true;
+    }
+}
+
+export function leavePresence(): void {
+    if (_presenceJoined) {
+        echo().leave('online.users');
+        _presenceJoined = false;
+    }
+}
+
+export function isPresenceJoined(): boolean {
+    return _presenceJoined;
+}
+
 export { echo, useConnectionStatus, useEcho, useEchoPublic, useEchoPresence, useEchoModel };

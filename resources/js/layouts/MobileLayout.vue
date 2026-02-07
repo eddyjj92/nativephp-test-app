@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ConnectionError from '@/components/ConnectionError.vue';
 import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
 import LoginModal from '@/components/LoginModal.vue';
@@ -8,7 +8,12 @@ import MobileBottomNav from '@/components/MobileBottomNav.vue';
 import MobileTopBar from '@/components/MobileTopBar.vue';
 import SearchModal from '@/components/SearchModal.vue';
 import { useConnectionError } from '@/composables/useConnectionError';
-import { echo, useConnectionStatus } from '@/composables/useEcho';
+import {
+    isPresenceJoined,
+    joinPresence,
+    leavePresence,
+    useConnectionStatus,
+} from '@/composables/useEcho';
 import type { AppPageProps } from '@/types';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
@@ -23,6 +28,7 @@ type Props = {
 const page = usePage();
 const manualLocationModal = ref(false);
 const loginModalOpen = ref(false);
+const chatLoginModalOpen = ref(false);
 const searchModalOpen = ref(false);
 const showLocationModal = computed(
     () =>
@@ -42,31 +48,30 @@ const topBarHeight = computed(() =>
 
 const { isOffline, errorMessage, retry } = useConnectionError();
 
-// WebSocket: join presence channel when authenticated
+// WebSocket: join presence channel when authenticated.
+// State lives at module level (useEcho.ts) so it survives
+// MobileLayout unmount/remount on Inertia navigations.
 const authUser = computed(() => (page.props as AppPageProps).auth?.user);
 const wsStatus = useConnectionStatus();
-let presenceJoined = false;
 
 watch(
     authUser,
     (user) => {
-        if (user && !presenceJoined) {
-            echo().join('online.users');
-            presenceJoined = true;
-        } else if (!user && presenceJoined) {
-            echo().leave('online.users');
-            presenceJoined = false;
+        if (user) {
+            joinPresence();
+        } else {
+            leavePresence();
         }
     },
     { immediate: true },
 );
 
-onUnmounted(() => {
-    if (presenceJoined) {
-        echo().leave('online.users');
-        presenceJoined = false;
-    }
-});
+const presenceConnected = computed(
+    () =>
+        authUser.value &&
+        isPresenceJoined() &&
+        wsStatus.value === 'connected',
+);
 
 const connectionException = computed(
     () => page.props.connection_exception as boolean,
@@ -98,7 +103,7 @@ const showConnectionError = computed(
 
         <!-- Floating Chat Button -->
         <Link
-            v-if="props.showChatButton"
+            v-if="props.showChatButton && authUser"
             href="/conversations"
             class="fixed right-[calc(var(--inset-right,0px)+1rem)] bottom-[calc(var(--inset-bottom,0px)+4.5rem)] z-50 flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105"
         >
@@ -115,7 +120,31 @@ const showConnectionError = computed(
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                 />
             </svg>
+            <span
+                v-if="presenceConnected"
+                class="absolute top-0 right-0 size-3.5 rounded-full border-2 border-white bg-green-500"
+            />
         </Link>
+        <button
+            v-else-if="props.showChatButton"
+            type="button"
+            @click="chatLoginModalOpen = true"
+            class="fixed right-[calc(var(--inset-right,0px)+1rem)] bottom-[calc(var(--inset-bottom,0px)+4.5rem)] z-50 flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105"
+        >
+            <svg
+                class="size-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+            </svg>
+        </button>
 
         <MobileBottomNav
             v-if="props.showBottomBar"
@@ -131,6 +160,12 @@ const showConnectionError = computed(
         <LoginModal
             v-if="loginModalOpen"
             @close="loginModalOpen = false"
+        />
+
+        <LoginModal
+            v-if="chatLoginModalOpen"
+            redirect-to="/conversations"
+            @close="chatLoginModalOpen = false"
         />
 
         <SearchModal
