@@ -159,6 +159,7 @@ const sending = ref(false);
 const loadingMore = ref(false);
 const nextPage = ref<number | null>(null);
 const keyboardOpen = ref(false);
+const canLoadOlder = ref(false);
 let observer: IntersectionObserver | null = null;
 let baseHeight = 0;
 
@@ -199,6 +200,9 @@ async function loadOlderMessages(): Promise<void> {
     loadingMore.value = true;
 
     const previousHeight = container.scrollHeight;
+    const wasNearBottom =
+        container.scrollTop + container.clientHeight >=
+        container.scrollHeight - 24;
 
     try {
         const { data } = await axios.get<PaginatedMessages>(
@@ -215,6 +219,12 @@ async function loadOlderMessages(): Promise<void> {
                 : null;
 
         nextTick(() => {
+            if (wasNearBottom) {
+                container.scrollTop = container.scrollHeight;
+
+                return;
+            }
+
             container.scrollTop = container.scrollHeight - previousHeight;
         });
     } catch {
@@ -231,7 +241,7 @@ function setupScrollObserver(): void {
 
     observer = new IntersectionObserver(
         (entries) => {
-            if (entries[0]?.isIntersecting) {
+            if (canLoadOlder.value && entries[0]?.isIntersecting) {
                 loadOlderMessages();
             }
         },
@@ -239,6 +249,17 @@ function setupScrollObserver(): void {
     );
 
     observer.observe(scrollSentinel.value);
+}
+
+function handleMessagesScroll(): void {
+    const container = messagesContainer.value;
+    if (!container || canLoadOlder.value) {
+        return;
+    }
+
+    if (container.scrollTop <= 120) {
+        canLoadOlder.value = true;
+    }
 }
 
 async function sendMessage(): Promise<void> {
@@ -430,6 +451,7 @@ onUnmounted(() => {
             <main
                 ref="messagesContainer"
                 class="flex-1 overflow-y-auto px-4 pb-4 pt-4"
+                @scroll.passive="handleMessagesScroll"
             >
                 <!-- Scroll sentinel for infinite scroll (load older messages) -->
                 <div ref="scrollSentinel" class="h-1" />
