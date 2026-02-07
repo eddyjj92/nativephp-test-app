@@ -485,6 +485,35 @@ class CompayMarketService
     }
 
     /**
+     * Obtiene una conversación y sus mensajes paginados (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  string  $conversationId  ID de la conversación.
+     * @param  array  $params  Parámetros de paginación (page, per_page).
+     */
+    public function getChatConversation(string $conversationId, array $params = []): array
+    {
+        return $this->http()->get("/chat/conversations/{$conversationId}", $params)->json();
+    }
+
+    /**
+     * Envía un mensaje en una conversación existente (Endpoint Autenticado).
+     * Requiere haber llamado a setToken() previamente.
+     *
+     * @param  int  $conversationId  ID de la conversación.
+     * @param  int  $receiverId  ID del usuario receptor.
+     * @param  string  $message  Contenido del mensaje.
+     */
+    public function sendChatMessage(int $conversationId, int $receiverId, string $message): array
+    {
+        return $this->http()->post('/chat/message', [
+            'conversation_id' => $conversationId,
+            'receiver_id' => $receiverId,
+            'message' => $message,
+        ])->json();
+    }
+
+    /**
      * Obtiene el precio de transportación por anillo de costo y peso.
      *
      * @throws ConnectionException
