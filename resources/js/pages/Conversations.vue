@@ -58,12 +58,10 @@ const conversations = ref<Conversation[]>([
 
     <MobileLayout active-nav="home" :show-chat-button="false" :show-bottom-bar="true">
         <div
-            class="nativephp-safe-area flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
+            class="flex flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-900 dark:text-white"
         >
             <!-- Header (Standardized) -->
-            <header
-                class="sticky top-0 z-50 border-b border-gray-100 bg-slate-50 pb-3 pt-4 dark:border-white/5 dark:bg-slate-900"
-            >
+            <header class="fixed top-[calc(var(--inset-top,0px)+100px)] left-0 right-0 z-40 bg-slate-50 pb-2 pt-3 dark:bg-slate-900">
                 <div class="flex items-center justify-between px-4">
                     <div class="flex items-center gap-3">
                         <Link
@@ -84,7 +82,7 @@ const conversations = ref<Conversation[]>([
                                 />
                             </svg>
                         </Link>
-                        <h1 class="text-lg font-bold">Messages</h1>
+                        <h1 class="text-lg font-bold">Mis Mensajes</h1>
                     </div>
                     <div class="flex items-center">
                         <button
@@ -109,7 +107,7 @@ const conversations = ref<Conversation[]>([
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 px-4 pt-2 pb-24">
+            <main class="flex-1 px-4 pb-4 pt-[calc(var(--inset-top,0px)+60px)]">
                 <div class="flex flex-col gap-2">
                     <Link
                         v-for="chat in conversations"
