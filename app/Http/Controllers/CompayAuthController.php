@@ -12,6 +12,7 @@ class CompayAuthController extends Controller
         $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'redirect_to' => 'nullable|string',
         ]);
 
         try {
@@ -26,7 +27,9 @@ class CompayAuthController extends Controller
             $request->session()->put('compay_token', $response->token);
             $request->session()->put('compay_user', $response->user);
 
-            return back();
+            $redirectTo = $validated['redirect_to'] ?? null;
+
+            return $redirectTo ? redirect($redirectTo) : back();
         } catch (\Exception $e) {
             return back()->withErrors(['email' => 'Credenciales incorrectas.']);
         }

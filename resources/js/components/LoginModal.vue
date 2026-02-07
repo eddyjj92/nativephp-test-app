@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 
 const props = withDefaults(
@@ -19,6 +19,7 @@ const rememberCredentials = ref(false);
 const form = useForm({
     email: '',
     password: '',
+    redirect_to: props.redirectTo,
 });
 
 const STORAGE_KEY = 'compay_saved_credentials';
@@ -53,7 +54,6 @@ const submit = () => {
     form.post('/login', {
         preserveScroll: true,
         onSuccess: () => {
-            router.visit(props.redirectTo);
             emit('close');
         },
     });

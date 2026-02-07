@@ -5,6 +5,7 @@ import { createApp, h } from 'vue';
 import '../css/app.css';
 import { initializeTheme } from './composables/useAppearance';
 import { setupConnectionErrorInterceptor } from './composables/useConnectionError';
+import { setupEcho } from './composables/useEcho';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -42,3 +43,6 @@ initializeTheme();
 
 // Setup connection error interceptor...
 setupConnectionErrorInterceptor();
+
+// Setup Echo WebSocket connection...
+setupEcho();

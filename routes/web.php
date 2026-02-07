@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BroadcastingAuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FavoritesController;
@@ -125,6 +126,8 @@ Route::group(['prefix' => 'locations'], function () {
 });
 
 Route::post('/currency', [CurrencyController::class, 'store'])->name('currency.set');
+
+Route::post('/broadcasting/auth', BroadcastingAuthController::class)->name('broadcasting.auth');
 
 Route::post('/login', [\App\Http\Controllers\CompayAuthController::class, 'login'])->name('login.store');
 Route::post('/logout', [\App\Http\Controllers\CompayAuthController::class, 'logout'])->name('logout');

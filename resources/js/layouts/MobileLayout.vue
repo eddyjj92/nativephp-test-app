@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import ConnectionError from '@/components/ConnectionError.vue';
 import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
 import LoginModal from '@/components/LoginModal.vue';
@@ -8,6 +8,8 @@ import MobileBottomNav from '@/components/MobileBottomNav.vue';
 import MobileTopBar from '@/components/MobileTopBar.vue';
 import SearchModal from '@/components/SearchModal.vue';
 import { useConnectionError } from '@/composables/useConnectionError';
+import { echo, useConnectionStatus } from '@/composables/useEcho';
+import type { AppPageProps } from '@/types';
 
 type NavId = 'home' | 'catalog' | 'cart' | 'saved' | 'profile';
 
@@ -39,6 +41,32 @@ const topBarHeight = computed(() =>
 );
 
 const { isOffline, errorMessage, retry } = useConnectionError();
+
+// WebSocket: join presence channel when authenticated
+const authUser = computed(() => (page.props as AppPageProps).auth?.user);
+const wsStatus = useConnectionStatus();
+let presenceJoined = false;
+
+watch(
+    authUser,
+    (user) => {
+        if (user && !presenceJoined) {
+            echo().join('online.users');
+            presenceJoined = true;
+        } else if (!user && presenceJoined) {
+            echo().leave('online.users');
+            presenceJoined = false;
+        }
+    },
+    { immediate: true },
+);
+
+onUnmounted(() => {
+    if (presenceJoined) {
+        echo().leave('online.users');
+        presenceJoined = false;
+    }
+});
 
 const connectionException = computed(
     () => page.props.connection_exception as boolean,
