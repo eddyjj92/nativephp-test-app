@@ -130,6 +130,9 @@ Route::post('/broadcasting/auth', BroadcastingAuthController::class)->name('broa
 
 Route::post('/login', [\App\Http\Controllers\CompayAuthController::class, 'login'])->name('login.store');
 Route::post('/logout', [\App\Http\Controllers\CompayAuthController::class, 'logout'])->name('logout');
+Route::post('/auth/google/start', [\App\Http\Controllers\CompayAuthController::class, 'startGoogleAuth'])->name('auth.google.start');
+Route::post('/auth/google/consume', [\App\Http\Controllers\CompayAuthController::class, 'consumeGoogleAuth'])->name('auth.google.consume');
+Route::get('/auth/google/callback', [\App\Http\Controllers\CompayAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 Route::post('/profile/update', [\App\Http\Controllers\CompayAuthController::class, 'updateProfile'])->name('profile.update.api');
 Route::post('/orders/checkout', [OrderController::class, 'store'])->name('orders.checkout');
 

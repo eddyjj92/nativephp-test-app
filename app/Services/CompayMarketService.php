@@ -587,6 +587,47 @@ class CompayMarketService
     }
 
     /**
+     * Inicia el flujo OAuth de Google para móvil (Endpoint Público).
+     *
+     * @return array{state: string, auth_url: string, expires_in: int}
+     */
+    public function startGoogleMobileAuth(string $panelType, ?string $returnUrl = null): array
+    {
+        $payload = ['panel_type' => $panelType];
+
+        if ($returnUrl) {
+            $payload['return_url'] = $returnUrl;
+        }
+
+        return $this->http()->post('/auth/google/mobile/start', $payload)->json();
+    }
+
+    /**
+     * Consulta el estado del flujo OAuth de Google para móvil (Endpoint Público).
+     *
+     * @return array{status: string, message: string|null}
+     */
+    public function googleMobileAuthStatus(string $state): array
+    {
+        return $this->http()->get('/auth/google/mobile/status', [
+            'state' => $state,
+        ])->json();
+    }
+
+    /**
+     * Consume el token OAuth de Google para móvil (Endpoint Público).
+     * Retorna el token y usuario una sola vez, luego elimina el estado del cache.
+     *
+     * @return array{token: string, user: array}
+     */
+    public function consumeGoogleMobileAuth(string $state): array
+    {
+        return $this->http()->post('/auth/google/mobile/consume', [
+            'state' => $state,
+        ])->json();
+    }
+
+    /**
      * Limpia el caché de un endpoint específico.
      *
      * @param  string  $endpoint  El endpoint de la API.

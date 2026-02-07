@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\UserDTO;
 use App\Services\CompayMarketService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CompayAuthController extends Controller
@@ -259,5 +261,95 @@ class CompayAuthController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Error al eliminar el beneficiario.']);
         }
+    }
+
+    public function startGoogleAuth(CompayMarketService $service): JsonResponse
+    {
+        try {
+            $scheme = config('nativephp.deeplink_scheme');
+            $returnUrl = $scheme ? $scheme.'://auth/google/callback' : null;
+
+            $response = $service->startGoogleMobileAuth('customer', $returnUrl);
+
+            return response()->json([
+                'state' => $response['state'],
+                'auth_url' => $response['auth_url'],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'No se pudo iniciar la autenticación con Google.',
+            ], 500);
+        }
+    }
+
+    public function consumeGoogleAuth(Request $request, CompayMarketService $service): JsonResponse
+    {
+        $validated = $request->validate([
+            'state' => 'required|string',
+        ]);
+
+        try {
+            $response = $service->consumeGoogleMobileAuth($validated['state']);
+
+            if (! isset($response['token'], $response['user'])) {
+                return response()->json([
+                    'error' => $response['error'] ?? 'La autenticación aún no está lista.',
+                    'status' => $response['status'] ?? 'error',
+                ], 422);
+            }
+
+            $user = UserDTO::fromArray($response['user']);
+
+            if (! $user->isCustomer()) {
+                return response()->json([
+                    'error' => 'Esta cuenta no tiene acceso a la aplicación. Solo los clientes pueden iniciar sesión.',
+                ], 403);
+            }
+
+            $request->session()->put('compay_token', $response['token']);
+            $request->session()->put('compay_user', $user);
+
+            return response()->json([
+                'success' => true,
+                'user' => $response['user'],
+            ]);
+        } catch (\Exception $e) {
+            $statusCode = 500;
+            if (method_exists($e, 'getCode') && in_array($e->getCode(), [404, 422])) {
+                $statusCode = $e->getCode();
+            }
+
+            return response()->json([
+                'error' => 'Error al completar la autenticación con Google.',
+            ], $statusCode);
+        }
+    }
+
+    public function handleGoogleCallback(Request $request, CompayMarketService $service)
+    {
+        $state = $request->query('state');
+
+        if (! $state) {
+            return redirect()->route('home');
+        }
+
+        try {
+            $response = $service->consumeGoogleMobileAuth($state);
+
+            if (isset($response['token'], $response['user'])) {
+                $user = UserDTO::fromArray($response['user']);
+
+                if ($user->isCustomer()) {
+                    $request->session()->put('compay_token', $response['token']);
+                    $request->session()->put('compay_user', $user);
+
+                    return redirect()->route('profile');
+                }
+            }
+        } catch (\Exception $e) {
+            // Fall through to redirect home
+        }
+
+        return redirect()->route('home');
     }
 }

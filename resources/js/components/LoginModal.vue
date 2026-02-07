@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { useForm, router } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
+import { browser } from '#nativephp';
+import axios from 'axios';
 
 const props = withDefaults(
     defineProps<{
@@ -15,6 +17,8 @@ const emit = defineEmits(['close']);
 
 const showPassword = ref(false);
 const rememberCredentials = ref(false);
+const isGoogleLoading = ref(false);
+const googleError = ref<string | null>(null);
 
 const form = useForm({
     email: '',
@@ -58,6 +62,22 @@ const submit = () => {
         },
     });
 };
+
+const handleOauthGoogleLogin = async () => {
+    isGoogleLoading.value = true;
+    googleError.value = null;
+
+    try {
+        const { data: startData } = await axios.post('/auth/google/start');
+
+        await browser.inApp(startData.auth_url);
+    } catch (e: any) {
+        googleError.value =
+            e.response?.data?.error ?? 'Error al autenticarse con Google.';
+    } finally {
+        isGoogleLoading.value = false;
+    }
+};
 </script>
 
 <template>
@@ -96,12 +116,13 @@ const submit = () => {
             </div>
 
             <form @submit.prevent="submit" class="flex flex-col gap-4 p-6">
-                <!-- Google Login (visual only) -->
                 <button
                     type="button"
-                    class="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                    @click="handleOauthGoogleLogin"
+                    :disabled="isGoogleLoading"
+                    class="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
-                    <svg class="size-5" viewBox="0 0 24 24" aria-hidden="true">
+                    <svg v-if="!isGoogleLoading" class="size-5" viewBox="0 0 24 24" aria-hidden="true">
                         <path
                             fill="#EA4335"
                             d="M12 10.2v3.9h5.5c-.2 1.3-.8 2.4-1.8 3.1l2.9 2.2c1.7-1.5 2.6-3.8 2.6-6.5 0-.6-.1-1.2-.2-1.8H12z"
@@ -119,8 +140,12 @@ const submit = () => {
                             d="M12 6.4c1.3 0 2.5.5 3.4 1.3l2.5-2.5C16.5 3.9 14.4 3 12 3A9 9 0 003.8 8.1l3 2.3c.7-2.3 2.8-4 5.2-4z"
                         />
                     </svg>
-                    Iniciar Sesión con Google
+                    <span v-if="isGoogleLoading">Autenticando...</span>
+                    <span v-else>Iniciar Sesión con Google</span>
                 </button>
+                <div v-if="googleError" class="text-center text-xs text-red-500">
+                    {{ googleError }}
+                </div>
 
                 <div class="my-1.5 flex items-center gap-3">
                     <div
