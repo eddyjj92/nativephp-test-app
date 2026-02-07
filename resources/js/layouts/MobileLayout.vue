@@ -73,6 +73,10 @@ const presenceConnected = computed(
         wsStatus.value === 'connected',
 );
 
+const unreadMessagesCount = computed(
+    () => (page.props.unreadMessagesCount as number) ?? 0,
+);
+
 const connectionException = computed(
     () => page.props.connection_exception as boolean,
 );
@@ -121,9 +125,22 @@ const showConnectionError = computed(
                 />
             </svg>
             <span
+                v-if="unreadMessagesCount > 0"
+                class="absolute top-1 right-1.5 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm"
+            >
+                {{ unreadMessagesCount > 99 ? '99+' : unreadMessagesCount }}
+            </span>
+            <span
                 v-if="presenceConnected"
-                class="absolute top-0 right-0 size-3.5 rounded-full border-2 border-white bg-green-500"
-            />
+                class="absolute right-0 bottom-0 flex size-3.5 items-center justify-center"
+            >
+                <span
+                    class="absolute inline-flex size-full animate-ping rounded-full bg-green-400 opacity-75"
+                ></span>
+                <span
+                    class="relative inline-flex size-3 rounded-full border-2 border-white bg-green-500"
+                ></span>
+            </span>
         </Link>
         <button
             v-else-if="props.showChatButton"

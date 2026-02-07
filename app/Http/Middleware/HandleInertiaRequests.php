@@ -145,6 +145,23 @@ class HandleInertiaRequests extends Middleware
                 ];
             }),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'unreadMessagesCount' => Inertia::defer(function () use ($request) {
+                $token = $request->session()->get('compay_token');
+
+                if (! $token) {
+                    return 0;
+                }
+
+                try {
+                    $response = $this->compayMarketService
+                        ->setToken($token)
+                        ->getChatConversations();
+
+                    return collect($response['conversations']['data'] ?? [])->sum('unread_count');
+                } catch (\Throwable) {
+                    return 0;
+                }
+            }),
         ];
     }
 }

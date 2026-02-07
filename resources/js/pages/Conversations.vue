@@ -2,6 +2,7 @@
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import MobileLayout from '@/layouts/MobileLayout.vue';
+import { useOnlineUsers } from '@/composables/useEcho';
 
 type ConversationUser = {
     id: number;
@@ -31,6 +32,7 @@ type ViewConversation = {
     lastMessage: string;
     time: string;
     unreadCount: number;
+    otherUserId: number;
 };
 
 const props = withDefaults(
@@ -47,6 +49,8 @@ const props = withDefaults(
 );
 
 const page = usePage();
+
+const onlineUsers = useOnlineUsers();
 
 const authUserId = computed<number | null>(() => {
     const userId = (page.props.auth as { user?: { id?: number } } | undefined)
@@ -132,6 +136,7 @@ const conversations = computed<ViewConversation[]>(() => {
             lastMessage: conversation.last_message?.content ?? 'Sin mensajes',
             time: formatTime(conversation.last_message_at),
             unreadCount: conversation.unread_count ?? 0,
+            otherUserId: displayUser?.id ?? 0,
         };
     });
 });
@@ -237,6 +242,17 @@ const conversations = computed<ViewConversation[]>(() => {
                                     chat.initials
                                 }}</span>
                             </div>
+                            <span
+                                v-if="onlineUsers.has(chat.otherUserId)"
+                                class="absolute right-0 bottom-0 flex size-3 items-center justify-center"
+                            >
+                                <span
+                                    class="absolute inline-flex size-full animate-ping rounded-full bg-green-400 opacity-75"
+                                ></span>
+                                <span
+                                    class="relative inline-flex size-2.5 rounded-full border-2 border-white bg-green-500 dark:border-slate-800"
+                                ></span>
+                            </span>
                         </div>
 
                         <!-- Info -->
@@ -268,7 +284,7 @@ const conversations = computed<ViewConversation[]>(() => {
                                 </p>
                                 <div
                                     v-if="chat.unreadCount > 0"
-                                    class="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
+                                    class="flex size-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white"
                                 >
                                     {{ chat.unreadCount }}
                                 </div>
