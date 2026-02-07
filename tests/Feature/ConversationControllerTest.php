@@ -349,6 +349,37 @@ class ConversationControllerTest extends TestCase
         $response->assertJsonValidationErrors(['receiver_id', 'message']);
     }
 
+    public function test_mark_as_read_sends_patch_to_api(): void
+    {
+        Http::fake([
+            '*/chat/conversations/14/read' => Http::response([
+                'success' => true,
+                'messages_marked' => 3,
+            ], 200),
+        ]);
+
+        $response = $this->withSession([
+            'compay_token' => 'token-test',
+        ])->patchJson('/conversations/14/read');
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+            'messages_marked' => 3,
+        ]);
+
+        Http::assertSent(fn ($request) => $request->method() === 'PATCH'
+            && str_contains($request->url(), '/chat/conversations/14/read'));
+    }
+
+    public function test_mark_as_read_returns_401_when_no_token(): void
+    {
+        $response = $this->patchJson('/conversations/14/read');
+
+        $response->assertStatus(401);
+        $response->assertJson(['error' => 'No autenticado.']);
+    }
+
     /**
      * @return array<string, mixed>
      */

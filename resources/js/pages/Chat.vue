@@ -293,6 +293,12 @@ onMounted(() => {
     nextTick(() => {
         setupScrollObserver();
     });
+
+    if (props.conversation?.id) {
+        axios
+            .patch(`/conversations/${props.conversation.id}/read`)
+            .catch(() => {});
+    }
 });
 
 onUnmounted(() => {

@@ -59,6 +59,7 @@ Route::get('/conversations', [ConversationController::class, 'index'])->name('co
 Route::get('/conversations/{id}', [ConversationController::class, 'show'])->name('chat.show');
 Route::get('/conversations/{id}/messages', [ConversationController::class, 'messages'])->name('chat.messages');
 Route::post('/conversations/{id}/messages', [ConversationController::class, 'sendMessage'])->name('chat.sendMessage');
+Route::patch('/conversations/{id}/read', [ConversationController::class, 'markAsRead'])->name('chat.markAsRead');
 
 Route::get('/product/{id}', [ProductsController::class, 'show'])->name('products.show');
 Route::post('/product/{id}/refresh', [ProductsController::class, 'refresh'])->name('products.refresh');

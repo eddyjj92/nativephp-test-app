@@ -122,6 +122,25 @@ class ConversationController extends Controller
         }
     }
 
+    public function markAsRead(Request $request, string $id): JsonResponse
+    {
+        $token = $request->session()->get('compay_token');
+
+        if (! $token) {
+            return response()->json(['error' => 'No autenticado.'], 401);
+        }
+
+        try {
+            $response = $this->service
+                ->setToken($token)
+                ->markConversationAsRead($id);
+
+            return response()->json($response);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Error al marcar como leído.'], 500);
+        }
+    }
+
     /**
      * @param  array<string, mixed>  $props
      */
