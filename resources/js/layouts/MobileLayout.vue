@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import ConnectionError from '@/components/ConnectionError.vue';
 import LocationSelectionModal from '@/components/LocationSelectionModal.vue';
 import LoginModal from '@/components/LoginModal.vue';
@@ -63,7 +63,7 @@ watch(
     authUser,
     (user) => {
         if (user) {
-            joinPresence();
+            setTimeout(() => joinPresence(), 2500);
         } else {
             leavePresence();
         }
@@ -73,9 +73,7 @@ watch(
 
 const presenceConnected = computed(
     () =>
-        authUser.value &&
-        isPresenceJoined() &&
-        wsStatus.value === 'connected',
+        authUser.value && isPresenceJoined() && wsStatus.value === 'connected',
 );
 
 // Chat channel: separate from presence, delayed to avoid interference
@@ -126,14 +124,14 @@ function handleIncomingMessage(payload: ChatMessagePayload): void {
 
 onChatMessage(handleIncomingMessage);
 
+
 onUnmounted(() => {
     offChatMessage(handleIncomingMessage);
 });
 
 const unreadMessagesCount = computed(
     () =>
-        ((page.props.unreadMessagesCount as number) ?? 0) +
-        wsUnreadExtra.value,
+        ((page.props.unreadMessagesCount as number) ?? 0) + wsUnreadExtra.value,
 );
 
 const connectionException = computed(
@@ -233,10 +231,7 @@ const showConnectionError = computed(
             @close="manualLocationModal = false"
         />
 
-        <LoginModal
-            v-if="loginModalOpen"
-            @close="loginModalOpen = false"
-        />
+        <LoginModal v-if="loginModalOpen" @close="loginModalOpen = false" />
 
         <LoginModal
             v-if="chatLoginModalOpen"
@@ -244,10 +239,7 @@ const showConnectionError = computed(
             @close="chatLoginModalOpen = false"
         />
 
-        <SearchModal
-            v-if="searchModalOpen"
-            @close="searchModalOpen = false"
-        />
+        <SearchModal v-if="searchModalOpen" @close="searchModalOpen = false" />
 
         <!-- Connection Error Overlay -->
         <ConnectionError
